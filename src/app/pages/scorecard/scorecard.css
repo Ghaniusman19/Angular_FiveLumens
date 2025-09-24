@@ -1,0 +1,12 @@
+.table-search-main {
+  display: flex;
+  align-items: center;
+}
+.jmXKev {
+  border: 1px solid rgb(226, 224, 224);
+  border-radius: 5px;
+}
+.btn-group,
+.table-search-cont {
+  margin-right: 5px;
+}

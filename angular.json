@@ -21,10 +21,9 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["node_modules/bootstrap/dist/css/bootstrap.min.css", "src/styles.css"]
           },
+          "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"],
           "configurations": {
             "production": {
               "budgets": [
@@ -74,12 +73,13 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "78cc0fa1-e52d-4f3c-b139-321bdfa80aa1"
   }
 }
