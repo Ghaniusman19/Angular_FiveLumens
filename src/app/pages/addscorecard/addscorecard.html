@@ -1,0 +1,456 @@
+<!-- <p>Add scorecard works!</p>
+<p>{{ AddScoreCardID }}</p> -->
+<div class="overall">
+  <!-- <h2>{{ APIDATA()?.scoringModel }}</h2> -->
+  <div class="main-container container">
+    <div class="header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="left_sc_in">
+          <h3 class="mb-2">{{ APIDATA()?.title }}</h3>
+          @if (APIDATA()?.evaluationType == 'ai') { AI evaluationType } @else { Manual
+          evaluationType }
+          <p>
+            Design your scorecard by adding or removing different meta data fields or scoring
+            criteria
+          </p>
+        </div>
+        <div class="table-search-right-cont">
+          <div class="btn_newui">
+            <button class="btn save-only-btn br-5 mr-3" id="submitButton">Setting</button>
+            <button class="btn save-only-btn br-5 mr-3" id="submitButton">Save Only</button>
+            <button class="btn btn-primary save-review-btn" id="submitButton" type="submit">
+              Save &amp; Publish
+            </button>
+          </div>
+        </div>
+      </div>
+      <hr />
+    </div>
+    @if (APIDATA()?.evaluationType == 'ai') {
+    <div class="metadatasection">
+      <div class="meta-data">
+        <div class="heading">
+          <h3>Meta Data "{{ APIDATA()?.evaluationType }}"</h3>
+        </div>
+        <div class="threedropdown">
+          <button class="threedropbtn" (click)="toggleMetaData()">⋮</button>
+        </div>
+        <!-- 
+        This is the Code of the meta data modal opened.. -->
+      </div>
+      @if (isOpenedMetaData()) {
+      <div class="menu">
+        <button class="btn-logout" (click)="OpenMetaDataModal()">Add Meta Data</button>
+      </div>
+      }
+      <ul class="meta-data-descriptions">
+        @for (item of submittedMetaData; track item.id; let i = $index) {
+        <li class="meta-item">
+          <div class="meta-left">
+            <span class="drag-handle">⋮⋮</span>
+            <span class="meta-text">{{ item.value }}</span>
+          </div>
+          <!-- 3 dot button -->
+          <div class="menu-container">
+            <button class="three-dots" (click)="toggleMenu(item.id)">⋮</button>
+            <!-- dropdown menu -->
+            @if (openMenuId() === item.id) {
+            <div class="dropdown-menu">
+              <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
+              <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
+            </div>
+            }
+          </div>
+        </li>
+        }
+      </ul>
+    </div>
+    } @else {
+    <div class="metadatasection">
+      <div class="meta-data">
+        <div class="heading">
+          <h3>Meta Data "{{ APIDATA()?.evaluationType }}"</h3>
+        </div>
+        <div class="threedropdown">
+          <button class="threedropbtn" (click)="toggleMetaData()">⋮</button>
+        </div>
+        <!-- 
+        This is the Code of the meta data modal opened.. -->
+      </div>
+      @if (isOpenedMetaData()) {
+      <div class="menu">
+        <button class="btn-logout" (click)="OpenSingleSelectModal()">Add Single Select</button
+        ><br />
+        <button class="btn-logout" (click)="OpenMultiSelectModal()">Add Multi Select</button><br />
+        <button class="btn-logout" (click)="OpenSmallTextModal()">Add Small Text</button><br />
+        <button class="btn-logout" (click)="OpenLargeTextModal()">Add Large Text</button><br />
+        <button class="btn-logout" (click)="OpenDateModal()">Add Date</button><br />
+      </div>
+      }
+      <ul class="meta-data-descriptions">
+        @for (item of submittedMetaData; track item.id; let i = $index) {
+        <li class="meta-item">
+          <div class="meta-left">
+            <span class="drag-handle">⋮⋮</span>
+            <span class="meta-text">{{ item.value }}</span>
+          </div>
+          <!-- 3 dot button -->
+          <div class="menu-container">
+            <button class="three-dots" (click)="toggleMenu(item.id)">⋮</button>
+            <!-- dropdown menu -->
+            @if (openMenuId() === item.id) {
+            <div class="dropdown-menu">
+              <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
+              <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
+            </div>
+            }
+          </div>
+        </li>
+        }
+      </ul>
+    </div>
+    }
+    <div class="metadatasection1">
+      <div class="meta-data1">
+        <div class="heading">
+          <h3>Scoring</h3>
+        </div>
+
+        <div class="threedropdown scoring-dropdown">
+          <button class="threedropbtn" (click)="ToggleScoring()">⋮</button>
+
+          @if (isToggleScoringOpen()) {
+          <div class="scoring-menu">
+            <button class="btn-action" (click)="OpenScoringModal()">Add Section</button>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    <ul class="meta-data-descriptions">
+      @for (section of scoringArray(); track section.id) {
+      <li class="meta-item">
+        <div class="meta-left">
+          <span class="drag-handle">⋮⋮</span>
+          <span class="meta-text">{{ section.value }}</span>
+        </div>
+        <div class="menu-container">
+          <button class="three-dots" (click)="toggleScoringMenu(section.id)">⋮</button>
+          @if (openScoringMenuId() === section.id) {
+          <div class="dropdown-menu">
+            <button (click)="editScoring(section.id)" class="dropdown-btn">Edit Section</button>
+            <button (click)="deleteScoring(section.id)" class="dropdown-btn delete">
+              Delete Section
+            </button>
+            <button (click)="openCriteriaModal(section.id)" class="dropdown-btn delete">
+              Add Scoring Criteria
+            </button>
+          </div>
+          }
+        </div>
+        <ul class="criteria-list">
+          @for (criteria of section.criteria; track criteria.id) {
+          <li class="meta-item nested">
+            <div class="meta-left">
+              <span class="drag-handle">⋮⋮</span>
+              <span class="meta-text">{{ criteria.description }}</span>
+              @if (criteria.autofill) {
+              <span class="autofill-tag">autofill</span>
+              }
+            </div>
+            <div class="menu-container">
+              <button class="three-dots" (click)="toggleCriteriaMenu(criteria.id)">⋮</button>
+
+              @if (openCriteriaMenuId() === criteria.id) {
+              <div class="dropdown-menu">
+                <button (click)="editCriteria(section.id, criteria.id)" class="dropdown-btn">
+                  Edit
+                </button>
+                <button
+                  (click)="deleteCriteria(section.id, criteria.id)"
+                  class="dropdown-btn delete"
+                >
+                  Delete
+                </button>
+              </div>
+              }
+            </div>
+          </li>
+          }
+        </ul>
+      </li>
+      }
+    </ul>
+
+    <div class="metadatasection1">
+      <div class="meta-data1">
+        <div class="heading">
+          <h3>Total Possible Points</h3>
+        </div>
+
+        <div class="quantity">0</div>
+      </div>
+    </div>
+  </div>
+
+  @if (isMetaDataModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Add Meta data</h3>
+        <button (click)="closeMetaDataModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeMetaDataModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- IsSingle select Modal -->
+  @if (isSingleSelectModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Single Select Modal</h3>
+        <button (click)="closeSingleSelectModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeSingleSelectModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- IsMulti Select Modal -->
+  @if (isMultiSelectModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Multi Select Modal</h3>
+        <button (click)="closeMultiSelectModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeMultiSelectModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- Small text Modal -->
+  @if (isSmallTextModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Small Text Modal</h3>
+        <button (click)="closeSmallTextModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeSmallTextModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- Add Large Text Modal-->
+  @if (isLargeTextModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Large Text Modal</h3>
+        <button (click)="closeLargeTextModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeLargeTextModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- Add Date Modal -->
+  @if (isDateModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title text-left">Date Modal</h3>
+        <button (click)="closeDateModal()" type="button" class="close btn-logout">
+          <span>×</span>
+        </button>
+      </div>
+      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+        <div class="modal-body">
+          <div class="mb-1">
+            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+            ><textarea
+              name="title"
+              type="textarea"
+              rows="4"
+              formControlName="description"
+              class="form-control"
+              placeholder="Enter meta data description here..."
+              style="border-radius: 8px"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeDateModal()">Cancel</button
+          ><button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+  <!-- ================= Scoring Modal ================= -->
+  @if (isScoringModalOpened()) {
+  <div class="metaDataModal">
+    <div class="modal-content">
+      <div class="modal-header hc0">
+        <h3 class="modal-title">Add Section</h3>
+        <button (click)="closeScoringModal()" class="close btn-logout">×</button>
+      </div>
+
+      <form [formGroup]="scoringForm" (ngSubmit)="SubmitScoring()">
+        <div class="modal-body">
+          <label>Description</label>
+          <textarea
+            formControlName="description"
+            rows="4"
+            class="form-control"
+            placeholder="Enter section description..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" (click)="closeScoringModal()">Cancel</button>
+          <button class="btn btn-logout" type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>
+<!-- Modal for criteria -->
+@if (isCriteriaModalOpened()) {
+<div class="metaDataModal">
+  <div class="modal-content">
+    <div class="modal-header hc0">
+      <h3 class="modal-title text-left">Add Scoring Criteria</h3>
+      <button (click)="closeCriteriaModal()" type="button" class="close btn-logout">
+        <span>×</span>
+      </button>
+    </div>
+    <form [formGroup]="criteriaForm" (ngSubmit)="submitCriteria()">
+      <div class="modal-body">
+        <div class="mb-1">
+          <label class="form-label mb-1">Description</label>
+          <textarea
+            formControlName="description"
+            rows="3"
+            class="form-control"
+            placeholder="Enter criteria description..."
+          ></textarea>
+        </div>
+        <div class="mb-1">
+          <label>
+            <input type="checkbox" formControlName="autofill" />
+            Autofill
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" (click)="closeCriteriaModal()">Cancel</button>
+        <button class="btn btn-logout" type="submit">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+}

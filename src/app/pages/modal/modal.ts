@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { MatDialogActions, MatDialogContent } from '@angular/material/dialog';
+import { Component } from '@angular/core';
+import { MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import {
   ɵInternalFormsSharedModule,
   ReactiveFormsModule,
@@ -14,7 +14,7 @@ import {
   styleUrl: './modal.css',
 })
 export class Modal {
-  constructor() {}
+  constructor(public dialogref: MatDialogRef<Modal>) {}
   scorecardForm = new FormGroup({
     title: new FormControl(''),
     description: new FormControl(''),
@@ -26,5 +26,12 @@ export class Modal {
   });
   ScorecardSubmit() {
     console.log(this.scorecardForm.value);
+    this.scorecardForm.reset();
+  }
+  closeDialog(): void {
+    this.dialogref.close('someResult');
+  }
+  onClose() {
+    console.log('closed button clicked ');
   }
 }

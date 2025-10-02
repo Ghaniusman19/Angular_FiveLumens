@@ -14,7 +14,6 @@ export class ScorecardData {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${authToken}`, // Add your authorization key here
     });
-
     return this.http.post(this.apiUrl, data, { headers });
   }
 }

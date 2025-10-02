@@ -7,15 +7,18 @@
         <p>Manage your scorecards and its details here</p>
       </div>
       <div class="col-md-5 table-search-main">
-        <div class="table-search-cont">
-          <input
-            type="text"
-            placeholder="Search"
-            class="form-control searchbar"
-            value=""
-            style="border-radius: 8px"
-          />
-        </div>
+        <form [formGroup]="search" (ngSubmit)="onSubmit()">
+          <div class="table-search-cont">
+            <input
+              type="text"
+              placeholder="Search"
+              class="form-control searchbar"
+              formControlName="search"
+              style="border-radius: 8px"
+            />
+          </div>
+          <button type="submit">sub</button>
+        </form>
         <div class="table-search-right-cont text-right">
           <div class="btn-group droptop dt1-drop">
             <a class="btn btn-primary" type="button">
@@ -33,10 +36,4 @@
 
 <div>
   <h2>API Data:</h2>
-  api data
-  <!-- <ul>
-    @for (item of scData; track $index) {
-    <li>{{ scData }} || {{ scData }}</li>
-    }
-  </ul> -->
 </div>

@@ -4,9 +4,15 @@
 
   <nav class="layout-nav">
     <a routerLink="/scorecard" routerLinkActive="active">Score Card</a>
-    <a routerLink="/about" routerLinkActive="active">About</a>
-    <a routerLink="/contact" routerLinkActive="active">Contact</a>
+    <a routerLink="/scorecardnew" routerLinkActive="active">ScoreCard New</a>
+    <a routerLink="/view" routerLinkActive="active">view</a>
   </nav>
-
+  <h1>{{ totalCost }}</h1>
+  <p>{{ authkey }}</p>
   <button class="btn-logout" (click)="OnLogOut()">Log Out</button>
+  <button (click)="toggleModal()" class="btn-logout">
+    {{ isVisible() ? 'Close Modal' : 'Open Modal' }}
+  </button>
+
+  @if (isVisible()) { this is the modal i have }
 </div>

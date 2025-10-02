@@ -7,3 +7,15 @@
   margin: 0 auto;
   min-height: 20px;
 }
+
+.btn-logout {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}

@@ -274,7 +274,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <!-- <button matButton mat-dialog-close>Cancel</button> -->
+  <button matButton mat-dialog-close="'someResult'" (click)="onClose()">Cancel</button>
 
   <!-- <button matButton [mat-dialog-close]="true" cdkFocusInitial>Install</button> -->
 </mat-dialog-actions>

@@ -1,0 +1,268 @@
+.overall {
+  width: 100%;
+  height: 100vh;
+  background-color: #f0eeee;
+  padding-top: 20px;
+}
+
+.main-container {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.save-review-btn {
+  border-radius: 10px;
+}
+.save-only-btn {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-right: 10px;
+}
+
+.meta-data {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(200, 231, 233);
+  position: relative;
+}
+.meta-data1 {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(200, 231, 233);
+  position: relative;
+}
+.threedropbtn {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+}
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10003;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.menu button {
+  width: 100%;
+  margin-bottom: 5px;
+}
+.menu1 {
+  position: absolute;
+  top: 55%;
+  right: 0;
+  z-index: 10003;
+}
+.metadatasection {
+  position: relative;
+}
+.metaDataModal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10004;
+  background-color: white;
+  width: 600px;
+  max-width: 100%;
+  padding: 20px;
+  border-radius: 20px;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.meta-data-descriptions {
+  list-style: none;
+}
+.meta-data-descriptions li {
+  margin-right: auto;
+}
+
+.meta-data-descriptions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.meta-item:hover {
+  background: #f1f1f1;
+}
+
+.meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag-handle {
+  cursor: grab;
+  font-size: 18px;
+  color: #888;
+}
+
+.meta-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.menu-container {
+  position: relative;
+}
+
+.three-dots {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.three-dots:hover {
+  background: #eee;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.dropdown-btn {
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.dropdown-btn:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-btn.delete {
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metadatasection1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.meta-data1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.heading h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.scoring-dropdown {
+  position: relative; /* very important for positioning menu */
+}
+
+.threedropbtn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.threedropbtn:hover {
+  background: #f2f2f2;
+}
+
+.scoring-menu {
+  position: absolute;
+  top: 100%; /* dropdown always opens below button */
+  right: 0; /* align to right side */
+  margin-top: 6px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  min-width: 150px;
+  z-index: 1000;
+  padding: 6px 0;
+}
+
+.btn-action {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-action:hover {
+  background: #f7f7f7;
+}
