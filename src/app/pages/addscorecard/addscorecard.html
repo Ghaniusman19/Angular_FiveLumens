@@ -43,12 +43,12 @@
         <button class="btn-logout" (click)="OpenMetaDataModal()">Add Meta Data</button>
       </div>
       }
-      <ul class="meta-data-descriptions">
+      <ul class="meta-data-descriptions" cdkDropList (cdkDropListDropped)="drop($event)">
         @for (item of submittedMetaData; track item.id; let i = $index) {
-        <li class="meta-item">
+        <li class="meta-item" cdkDrag>
           <div class="meta-left">
-            <span class="drag-handle">⋮⋮</span>
-            <span class="meta-text">{{ item.value }}</span>
+            <span class="drag-handle" cdkDragHandle>⋮⋮</span>
+            <span class="meta-text">{{ item.title }}</span>
           </div>
           <!-- 3 dot button -->
           <div class="menu-container">
@@ -81,18 +81,19 @@
       <div class="menu">
         <button class="btn-logout" (click)="OpenSingleSelectModal()">Add Single Select</button
         ><br />
-        <button class="btn-logout" (click)="OpenMultiSelectModal()">Add Multi Select</button><br />
+        <button class="btn-logout" (click)="OpenMultiSelectModal()">Add Multi . Select</button
+        ><br />
         <button class="btn-logout" (click)="OpenSmallTextModal()">Add Small Text</button><br />
         <button class="btn-logout" (click)="OpenLargeTextModal()">Add Large Text</button><br />
         <button class="btn-logout" (click)="OpenDateModal()">Add Date</button><br />
       </div>
       }
-      <ul class="meta-data-descriptions">
+      <ul class="meta-data-descriptions" cdkDropList (cdkDropListDropped)="drop($event)">
         @for (item of submittedMetaData; track item.id; let i = $index) {
-        <li class="meta-item">
+        <li class="meta-item" cdkDrag>
           <div class="meta-left">
-            <span class="drag-handle">⋮⋮</span>
-            <span class="meta-text">{{ item.value }}</span>
+            <span class="drag-handle" cdkDragHandle>⋮⋮</span>
+            <span class="meta-text">{{ item.title }}</span>
           </div>
           <!-- 3 dot button -->
           <div class="menu-container">
@@ -127,57 +128,72 @@
         </div>
       </div>
     </div>
-    <ul class="meta-data-descriptions">
+    <ul class="meta-data-descriptions" cdkDropList (cdkDropListDropped)="dropSection($event)">
       @for (section of scoringArray(); track section.id) {
-      <li class="meta-item">
+      <li class="meta-item" cdkDrag>
         <div class="meta-left">
-          <span class="drag-handle">⋮⋮</span>
+          <span class="drag-handle" cdkDragHandle>⋮⋮</span>
           <span class="meta-text">{{ section.value }}</span>
         </div>
         <div class="menu-container">
           <button class="three-dots" (click)="toggleScoringMenu(section.id)">⋮</button>
           @if (openScoringMenuId() === section.id) {
           <div class="dropdown-menu">
-            <button (click)="editScoring(section.id)" class="dropdown-btn">Edit Section</button>
-            <button (click)="deleteScoring(section.id)" class="dropdown-btn delete">
+            <button (click)="editScoring(section.id); closeScoringMenu()" class="dropdown-btn">
+              Edit Section
+            </button>
+            <button
+              (click)="deleteScoring(section.id); closeScoringMenu()"
+              class="dropdown-btn delete"
+            >
               Delete Section
             </button>
-            <button (click)="openCriteriaModal(section.id)" class="dropdown-btn delete">
+            <button
+              (click)="openCriteriaModal(section.id); closeScoringMenu()"
+              class="dropdown-btn delete"
+            >
               Add Scoring Criteria
             </button>
           </div>
           }
-        </div>
-        <ul class="criteria-list">
-          @for (criteria of section.criteria; track criteria.id) {
-          <li class="meta-item nested">
-            <div class="meta-left">
-              <span class="drag-handle">⋮⋮</span>
-              <span class="meta-text">{{ criteria.description }}</span>
-              @if (criteria.autofill) {
-              <span class="autofill-tag">autofill</span>
-              }
-            </div>
-            <div class="menu-container">
-              <button class="three-dots" (click)="toggleCriteriaMenu(criteria.id)">⋮</button>
-
-              @if (openCriteriaMenuId() === criteria.id) {
-              <div class="dropdown-menu">
-                <button (click)="editCriteria(section.id, criteria.id)" class="dropdown-btn">
-                  Edit
-                </button>
-                <button
-                  (click)="deleteCriteria(section.id, criteria.id)"
-                  class="dropdown-btn delete"
-                >
-                  Delete
-                </button>
+          <ul
+            class="criteria-list"
+            cdkDropList
+            (cdkDropListDropped)="dropCriteria($event, section)"
+          >
+            @for (criteria of section.criteria; track criteria.id) {
+            <li class="meta-item nested" cdkDrag>
+              <div class="meta-left">
+                <span class="drag-handle" cdkDragHandle>⋮⋮</span>
+                <span class="meta-text">{{ criteria.description }}</span>
+                @if (criteria.autofill) {
+                <span class="autofill-tag">autofill</span>
+                }
               </div>
-              }
-            </div>
-          </li>
-          }
-        </ul>
+              <div class="menu-container">
+                <button class="three-dots" (click)="toggleCriteriaMenu(criteria.id)">⋮</button>
+
+                @if (openCriteriaMenuId() === criteria.id) {
+                <div class="dropdown-menu">
+                  <button
+                    (click)="editCriteria(section.id, criteria.id); closeCriteriaMenu()"
+                    class="dropdown-btn"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    (click)="deleteCriteria(section.id, criteria.id); closeCriteriaMenu()"
+                    class="dropdown-btn delete"
+                  >
+                    Delete
+                  </button>
+                </div>
+                }
+              </div>
+            </li>
+            }
+          </ul>
+        </div>
       </li>
       }
     </ul>
@@ -191,6 +207,29 @@
         <div class="quantity">0</div>
       </div>
     </div>
+
+    <ul class="meta-data-descriptions" cdkDropList (cdkDropListDropped)="drop($event)">
+      @for (item of submittedMetaData; track item.id; let i = $index) {
+      <li class="meta-item" cdkDrag>
+        <div class="meta-left">
+          <span class="drag-handle" cdkDragHandle>⋮⋮</span>
+          <span class="meta-text">{{ item.title }}</span>
+          <span class="meta-type">({{ item.type }}) ggggg </span>
+          <span *ngIf="item.isFormChecked" class="required-tag">(Required)</span>
+        </div>
+
+        <div class="menu-container">
+          <button class="three-dots" (click)="toggleMenu(item.id)">⋮</button>
+          @if (openMenuId() === item.id) {
+          <div class="dropdown-menu">
+            <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
+            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
+          </div>
+          }
+        </div>
+      </li>
+      }
+    </ul>
   </div>
 
   @if (isMetaDataModalOpened()) {
@@ -235,24 +274,91 @@
           <span>×</span>
         </button>
       </div>
-      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
-        <div class="modal-body">
-          <div class="mb-1">
-            <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
-            ><textarea
-              name="title"
-              type="textarea"
-              rows="4"
-              formControlName="description"
-              class="form-control"
-              placeholder="Enter meta data description here..."
-              style="border-radius: 8px"
-            ></textarea>
-          </div>
+      <form [formGroup]="SingleSelectModal" (ngSubmit)="SubmitSingleSelectData()">
+        <!-- Title -->
+        <div>
+          <label>Description</label>
+          <textarea formControlName="title"></textarea>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn" (click)="closeSingleSelectModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+
+        <!-- First Level Chips -->
+        <div>
+          <label>Single Select Options</label>
+          <mat-chip-grid #chipGrid1>
+            @for (ctrl of optionsArray.controls; track ctrl; let i = $index) {
+            <mat-chip-row (removed)="removeOptionChip(i)">
+              {{ ctrl.value }}
+              <button matChipRemove>&times;</button>
+            </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Enter option"
+            [matChipInputFor]="chipGrid1"
+            (matChipInputTokenEnd)="addOptionChip($event)"
+          />
+        </div>
+
+        <!-- Toggle for 2nd Level -->
+        <div>
+          <label>Add Second Level</label>
+          <input type="checkbox" formControlName="addSecondLevel" />
+        </div>
+
+        <!-- Second Level -->
+        @if (SingleSelectModal.get('addSecondLevel')?.value) {
+        <div>
+          @for (subCtrl of subOptionsArray.controls; track subCtrl; let i = $index) {
+          <h4>{{ subCtrl.get('title')?.value }}</h4>
+
+          <mat-chip-grid #chipGrid2>
+            @for (ctrl of getSecondLevelOptions(subCtrl).controls; track ctrl; let j = $index) {
+            <mat-chip-row (removed)="removeSecondLevelChip(i, j)">
+              {{ ctrl.value }}
+              <button matChipRemove>&times;</button>
+            </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Enter 2nd level option"
+            [matChipInputFor]="chipGrid2"
+            (matChipInputTokenEnd)="addSecondLevelChip($event, i)"
+          />
+
+          <!-- Toggle Third Level -->
+          <label>Add Third Level</label>
+          <input type="checkbox" formControlName="isThirdLevel" />
+
+          <!-- Third Level -->
+          @if (subCtrl.get('isThirdLevel')?.value === true) {
+          <div class="mt-2">
+            <label>Third Level Options (for {{ subCtrl.get('title')?.value }})</label>
+            <mat-form-field class="w-100">
+              <mat-chip-grid #chipGrid3>
+                @for (ctrl of getThirdLevel(subCtrl).controls; track ctrl; let k = $index) {
+                <mat-chip-row (removed)="removeThirdLevelChip(i, k)">
+                  {{ ctrl.get('title')?.value }}
+                  <button matChipRemove>&times;</button>
+                </mat-chip-row>
+                }
+              </mat-chip-grid>
+
+              <input
+                placeholder="Enter 3rd level option"
+                [matChipInputFor]="chipGrid3"
+                (matChipInputTokenEnd)="addThirdLevelChip($event, i)"
+              />
+            </mat-form-field>
+          </div>
+          } }
+        </div>
+        }
+
+        <!-- Submit -->
+        <div>
+          <button class="btn-logout">Close</button>
+
+          <button type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -268,7 +374,7 @@
           <span>×</span>
         </button>
       </div>
-      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+      <form [formGroup]="MultiSelectModal" (ngSubmit)="SubmitMultiSelectData()">
         <div class="modal-body">
           <div class="mb-1">
             <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
@@ -276,12 +382,45 @@
               name="title"
               type="textarea"
               rows="4"
-              formControlName="description"
+              formControlName="title"
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
           </div>
+          <div>
+            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <label for="date-field">This meta data entry field is required</label>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Multi Select Option</label>
+            <mat-form-field class="w-100">
+              <mat-chip-grid #chipGrid aria-label="Multi select chips">
+                <!-- ✅ Angular 20 block syntax -->
+                @for (option of multiselectOptions; track $index) {
+                <mat-chip-row [removable]="true" (removed)="removeChip(option)">
+                  {{ option }}
+                  <button matChipRemove>
+                    <mat-icon>&times;</mat-icon>
+                  </button>
+                </mat-chip-row>
+                }
+              </mat-chip-grid>
+
+              <input
+                placeholder="Enter multi select options here..."
+                [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                (matChipInputTokenEnd)="addChip($event)"
+              />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-checkbox formControlName="isFormChecked">
+              This meta data entry field is required
+            </mat-checkbox>
+          </div>
+          <!-- chips in angular... -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeMultiSelectModal()">Cancel</button
@@ -301,7 +440,7 @@
           <span>×</span>
         </button>
       </div>
-      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+      <form [formGroup]="SmallTextModal" (ngSubmit)="SubmitSmallTextData()">
         <div class="modal-body">
           <div class="mb-1">
             <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
@@ -309,11 +448,15 @@
               name="title"
               type="textarea"
               rows="4"
-              formControlName="description"
+              formControlName="title"
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+          </div>
+          <div>
+            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -334,7 +477,7 @@
           <span>×</span>
         </button>
       </div>
-      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+      <form [formGroup]="LargeScoreCard" (ngSubmit)="SubmitLargeTextData()">
         <div class="modal-body">
           <div class="mb-1">
             <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
@@ -342,11 +485,15 @@
               name="title"
               type="textarea"
               rows="4"
-              formControlName="description"
+              formControlName="title"
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+          </div>
+          <div>
+            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -367,7 +514,7 @@
           <span>×</span>
         </button>
       </div>
-      <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+      <form [formGroup]="DateScoreCard" (ngSubmit)="SubmitDateData()">
         <div class="modal-body">
           <div class="mb-1">
             <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
@@ -375,11 +522,15 @@
               name="title"
               type="textarea"
               rows="4"
-              formControlName="description"
+              formControlName="title"
               class="form-control"
-              placeholder="Enter meta data description here..."
+              placeholder="Enter Date Entry Description Here..."
               style="border-radius: 8px"
             ></textarea>
+          </div>
+          <div>
+            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
         <div class="modal-footer">

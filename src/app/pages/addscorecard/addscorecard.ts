@@ -4,34 +4,71 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MetaData } from '../../user';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  FormArray,
+  AbstractControl,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-addscorecard',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DragDropModule,
+    MatChipsModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+  ],
   templateUrl: './addscorecard.html',
   styleUrl: './addscorecard.css',
 })
 export class Addscorecard implements OnInit, OnDestroy {
   //variables used in the page
+  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  public submittedSmallTextData: any[] = [];
+  public submittedMetaData: {
+    id: number;
+    type: string; // to identify which modal it came from
+    title: string;
+    isFormChecked: boolean;
+  }[] = [];
+
+  public multiselectOptions: string[] = [];
+  public singleSelectOptions: string[] = [];
+  public secondLevelSelect: string[] = [];
   public AddScoreCardID: string | null = '';
   private routeSubscription: Subscription | undefined;
   public metaDataScoreCard: FormGroup;
-  public submittedMetaData: MetaData[] = [];
+  public DateScoreCard: FormGroup;
+  public LargeScoreCard: FormGroup;
+  public SmallTextModal: FormGroup;
+  public MultiSelectModal: FormGroup;
+  public SingleSelectModal: FormGroup;
+  // public submittedMetaData: MetaData[] = [];
   public openCriteriaMenuId = signal<number | null>(null);
   public APIDATA = signal<any>(null);
   public isOpenedMetaData = signal<boolean>(false);
   public isMetaDataModalOpened = signal<boolean>(false);
   public isSingleSelectModalOpened = signal<boolean>(false);
-
   public isMultiSelectModalOpened = signal<boolean>(false);
   public isSmallTextModalOpened = signal<boolean>(false);
   public isLargeTextModalOpened = signal<boolean>(false);
   public isDateModalOpened = signal<boolean>(false);
-
   public isToggleScoringOpen = signal<boolean>(false);
-  public openMenuId = signal<string | null>(null);
+  public openMenuId = signal<string | number | null>(null);
   public scoringForm: FormGroup;
   public scoringArray = signal<{ id: number; value: string; criteria: any[] }[]>([]);
   public isScoringModalOpened = signal<boolean>(false);
@@ -51,12 +88,233 @@ export class Addscorecard implements OnInit, OnDestroy {
       id: new FormControl(Math.random()),
       description: new FormControl(''),
     });
-
     this.scoringForm = new FormGroup({
       id: new FormControl(Date.now()),
       description: new FormControl(''),
     });
+    this.DateScoreCard = new FormGroup({
+      title: new FormControl(''),
+      isFormChecked: new FormControl(''),
+      newType: new FormControl('dummy'),
+      type: new FormControl('date'),
+    });
+
+    this.LargeScoreCard = new FormGroup({
+      title: new FormControl(''),
+      isFormChecked: new FormControl(''),
+      newType: new FormControl('dummy'),
+      type: new FormControl('largeText'),
+    });
+
+    this.SmallTextModal = new FormGroup({
+      title: new FormControl(''),
+      isFormChecked: new FormControl(''),
+      newType: new FormControl('dummy'),
+      type: new FormControl('smallText'),
+    });
+
+    this.MultiSelectModal = new FormGroup({
+      title: new FormControl(''),
+      multiselect: new FormControl([]),
+      isFormChecked: new FormControl(''),
+      newType: new FormControl('dummy'),
+      type: new FormControl('MultiSelect'),
+    });
+
+    this.SingleSelectModal = new FormGroup({
+      title: new FormControl(''),
+      options: new FormArray([]), // First Level Chips
+      addSecondLevel: new FormControl(false),
+      isThirdLevel: new FormControl(false),
+      subOptions: new FormArray([]), // Second Level Array
+      type: new FormControl('singleSelect'),
+    });
   }
+
+  get optionsArray() {
+    return this.SingleSelectModal.get('options') as FormArray;
+  }
+
+  get subOptionsArray() {
+    return this.SingleSelectModal.get('subOptions') as FormArray;
+  }
+  get subFields(): FormArray {
+    return this.SingleSelectModal.get('subFields') as FormArray;
+  }
+
+  addTopChip(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      const chips = this.SingleSelectModal.get('topLevelChips')?.value || [];
+      chips.push(value);
+      this.SingleSelectModal.get('topLevelChips')?.setValue(chips);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeTopChip(chip: string): void {
+    const chips = this.SingleSelectModal.get('topLevelChips')?.value || [];
+    const index = chips.indexOf(chip);
+    if (index >= 0) {
+      chips.splice(index, 1);
+      this.SingleSelectModal.get('topLevelChips')?.setValue(chips);
+    }
+  }
+
+  generateSubFields() {
+    this.subFields.clear(); // reset
+    const chips = this.SingleSelectModal.get('topLevelChips')?.value || [];
+
+    chips.forEach((chip: string) => {
+      this.subFields.push(
+        new FormGroup({
+          label: new FormControl(chip), // sub-field name = chip
+          nestedChips: new FormControl<string[]>([]), // nested chips inside
+        })
+      );
+    });
+  }
+
+  addNestedChip(event: MatChipInputEvent, index: number): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      const nestedChips = this.subFields.at(index).get('nestedChips')?.value || [];
+      nestedChips.push(value);
+      this.subFields.at(index).get('nestedChips')?.setValue(nestedChips);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeNestedChip(chip: string, index: number): void {
+    const nestedChips = this.subFields.at(index).get('nestedChips')?.value || [];
+    const chipIndex = nestedChips.indexOf(chip);
+    if (chipIndex >= 0) {
+      nestedChips.splice(chipIndex, 1);
+      this.subFields.at(index).get('nestedChips')?.setValue(nestedChips);
+    }
+  }
+  drop(event: CdkDragDrop<any[]>) {
+    moveItemInArray(this.submittedMetaData, event.previousIndex, event.currentIndex);
+    this.SaveDataToLocalStorage(); // order save karna
+  }
+
+  dropSection(event: CdkDragDrop<any[]>) {
+    const sections = this.scoringArray();
+    moveItemInArray(sections, event.previousIndex, event.currentIndex);
+    this.scoringArray.set(sections); // signal update
+    this.saveScoringToLocal();
+  }
+
+  dropCriteria(event: CdkDragDrop<any[]>, section: any) {
+    moveItemInArray(section.criteria, event.previousIndex, event.currentIndex);
+    this.scoringArray.set([...this.scoringArray()]); // trigger UI refresh
+    this.saveScoringToLocal();
+  }
+
+  addChip(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.multiselectOptions.push(value);
+      this.MultiSelectModal.get('multiselect')?.setValue(this.multiselectOptions);
+    }
+    event.chipInput!.clear();
+  }
+  removeChip(option: string): void {
+    const index = this.multiselectOptions.indexOf(option);
+    if (index >= 0) {
+      this.multiselectOptions.splice(index, 1);
+      this.MultiSelectModal.get('multiselect')?.setValue(this.multiselectOptions);
+    }
+  }
+  addSingleSelectCHip(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.singleSelectOptions.push(value);
+      this.SingleSelectModal.get('options')?.setValue(this.singleSelectOptions);
+    }
+    event.chipInput!.clear();
+  }
+  removeSingleSelectChip(option: string): void {
+    const index = this.singleSelectOptions.indexOf(option);
+    if (index >= 0) {
+      this.singleSelectOptions.splice(index, 1);
+      this.SingleSelectModal.get('options')?.setValue(this.singleSelectOptions);
+    }
+  }
+
+  removesecondlevel(option: string): void {
+    const index = this.secondLevelSelect.indexOf(option);
+    if (index >= 0) {
+      this.secondLevelSelect.splice(index, 1);
+      this.SingleSelectModal.get('secondlevelOption')?.setValue(this.singleSelectOptions);
+    }
+  }
+
+  addOptionChip(event: MatChipInputEvent) {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.optionsArray.push(new FormControl(value));
+      // second level ke liye empty placeholder banate hain
+      this.subOptionsArray.push(
+        new FormGroup({
+          title: new FormControl(value),
+          secondLevelOptions: new FormArray([]),
+          isThirdLevel: new FormControl(false),
+          thirdLevel: new FormArray([]),
+        })
+      );
+    }
+    event.chipInput!.clear();
+  }
+
+  removeOptionChip(index: number) {
+    this.optionsArray.removeAt(index);
+    this.subOptionsArray.removeAt(index);
+  }
+
+  addSecondLevelChip(event: MatChipInputEvent, parentIndex: number) {
+    const value = (event.value || '').trim();
+    if (value) {
+      const secondLevelArray = this.subOptionsArray
+        .at(parentIndex)
+        .get('secondLevelOptions') as FormArray;
+      secondLevelArray.push(new FormControl(value));
+    }
+    event.chipInput!.clear();
+  }
+
+  removeSecondLevelChip(parentIndex: number, chipIndex: number) {
+    const secondLevelArray = this.subOptionsArray
+      .at(parentIndex)
+      .get('secondLevelOptions') as FormArray;
+    secondLevelArray.removeAt(chipIndex);
+  }
+
+  addThirdLevelChip(event: MatChipInputEvent, i: number) {
+    const value = (event.value || '').trim();
+    if (value) {
+      const thirdLevel = this.getThirdLevel(this.subOptionsArray.at(i));
+      thirdLevel.push(
+        new FormGroup({
+          title: new FormControl(value),
+
+          options: new FormControl([]),
+        })
+      );
+    }
+    event.chipInput!.clear();
+  }
+
+  removeThirdLevelChip(i: number, k: number) {
+    this.getThirdLevel(this.subOptionsArray.at(i)).removeAt(k);
+  }
+  getSecondLevelOptions(subCtrl: AbstractControl): FormArray {
+    return subCtrl.get('secondLevelOptions') as FormArray;
+  }
+  getThirdLevel(subCtrl: AbstractControl): FormArray {
+    return subCtrl.get('thirdLevel') as FormArray;
+  }
+
   //ngOnIniT methods triggers first and then when any event happens and change ...
   ngOnInit(): void {
     this.routeSubscription = this.route.queryParams.subscribe((params) => {
@@ -122,7 +380,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   public closeDateModal(): void {
     this.isDateModalOpened.update((val) => !val);
   }
-
   public toggleMetaData() {
     this.isOpenedMetaData.update((currentVal) => !currentVal);
   }
@@ -134,56 +391,162 @@ export class Addscorecard implements OnInit, OnDestroy {
   public closeMetaDataModal(): void {
     this.isMetaDataModalOpened.update((cVal) => !cVal);
   }
-  private getDatafromLocalStorage() {
+  private getDatafromLocalStorage(): void {
     const storedData = localStorage.getItem('description val');
     if (storedData) {
       this.submittedMetaData = JSON.parse(storedData);
     }
   }
-  private SaveDataToLocalStorage() {
+  private SaveDataToLocalStorage(): void {
     localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
   }
   //Method to submit meta data form
-  public SubmitmetaData() {
+  public SubmitmetaData(): void {
     console.log(this.metaDataScoreCard.value);
     this.closeMetaDataModal();
+
     if (this.metaDataScoreCard.valid) {
       const descriptionValue = this.metaDataScoreCard.get('description')?.value;
-      const id = Math.random().toString(36).substring(2, 9);
+      const id = Math.random();
 
       const newMetaData = {
-        id: id,
-        value: descriptionValue,
+        id,
+        type: descriptionValue,
+        title: descriptionValue, // or another value if you have a title input
+        isFormChecked: false, // default value
       };
+
       if (descriptionValue || id) {
         this.submittedMetaData.push(newMetaData);
       }
+
       this.SaveDataToLocalStorage();
       this.metaDataScoreCard.reset({ id: Math.random(), description: '' });
     }
   }
-  public ToggleScoring() {
+
+  //This is to submit the Date modal
+  // Date Modal
+  public SubmitDateData(): void {
+    if (this.DateScoreCard.valid) {
+      const newItem = {
+        id: Date.now(),
+        type: 'Date',
+        title: this.DateScoreCard.value.title,
+        isFormChecked: this.DateScoreCard.value.isFormChecked,
+      };
+
+      this.submittedMetaData.push(newItem);
+      console.log('All Meta Data:', this.submittedMetaData);
+
+      this.DateScoreCard.reset({ title: '', isFormChecked: false });
+      this.closeDateModal();
+    }
+  }
+
+  //This is to submit the Date modal
+  // Large Text
+  public SubmitLargeTextData(): void {
+    if (this.LargeScoreCard.valid) {
+      const newItem = {
+        id: Date.now(),
+        type: 'Large Text',
+        title: this.LargeScoreCard.value.title,
+        isFormChecked: this.LargeScoreCard.value.isFormChecked,
+      };
+
+      this.submittedMetaData.push(newItem);
+      console.log('All Meta Data:', this.submittedMetaData);
+
+      this.LargeScoreCard.reset({ title: '', isFormChecked: false });
+      this.closeLargeTextModal();
+    }
+  }
+
+  //This is to submit the Small Text modal
+  // Small Text
+  public SubmitSmallTextData(): void {
+    if (this.SmallTextModal.valid) {
+      const newItem = {
+        id: Date.now(),
+        type: 'Small Text',
+        title: this.SmallTextModal.value.title,
+        isFormChecked: this.SmallTextModal.value.isFormChecked,
+      };
+
+      this.submittedMetaData.push(newItem);
+      console.log('All Meta Data:', this.submittedMetaData);
+
+      this.SmallTextModal.reset({ title: '', isFormChecked: false });
+      this.closeSmallTextModal();
+    }
+  }
+
+  deleteItemSmallText(id: number) {
+    this.submittedSmallTextData = this.submittedSmallTextData.filter((item) => item.id !== id);
+  }
+  //This is to submit the Multi select  modal
+  // Multi Select
+  public SubmitMultiSelectData(): void {
+    if (this.MultiSelectModal.valid) {
+      const newItem = {
+        id: Date.now(),
+        type: 'Multi Select',
+        title: this.MultiSelectModal.value.title,
+        isFormChecked: this.MultiSelectModal.value.isFormChecked,
+      };
+
+      this.submittedMetaData.push(newItem);
+      console.log('All Meta Data:', this.submittedMetaData);
+
+      this.MultiSelectModal.reset({ title: '', isFormChecked: false });
+      this.closeMultiSelectModal();
+    }
+  }
+
+  // Single Select
+  public SubmitSingleSelectData(): void {
+    if (this.SingleSelectModal.valid) {
+      const newItem = {
+        id: Date.now(),
+        type: 'Single Select',
+        title: this.SingleSelectModal.value.title,
+        isFormChecked: this.SingleSelectModal.get('addSecondLevel')?.value || false,
+      };
+
+      this.submittedMetaData.push(newItem);
+      console.log('All Meta Data:', this.submittedMetaData);
+
+      this.SingleSelectModal.reset({
+        title: '',
+        addSecondLevel: false,
+      });
+      this.closeSingleSelectModal();
+    }
+  }
+
+  public ToggleScoring(): void {
     this.isToggleScoringOpen.update((cVal) => !cVal);
     console.log('toggle scoring...');
   }
-  public toggleMenu(id: string) {
+  public toggleMenu(id: string | number): void {
     if (this.openMenuId() === id) {
       this.openMenuId.set(null); // close if same menu is clicked again
     } else {
       this.openMenuId.set(id);
     }
   }
-  public deleteItem(id: string) {
+  public deleteItem(id: string | number): void {
     this.submittedMetaData = this.submittedMetaData.filter((item) => item.id !== id);
     localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
     this.openMenuId.set(null); // close menu after delete
   }
-  public editItem(id: string) {
+  public editItem(id: string | number): void {
     const item = this.submittedMetaData.find((m) => m.id === id);
     if (item) {
-      const newValue = prompt('Edit description:', item.value);
+      const newValue = prompt('Edit description:', item.title);
       if (newValue !== null && newValue.trim() !== '') {
-        item.value = newValue.trim();
+        item.title = newValue.trim();
         localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
       }
     }
@@ -235,6 +598,15 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.openMenuId.set(null);
     }
   }
+
+  public closeScoringMenu() {
+    this.openScoringMenuId.set(null);
+  }
+
+  public closeCriteriaMenu() {
+    this.openCriteriaMenuId.set(null);
+  }
+
   // Delete
   public deleteScoring(id: number) {
     this.scoringArray.set(this.scoringArray().filter((x) => x.id !== id));

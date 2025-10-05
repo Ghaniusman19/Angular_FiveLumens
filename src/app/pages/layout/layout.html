@@ -8,7 +8,6 @@
     <a routerLink="/view" routerLinkActive="active">view</a>
   </nav>
   <h1>{{ totalCost }}</h1>
-  <p>{{ authkey }}</p>
   <button class="btn-logout" (click)="OnLogOut()">Log Out</button>
   <button (click)="toggleModal()" class="btn-logout">
     {{ isVisible() ? 'Close Modal' : 'Open Modal' }}

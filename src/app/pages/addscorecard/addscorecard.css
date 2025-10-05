@@ -45,7 +45,7 @@
 }
 .menu {
   position: absolute;
-  top: 100%;
+  top: 15%;
   right: 0;
   z-index: 10003;
   padding: 10px;
@@ -265,4 +265,408 @@
 
 .btn-action:hover {
   background: #f7f7f7;
+}
+/* Multi-select chip field container */
+mat-form-field {
+  width: 100%;
+}
+
+/* Chips (tags) ka look */
+mat-chip-row {
+  background-color: #f1f3f4;
+  color: #333;
+  font-size: 14px;
+  border-radius: 20px;
+  padding: 0 8px;
+  margin: 3px;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Chip remove button */
+mat-chip-row button {
+  margin-left: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+mat-chip-row mat-icon {
+  font-size: 16px;
+  color: #777;
+  transition: color 0.2s ease;
+}
+
+mat-chip-row mat-icon:hover {
+  color: #e53935;
+}
+
+/* Input field inside chips */
+mat-form-field input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 6px;
+  min-width: 150px;
+}
+
+/* Placeholder styling */
+mat-form-field input::placeholder {
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Checkbox alignment */
+mat-checkbox {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Modal footer buttons */
+.modal-footer .btn {
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+.btn-logout {
+  background: #1976d2;
+  color: #fff;
+}
+
+.btn-logout:hover {
+  background: #1565c0;
+}
+/* Overall form container */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  padding: 1rem;
+}
+
+/* Labels */
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #333;
+}
+
+/* Textarea and Inputs */
+textarea,
+input[type='text'],
+input[matChipInputFor] {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+textarea:focus,
+input[type='text']:focus,
+input[matChipInputFor]:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 4px rgba(25, 118, 210, 0.3);
+}
+
+/* Chips Section */
+mat-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+mat-chip-row {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+  border-radius: 16px;
+  padding: 0 8px;
+}
+
+/* Headings (sub levels) */
+h4 {
+  margin: 1rem 0 0.5rem;
+  font-size: 15px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Nested levels spacing */
+div {
+  margin-bottom: 0.8rem;
+}
+
+.mt-2 {
+  margin-top: 0.8rem;
+}
+
+/* Checkbox alignment */
+input[type='checkbox'] {
+  margin-left: 8px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* Submit button */
+button[type='submit'] {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  align-self: flex-start;
+}
+
+button[type='submit']:hover {
+  background-color: #0d47a1;
+}
+
+/* Remove chip button (×) */
+button[matChipRemove] {
+  color: #555;
+  font-weight: bold;
+  font-size: 14px;
+  margin-left: 4px;
+}
+.meta-data-list {
+  list-style: none;
+  padding: 0;
+}
+.meta-item {
+  background: #f9f9f9;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.required-tag {
+  color: red;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+/* ===== Overall Layout ===== */
+.metaDataModal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10004;
+  background: #fff;
+  width: 620px;
+  max-width: 100%;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ccc;
+  padding: 12px 20px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: black;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.close:hover {
+  opacity: 0.8;
+}
+
+/* ===== Form Layout ===== */
+/* form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: 20px;
+} */
+
+/* ===== Input Fields ===== */
+/* label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 6px;
+  display: inline-block;
+} */
+
+/* textarea,
+input[type='text'],
+input[matChipInputFor] {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+  background: #fafafa;
+}
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: #1976d2;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(25, 118, 210, 0.25);
+} */
+
+/* ===== Chips (Tags) ===== */
+/* mat-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+mat-chip-row {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+  border-radius: 16px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+}
+
+button[matChipRemove] {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #777;
+  margin-left: 6px;
+  cursor: pointer;
+} */
+/* button[matChipRemove]:hover {
+  color: #e53935;
+} */
+
+/* ===== Checkbox (Toggles) ===== */
+/* input[type='checkbox'] {
+  margin-left: 6px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+input[type='checkbox']:checked {
+  accent-color: #1976d2;
+} */
+
+/* ===== Section Hierarchies ===== */
+/* h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin: 1rem 0 0.5rem;
+  padding-left: 4px;
+  border-left: 3px solid #1976d2;
+} */
+
+/* Second Level Box */
+/* .second-level {
+  background: #f9f9f9;
+  border-radius: 10px;
+  border-left: 3px solid #1976d2;
+  padding: 12px;
+  margin-top: 10px;
+} */
+
+/* Third Level Box */
+.third-level {
+  background: #eef6ff;
+  border-radius: 10px;
+  border-left: 3px solid #64b5f6;
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+/* ===== Buttons ===== */
+button[type='submit'] {
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-self: flex-start;
+}
+button[type='submit']:hover {
+  background: #0d47a1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+}
+
+.modal-footer .btn {
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  /* background: #fff; */
+}
+
+.btn-logout {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+}
+.btn-logout:hover {
+  background: #1565c0;
+}
+
+/* ===== Smooth Animations ===== */
+.second-level,
+.third-level,
+mat-chip-row {
+  transition: all 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

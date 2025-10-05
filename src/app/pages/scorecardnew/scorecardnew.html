@@ -69,29 +69,32 @@
                 <p class="all-groups-label">All Groups (Apply to All New Groups)</p>
               </div>
             </div>
+
             <div class="mb-3">
               <label class="form-label">Groups</label>
-              <select class="form-control" multiple (change)="onGroupsChange($event)">
-                Select All option
-                <option value="all">Select All</option>
-                <!-- Dynamic rendering using @for -->
+              <div class="custom-checkbox-list">
+                <!-- Select All -->
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllSelected()"
+                    (change)="onSelectAllChange($event)"
+                  />
+                  Select All
+                </label>
+
+                <!-- Groups -->
                 @for (item of groupsdata; track $index) {
-                <option [value]="item._id">{{ item.title }}</option>
-                }
-              </select>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(item._id)"
+                    (change)="onGroupCheckboxChange(item._id, $event)"
+                  />
+                  {{ item.title }} </label
+                >}
+              </div>
             </div>
-
-            <!-- MULTI sELECT DROPDOWN...  -->
-            <mat-form-field>
-              <mat-label>Toppings</mat-label>
-              <mat-select formControlName="groups" multiple>
-                <!-- @for (topping of groupsdata; track topping) {
-                <mat-option [value]="topping._id"> {{ topping }}</mat-option>
-                } -->
-              </mat-select>
-            </mat-form-field>
-
-            <!--  -->
 
             <div class="mb-3">
               <label for="" class="form-label">Evaluation Type</label
@@ -340,20 +343,31 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="groups" class="form-label">Group</label>
-            <div class="mb-3">
-              <label class="form-label">Groups</label>
-              <select class="form-control" multiple (change)="onFilterGroupChange($event)">
-                Select All option
-                <option value="all">Select All</option>
+            <label class="form-label">Groups (Filter)</label>
+            <div class="custom-checkbox-list">
+              <!-- Select All -->
+              <label class="checkbox-item">
+                <input
+                  type="checkbox"
+                  [checked]="isAllFilterSelected()"
+                  (change)="onFilterSelectAllChange($event)"
+                />
+                Select All
+              </label>
 
-                <!-- Dynamic rendering using @for -->
-                @for (item of groupsdata; track $index) {
-                <option [value]="item._id">{{ item.title }}</option>
-                }
-              </select>
+              <!-- Groups -->
+              @for (item of groupsdata; track $index) {
+              <label class="checkbox-item" *ngFor="let item of groupsdata">
+                <input
+                  type="checkbox"
+                  [checked]="isFilterSelected(item._id)"
+                  (change)="onFilterGroupCheckboxChange(item._id, $event)"
+                />
+                {{ item.title }} </label
+              >}
             </div>
           </div>
+
           <div class="mb-3">
             <label for="isActive" class="form-label">Status</label
             ><select id="isActive" name="isActive" class="form-control" formControlName="isActive">
@@ -436,8 +450,8 @@
         <div class="page-size">
           <label>Show</label>
           <select (change)="changePageSize($event)" [value]="pageSize()">
-            @for (size of [10, 25, 50, 100]; track size) {
-            <option (click)="fetchData()" [value]="size">{{ size }}</option>
+            @for (size of [ 25, 50, 100]; track size) {
+            <option [value]="size">{{ size }}</option>
             }
           </select>
           <span>entries of {{ totalItems() }}</span>

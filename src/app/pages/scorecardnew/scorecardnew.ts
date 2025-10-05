@@ -7,11 +7,9 @@ import { Addscorecard } from '../../../services/addscorecard';
 import { Deletescorecard } from '../../../services/deletescorecard';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-
 @Component({
   selector: 'app-scorecardnew',
-  imports: [CommonModule, ReactiveFormsModule, MatFormField, MatLabel],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './scorecardnew.html',
   styleUrl: './scorecardnew.css',
 })
@@ -40,6 +38,7 @@ export class Scorecardnew implements OnInit {
   public currentPage = signal(1); // default first page
   public pageSize = signal(25); // default page size
   public totalItems = signal(0);
+  private destroyEffect?: () => void;
   //This method is to fetch API for the pagination
   public fetchData() {
     const payload = {
@@ -47,7 +46,6 @@ export class Scorecardnew implements OnInit {
       perPage: this.pageSize(),
       isActive: true,
     };
-
     this.ScorecardData.scoreCardData(payload, this.authkey).subscribe({
       next: (response: any): void => {
         this.scData.set(response?.data?.collection || []);
@@ -92,7 +90,7 @@ export class Scorecardnew implements OnInit {
     //This is the code of the fetching of the scorecard  by post method
     this.ScorecardData.scoreCardData(payload, this.authkey).subscribe({
       next: (response: any | boolean): void => {
-        this.scData.set(response.data.collection);
+        this.scData.set(response?.data?.collection);
         console.log('API Response of scorecard data:', this.scData()); // Log to console
       },
       error: (error: any) => {
@@ -190,8 +188,8 @@ export class Scorecardnew implements OnInit {
     this.ScorecardData.scoreCardData(formValues, this.authkey).subscribe({
       next: (response: any): void => {
         console.log('This is the response of the scorecard filter', response);
-        this.scData = response.data.collection;
-        console.log('API Response of scorecard data:', this.scData);
+        this.scData.set(response?.data?.collection);
+        console.log('API Response of scorecard data:', this.scData());
       },
       error: (error: any) => {
         console.log('This is the error of the scorecard filter', error);
@@ -206,8 +204,8 @@ export class Scorecardnew implements OnInit {
     const searchPayload = { isActive: this.scorecardForm.value.isActive, search: searchItem };
     this.ScorecardData.scoreCardData(searchPayload, this.authkey).subscribe({
       next: (response: any): void => {
-        this.scData = response.data.collection;
-        console.log('API Response of scorecard data:', this.scData); // Log to console
+        this.scData.set(response?.data?.collection);
+        console.log('API Response of scorecard data:', this.scData()); // Log to console
       },
       error: (error: any) => {
         console.error('API Error:', error);
@@ -232,43 +230,90 @@ export class Scorecardnew implements OnInit {
   }
   public scorecardFormArray: any[] = [];
   //This is the method to change the groups and  onGroupsChange called
-  public onGroupsChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedOptions = Array.from(selectElement.selectedOptions).map((opt) => opt.value);
-
+  public onGroupCheckboxChange(id: string, event: Event) {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
-    groupsArray.clear(); // ✅ pehle empty karo
+    const checkbox = event.target as HTMLInputElement;
 
-    if (selectedOptions.includes('all')) {
+    if (checkbox.checked) {
+      groupsArray.push(new FormControl(id));
+    } else {
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
+    }
+
+    // Update Select All flag
+    this.scorecardForm.get('isAllGroups')?.setValue(this.isAllSelected());
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
+
+  public onSelectAllChange(event: Event) {
+    const groupsArray = this.scorecardForm.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    groupsArray.clear();
+
+    if (checkbox.checked) {
       this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
       this.scorecardForm.get('isAllGroups')?.setValue(true);
     } else {
-      selectedOptions.forEach((id) => {
-        groupsArray.push(new FormControl(id));
-      });
       this.scorecardForm.get('isAllGroups')?.setValue(false);
     }
 
     console.log('Groups in FormArray:', groupsArray.value);
   }
 
-  public onFilterGroupChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedOptions = Array.from(selectElement.selectedOptions).map((opt) => opt.value);
+  // ✅ Helper to check if a group is selected
+  public isSelected(id: string): boolean {
+    const groupsArray = this.scorecardForm.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+
+  // ✅ Helper to check Select All status
+  public isAllSelected(): boolean {
+    const groupsArray = this.scorecardForm.get('groups') as FormArray;
+    return groupsArray.length === this.groupsdata.length;
+  }
+
+  public onFilterGroupCheckboxChange(id: string, event: Event) {
     const groupsArray = this.filterForm.get('groups') as FormArray;
-    groupsArray.clear();
-    if (selectedOptions.includes('all')) {
-      this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
-      // this.filterForm.get('isAllGroups')?.setValue(true);
+    const checkbox = event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      groupsArray.push(new FormControl(id));
     } else {
-      selectedOptions.forEach((id) => {
-        groupsArray.push(new FormControl(id));
-      });
-      // this.filterForm.get('isAllGroups')?.setValue(false);
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
     }
 
-    console.log('Groups in FormArray:', groupsArray.value);
+    console.log('Filter Groups in FormArray:', groupsArray.value);
   }
+
+  public onFilterSelectAllChange(event: Event) {
+    const groupsArray = this.filterForm.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    groupsArray.clear();
+
+    if (checkbox.checked) {
+      this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
+    }
+
+    console.log('Filter Groups in FormArray:', groupsArray.value);
+  }
+
+  // ✅ Helpers for Filter
+  public isFilterSelected(id: string): boolean {
+    const groupsArray = this.filterForm.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+
+  public isAllFilterSelected(): boolean {
+    const groupsArray = this.filterForm.get('groups') as FormArray;
+    return groupsArray.length === this.groupsdata.length && this.groupsdata.length > 0;
+  }
+
   //This is the event / function to submit the form of add scorecard...
   public scorecardSubmit(): void {
     console.log('button submit .....');
