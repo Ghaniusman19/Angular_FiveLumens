@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FetchAPIData } from '../../../services/fetch-apidata';
 import { ScorecardData } from '../../../services/scorecard-data';
 import { MatDialog } from '@angular/material/dialog';
-import { Modal } from '../modal/modal';
 import { User, Employees } from '../../user';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Test } from '../../../services/test';
@@ -73,10 +72,5 @@ export class Scorecard implements OnInit {
     });
   }
   readonly dialog = inject(MatDialog);
-  openDialog() {
-    const dialogRef = this.dialog.open(Modal);
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log(`Dialog result: ${result}`);
-    });
-  }
+ 
 }

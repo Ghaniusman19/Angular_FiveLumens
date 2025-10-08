@@ -10,6 +10,7 @@ import {
   ReactiveFormsModule,
   FormArray,
   AbstractControl,
+  Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -21,6 +22,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
+interface ScoringItems {
+  id: number;
+  value: string;
+  criteria: any[];
+}
 @Component({
   selector: 'app-addscorecard',
   imports: [
@@ -41,7 +47,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public submittedSmallTextData: any[] = [];
   public submittedMetaData: {
     id: number;
-    type: string; // to identify which modal it came from
+    type: string;
     title: string;
     isFormChecked: boolean;
   }[] = [];
@@ -51,6 +57,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public secondLevelSelect: string[] = [];
   public AddScoreCardID: string | null = '';
   private routeSubscription: Subscription | undefined;
+  public criteriaVal: FormGroup;
   public metaDataScoreCard: FormGroup;
   public DateScoreCard: FormGroup;
   public LargeScoreCard: FormGroup;
@@ -70,11 +77,13 @@ export class Addscorecard implements OnInit, OnDestroy {
   public isToggleScoringOpen = signal<boolean>(false);
   public openMenuId = signal<string | number | null>(null);
   public scoringForm: FormGroup;
-  public scoringArray = signal<{ id: number; value: string; criteria: any[] }[]>([]);
+  public scoringArray = signal<ScoringItems[]>([]);
   public isScoringModalOpened = signal<boolean>(false);
   public openScoringMenuId = signal<number | null>(null);
   public criteriaModalOpen = signal(false);
-  public activeSectionId = signal<number | null>(null);
+  public activeSectionId: number | null = null;
+  public editingCriteriaId: number | null = null;
+
   public http = inject(HttpClient);
   public router = inject(Router);
   public route = inject(ActivatedRoute);
@@ -84,49 +93,55 @@ export class Addscorecard implements OnInit, OnDestroy {
   constructor(private editscorecard: editscorecard) {
     console.log('add scorecard page called!');
     console.log(this.AddScoreCardID);
+
+    this.criteriaVal = new FormGroup({
+      crValue: new FormControl(''),
+    });
+
     this.metaDataScoreCard = new FormGroup({
       id: new FormControl(Math.random()),
-      description: new FormControl(''),
+      description: new FormControl('', Validators.required),
     });
     this.scoringForm = new FormGroup({
       id: new FormControl(Date.now()),
-      description: new FormControl(''),
+      description: new FormControl('', Validators.required),
     });
     this.DateScoreCard = new FormGroup({
-      title: new FormControl(''),
-      isFormChecked: new FormControl(''),
+      title: new FormControl('', Validators.required),
+      isFormChecked: new FormControl('', Validators.required),
       newType: new FormControl('dummy'),
       type: new FormControl('date'),
     });
 
     this.LargeScoreCard = new FormGroup({
-      title: new FormControl(''),
-      isFormChecked: new FormControl(''),
+      title: new FormControl('', Validators.required),
+      isFormChecked: new FormControl('', Validators.required),
       newType: new FormControl('dummy'),
       type: new FormControl('largeText'),
     });
 
     this.SmallTextModal = new FormGroup({
-      title: new FormControl(''),
-      isFormChecked: new FormControl(''),
+      title: new FormControl('', Validators.required),
+      isFormChecked: new FormControl('', Validators.required),
       newType: new FormControl('dummy'),
       type: new FormControl('smallText'),
     });
 
     this.MultiSelectModal = new FormGroup({
-      title: new FormControl(''),
-      multiselect: new FormControl([]),
-      isFormChecked: new FormControl(''),
+      title: new FormControl('', Validators.required),
+      multiselect: new FormControl([], Validators.required),
+      isFormChecked: new FormControl('', Validators.required),
       newType: new FormControl('dummy'),
       type: new FormControl('MultiSelect'),
     });
 
     this.SingleSelectModal = new FormGroup({
-      title: new FormControl(''),
-      options: new FormArray([]), // First Level Chips
+      title: new FormControl('', Validators.required),
+      options: new FormArray([], Validators.required), // First Level Chips
       addSecondLevel: new FormControl(false),
       isThirdLevel: new FormControl(false),
-      subOptions: new FormArray([]), // Second Level Array
+      subOptions: new FormArray([], Validators.required), // Second Level Array
+      isFormChecked: new FormControl(false),
       type: new FormControl('singleSelect'),
     });
   }
@@ -134,14 +149,12 @@ export class Addscorecard implements OnInit, OnDestroy {
   get optionsArray() {
     return this.SingleSelectModal.get('options') as FormArray;
   }
-
   get subOptionsArray() {
     return this.SingleSelectModal.get('subOptions') as FormArray;
   }
   get subFields(): FormArray {
     return this.SingleSelectModal.get('subFields') as FormArray;
   }
-
   addTopChip(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
     if (value) {
@@ -151,7 +164,6 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
     event.chipInput!.clear();
   }
-
   removeTopChip(chip: string): void {
     const chips = this.SingleSelectModal.get('topLevelChips')?.value || [];
     const index = chips.indexOf(chip);
@@ -174,7 +186,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       );
     });
   }
-
   addNestedChip(event: MatChipInputEvent, index: number): void {
     const value = (event.value || '').trim();
     if (value) {
@@ -184,7 +195,6 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
     event.chipInput!.clear();
   }
-
   removeNestedChip(chip: string, index: number): void {
     const nestedChips = this.subFields.at(index).get('nestedChips')?.value || [];
     const chipIndex = nestedChips.indexOf(chip);
@@ -197,14 +207,12 @@ export class Addscorecard implements OnInit, OnDestroy {
     moveItemInArray(this.submittedMetaData, event.previousIndex, event.currentIndex);
     this.SaveDataToLocalStorage(); // order save karna
   }
-
   dropSection(event: CdkDragDrop<any[]>) {
     const sections = this.scoringArray();
     moveItemInArray(sections, event.previousIndex, event.currentIndex);
     this.scoringArray.set(sections); // signal update
     this.saveScoringToLocal();
   }
-
   dropCriteria(event: CdkDragDrop<any[]>, section: any) {
     moveItemInArray(section.criteria, event.previousIndex, event.currentIndex);
     this.scoringArray.set([...this.scoringArray()]); // trigger UI refresh
@@ -297,7 +305,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       thirdLevel.push(
         new FormGroup({
           title: new FormControl(value),
-
           options: new FormControl([]),
         })
       );
@@ -434,6 +441,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         type: 'Date',
         title: this.DateScoreCard.value.title,
         isFormChecked: this.DateScoreCard.value.isFormChecked,
+        newType: this.DateScoreCard.value.newType,
       };
 
       this.submittedMetaData.push(newItem);
@@ -453,6 +461,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         type: 'Large Text',
         title: this.LargeScoreCard.value.title,
         isFormChecked: this.LargeScoreCard.value.isFormChecked,
+        newType: this.LargeScoreCard.value.newType,
       };
 
       this.submittedMetaData.push(newItem);
@@ -462,7 +471,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.closeLargeTextModal();
     }
   }
-
   //This is to submit the Small Text modal
   // Small Text
   public SubmitSmallTextData(): void {
@@ -472,16 +480,14 @@ export class Addscorecard implements OnInit, OnDestroy {
         type: 'Small Text',
         title: this.SmallTextModal.value.title,
         isFormChecked: this.SmallTextModal.value.isFormChecked,
+        newType: this.SmallTextModal.value.newType,
       };
-
       this.submittedMetaData.push(newItem);
       console.log('All Meta Data:', this.submittedMetaData);
-
       this.SmallTextModal.reset({ title: '', isFormChecked: false });
       this.closeSmallTextModal();
     }
   }
-
   deleteItemSmallText(id: number) {
     this.submittedSmallTextData = this.submittedSmallTextData.filter((item) => item.id !== id);
   }
@@ -494,24 +500,27 @@ export class Addscorecard implements OnInit, OnDestroy {
         type: 'Multi Select',
         title: this.MultiSelectModal.value.title,
         isFormChecked: this.MultiSelectModal.value.isFormChecked,
+        newType: this.MultiSelectModal.value.newType,
+        multiSelect: this.MultiSelectModal.value.multiselect,
       };
-
       this.submittedMetaData.push(newItem);
       console.log('All Meta Data:', this.submittedMetaData);
-
       this.MultiSelectModal.reset({ title: '', isFormChecked: false });
       this.closeMultiSelectModal();
     }
   }
-
   // Single Select
   public SubmitSingleSelectData(): void {
+    console.log(this.SingleSelectModal.value);
     if (this.SingleSelectModal.valid) {
       const newItem = {
         id: Date.now(),
         type: 'Single Select',
         title: this.SingleSelectModal.value.title,
         isFormChecked: this.SingleSelectModal.get('addSecondLevel')?.value || false,
+        options: this.SingleSelectModal.value.options,
+        addSecondLevel: this.SingleSelectModal.value.addSecondLevel,
+        subOptions: this.SingleSelectModal.value.subOptions,
       };
 
       this.submittedMetaData.push(newItem);
@@ -576,12 +585,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   private saveScoringToLocal() {
     localStorage.setItem('scoringData', JSON.stringify(this.scoringArray));
   }
-  // private getScoringFromLocal() {
-  //   const stored = localStorage.getItem('scoringData');
-  //   if (stored) {
-  //     this.scoringArray = JSON.parse(stored);
-  //   }
-  // }
+
   public toggleScoringMenu(id: number) {
     this.openScoringMenuId.set(this.openScoringMenuId() === id ? null : id);
   }
@@ -598,15 +602,12 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.openMenuId.set(null);
     }
   }
-
   public closeScoringMenu() {
     this.openScoringMenuId.set(null);
   }
-
   public closeCriteriaMenu() {
     this.openCriteriaMenuId.set(null);
   }
-
   // Delete
   public deleteScoring(id: number) {
     this.scoringArray.set(this.scoringArray().filter((x) => x.id !== id));
@@ -617,34 +618,49 @@ export class Addscorecard implements OnInit, OnDestroy {
     autofill: new FormControl(false, { nonNullable: true }),
   });
   public openCriteriaModal(sectionId: number) {
-    this.activeSectionId.set(sectionId);
+    this.activeSectionId = sectionId;
     this.criteriaForm.reset();
     this.criteriaModalOpen.set(true);
   }
   public closeCriteriaModal() {
     this.criteriaModalOpen.set(false);
+    this.editingCriteriaId = null;
+    this.criteriaForm.reset();
+    this.activeSectionId = null;
   }
   public isCriteriaModalOpened() {
     return this.criteriaModalOpen();
   }
-  public submitCriteria() {
-    if (this.criteriaForm.valid && this.activeSectionId()) {
+
+  public saveCriteria() {
+    const formValue = this.criteriaForm.value;
+
+    const section = this.scoringArray().find((s) => s.id === this.activeSectionId);
+
+    if (!section) return;
+
+    if (this.editingCriteriaId) {
+      // ✅ Update existing item
+      section.criteria = section.criteria.map((c) =>
+        c.id === this.editingCriteriaId
+          ? { ...c, description: formValue.description, autofill: formValue.autofill }
+          : c
+      );
+    } else {
+      // ✅ Add new item
       const newCriteria = {
         id: Date.now(),
-        description: this.criteriaForm.value.description,
-        autofill: this.criteriaForm.value.autofill,
+        description: formValue.description,
+        autofill: formValue.autofill,
       };
-
-      const updated = this.scoringArray().map((section) =>
-        section.id === this.activeSectionId()
-          ? { ...section, criteria: [...(section.criteria || []), newCriteria] }
-          : section
-      );
-
-      this.scoringArray.set(updated);
-      localStorage.setItem('scoringArray', JSON.stringify(updated));
-      this.closeCriteriaModal();
+      section.criteria.push(newCriteria);
     }
+
+    // Reset modal + states
+    this.criteriaForm.reset();
+    this.editingCriteriaId = null;
+    this.activeSectionId = null;
+    this.criteriaModalOpen.set(false);
   }
   public deleteCriteria(sectionId: number, criteriaId: number) {
     const updated = this.scoringArray().map((section) =>
@@ -667,11 +683,27 @@ export class Addscorecard implements OnInit, OnDestroy {
         description: criteria.description,
         autofill: criteria.autofill,
       });
-      this.activeSectionId.set(sectionId);
-      // delete old criteria before editing
-      this.deleteCriteria(sectionId, criteriaId);
-
+      this.activeSectionId = sectionId;
+      this.editingCriteriaId = criteriaId;
+      // this.activeSectionId.set(sectionId);
+      // // delete old criteria before editing
+      // this.deleteCriteria(sectionId, criteriaId);
       this.criteriaModalOpen.set(true);
+    }
+  }
+
+  //Method to save only score card...
+  public SaveOnlyScoreCard(): void {
+    console.log('save only scorecard..');
+    if (this.scoringArray().length === 0) {
+      console.log('scoring array is empty ');
+      if (this.scoringArray().length !== 0) {
+        for (const scoringitem of this.scoringArray()) {
+          if (scoringitem.criteria.length === 0) {
+            console.log('please add some criterias ');
+          }
+        }
+      }
     }
   }
 }

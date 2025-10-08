@@ -1,7 +1,9 @@
-<h1 style="text-align: center">Score Card New Component</h1>
-
-<div class="container">
-  <div class="header">
+<!-- <div
+  style="display: flex; align-items: center; justify-content: center; height: 100vh"
+  class="overall-scorecardnew"
+></div> -->
+<div class="container" style="margin-top: 50px">
+  <div class="header" style="background-color: white">
     <div>
       <h3>ScoreCard</h3>
       <p>Manage your scorecards and its details here</p>
@@ -16,7 +18,10 @@
         />
       </div>
       <div class="filter">
-        <button class="btn-logout" (click)="FilterToggle()">Filter</button>
+        <button class="btn-logout" (click)="FilterToggle()">
+          <span><img src="/public/filternew-icon.svg" alt="" /></span>
+          Filter
+        </button>
       </div>
       <div class="scorecard-btn">
         <button class="btn-logout" (click)="OpenModal()">Add Scorecard</button>
@@ -386,8 +391,7 @@
     </div>
   </div>
   }
-  <h1>Scorecard Data:</h1>
-  <div class="scorecard-container">
+  <div class="scorecard-container" style="background-color: white">
     <!-- Table Header -->
     <div class="table-header">
       <div class="col col-name">Name & Description</div>
@@ -400,7 +404,7 @@
 
     <!-- Table Rows -->
     <div class="table-body">
-      @for (item of scData(); track $index) { @if(item.isActive){
+      @for (item of scData(); track $index) {
       <div class="table-row">
         <div class="col col-name">
           <div class="title">{{ item.title }}</div>
@@ -411,14 +415,17 @@
         <div class="col">{{ item.updatedAt | date : 'dd/MM/yyyy' }}</div>
         <div class="col">
           <label class="switch">
-            <input type="checkbox" [checked]="item.isActive" />
+            <input
+              type="checkbox"
+              (click)="OpenModalStatus($event, item)"
+              [checked]="item.isActive"
+            />
             <span class="slider"></span>
           </label>
         </div>
         <div class="col actions">
           <button (click)="Open3DotDropDown(item._id)" class="dots">⋮</button>
         </div>
-
         @if (is3DotDropdown() === item._id) {
         <div class="dropdown">
           <div class="dropdown-btn">
@@ -434,23 +441,47 @@
               Delete
             </button>
           </div>
-          <div class="dropdown-btn"><button class="btn-logout">Clone</button></div>
-          <div class="dropdown-btn"><button class="btn-logout">Evaluate</button></div>
-        </div>
+          <div class="dropdown-btn">
+            <button class="btn-logout" (click)="CloneScoreCad(item._id); close3DotDropDown()">
+              Clone
+            </button>
+          </div>
 
+          @if (item.evaluationType === 'ai') {
+          <div class="dropdown-btn"><button class="btn-logout">Evaluate</button></div>
+          }
+        </div>
+        } @if (isCloneModalOpen() === item._id) {
+        <div class="modal">
+          <button type="button" class="btn btn-close" (click)="closeClone(item)"></button>
+          <p>{{ item._id }}</p>
+          <p>{{ item.title }}</p>
+        </div>
+        } @if (isActiveStatusModal() === item._id ) {
+        <div class="modal">
+          <div>
+            <h4>Deactivate Scorecard</h4>
+            <p>
+              Changing the <span class="title__">{{ item.title }}</span> scorecard status to
+              inactive will not delete the scorecard, but evaluations can no longer be created using
+              this scorecard until it is reactivated.
+            </p>
+            <p>Are you sure you want to change the scorecard status to inactive?</p>
+            <div class="modal-actions">
+              <button class="btn-cancel" (click)="cancelToggle(item._id)">Cancel</button>
+              <button class="btn-confirm" (click)="confirmToggle(item._id)">De Activate</button>
+            </div>
+          </div>
+        </div>
         }
       </div>
-      } } @empty {
-      <tr>
-        <td colspan="3">No records found</td>
-      </tr>
       }
       <div class="pagination-container">
         <!-- Show entries dropdown -->
         <div class="page-size">
           <label>Show</label>
           <select (change)="changePageSize($event)" [value]="pageSize()">
-            @for (size of [ 25, 50, 100]; track size) {
+            @for (size of [ 25, 10, 50, 100]; track size) {
             <option [value]="size">{{ size }}</option>
             }
           </select>

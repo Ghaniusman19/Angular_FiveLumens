@@ -4,12 +4,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class ScorecardData {
-  private apiUrl = 'https://fldemo.fivelumenstest.com/api/auth/scorecards'; // Replace with your actual API endpoint
+export class ToggleStatus {
+  private apiUrl = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/toggle-status';
 
   constructor(private http: HttpClient) {}
-
-  scoreCardData(data: any, authToken: string): Observable<any> {
+  ToggleActiveState(data: any, authToken: string): Observable<any> {
     const headers = new HttpHeaders({
       // 'Content-Type': 'application/json',
       Authorization: `Bearer ${authToken}`, // Add your authorization key here

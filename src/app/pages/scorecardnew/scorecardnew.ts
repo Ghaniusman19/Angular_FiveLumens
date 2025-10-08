@@ -1,5 +1,7 @@
 import { ScorecardData } from './../../../services/scorecard-data';
 import { FetchAPIData } from '../../../services/fetch-apidata';
+import { ToggleStatus } from '../../../services/toggle-status';
+import { IsActive } from '../../../services/is-active';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +9,7 @@ import { Addscorecard } from '../../../services/addscorecard';
 import { Deletescorecard } from '../../../services/deletescorecard';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { NgZone } from '@angular/core';
 @Component({
   selector: 'app-scorecardnew',
   imports: [CommonModule, ReactiveFormsModule],
@@ -18,7 +21,10 @@ export class Scorecardnew implements OnInit {
     private groups: FetchAPIData,
     private ScorecardData: ScorecardData,
     private addScorecard: Addscorecard,
-    private delscorecard: Deletescorecard
+    private delscorecard: Deletescorecard,
+    private ngZone: NgZone,
+    private toggleStatus: ToggleStatus,
+    private isActive: IsActive
   ) {
     console.log('scorecard New Constructor Called');
   }
@@ -29,30 +35,36 @@ export class Scorecardnew implements OnInit {
   public router = inject(Router);
   public isActiveModal = signal(false);
   public selectedRowId = signal<string | null>(null);
+  public is3DotDropdown = signal<string | null>(null);
+  public isActiveStatusModal = signal<string | null>(null);
+  //state to change clone ... modal toggle state
+  public isCloneModalOpen = signal<string | null>(null);
   //This is to show the notification of delete scorecard row
   public notification = signal<string | null>(null);
   public filterToggle = signal(false);
+  // public activeModalId = signal<string | null>(null);
+  public pendingStatus: boolean = false;
   //This is the variable to hide and show the modal of scorecard
   public scData = signal<any[]>([]);
   public groupsdata: any[] = [];
   public currentPage = signal(1); // default first page
   public pageSize = signal(25); // default page size
   public totalItems = signal(0);
-  private destroyEffect?: () => void;
   //This method is to fetch API for the pagination
   public fetchData() {
-    const payload = {
-      page: this.currentPage(),
-      perPage: this.pageSize(),
-      isActive: true,
-    };
-    this.ScorecardData.scoreCardData(payload, this.authkey).subscribe({
+    const formData = new FormData();
+    formData.append('isActive', 'true');
+    formData.append('page', this.currentPage().toString());
+    formData.append('perPage', this.pageSize().toString());
+    this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
       next: (response: any): void => {
-        this.scData.set(response?.data?.collection || []);
-        this.totalItems.set(response?.data?.pagination?.total);
-        console.log(this.totalItems(), ' these are our total items');
-        // total count from API
-        console.log('Paginated Data:', this.scData());
+        this.ngZone.run(() => {
+          this.scData.set(response?.data?.collection || []);
+          this.totalItems.set(response?.data?.pagination?.total);
+          console.log(this.totalItems(), ' these are our total items');
+          // total count from API
+          console.log('Paginated Data:', this.scData());
+        });
       },
       error: (error: any) => {
         console.error('API Error in fetchData:', error);
@@ -60,6 +72,7 @@ export class Scorecardnew implements OnInit {
     });
   }
   public changePageSize(event: Event): void {
+    console.log(event, 'this is our event...');
     const value = Number((event.target as HTMLSelectElement).value);
     this.pageSize.set(value);
     this.currentPage.set(1); // reset to first page
@@ -79,6 +92,55 @@ export class Scorecardnew implements OnInit {
   }
   public totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
   //This is called when class and components load just like useefect ...
+  convertToFormData(obj: any): FormData {
+    const formData = new FormData();
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        formData.append(key, obj[key]);
+      }
+    }
+    return formData;
+  }
+
+  OpenModalStatus(event: Event, item: any) {
+    console.log(item);
+    const id = item._id;
+    event.stopPropagation();
+    event.preventDefault();
+    this.pendingStatus = !item.isActive;
+    if (this.isActiveStatusModal() === id) {
+      // agar same row pe dobara click ho to close kar do
+      this.isActiveStatusModal.set(null);
+      this.selectedRowId.set(null);
+    } else {
+      this.isActiveStatusModal.set(id);
+      this.selectedRowId.set(null);
+    }
+    console.log('This is my toggle state id', id);
+  }
+
+  confirmToggle(item: string): void {
+    //store open Modal ID..
+    console.log(item);
+    console.log(item, 'this is the item..');
+    const formVal = new FormData();
+    formVal.append('id', item);
+    this.isActiveStatusModal.set(null);
+
+    this.toggleStatus.ToggleActiveState(formVal, this.authkey).subscribe({
+      next: (response: any): void => {
+        console.log('This is the response of the toggle status', response);
+      },
+      error: (error: any): void => {
+        console.log('This is the Error.. of the toggle status', error);
+      },
+    });
+  }
+  cancelToggle(item: string) {
+    console.log(item);
+    this.isActiveStatusModal.set(null);
+  }
+  //This is to close the status check Modal...
   ngOnInit(): void {
     this.fetchData();
     console.log('ng on in it called console');
@@ -86,12 +148,21 @@ export class Scorecardnew implements OnInit {
       console.error('Authorization token is missing');
       return;
     }
-    const payload = { key: 'value' };
+
+    const formData = new FormData();
+    formData.append('isActive', 'true');
+    formData.append('page', this.currentPage().toString());
+
     //This is the code of the fetching of the scorecard  by post method
-    this.ScorecardData.scoreCardData(payload, this.authkey).subscribe({
-      next: (response: any | boolean): void => {
-        this.scData.set(response?.data?.collection);
-        console.log('API Response of scorecard data:', this.scData()); // Log to console
+    this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
+      next: (response: any): void => {
+        this.ngZone.run(() => {
+          const activeData = (response?.data?.collection || []).filter(
+            (item: any) => item.isActive === true
+          );
+          this.scData.set(activeData);
+          console.log('API Response of scorecard data 1111:', this.scData()); // Log to console
+        });
       },
       error: (error: any) => {
         console.error('API Error:', error);
@@ -124,7 +195,7 @@ export class Scorecardnew implements OnInit {
     this.isActiveModal.update((currentVal) => !currentVal);
   }
   //code for the opening and closing of the 3 dot dropdown
-  public is3DotDropdown = signal<string | null>(null);
+
   public Open3DotDropDown(id: string) {
     if (this.is3DotDropdown() === id) {
       // agar same row pe dobara click ho to close kar do
@@ -145,9 +216,11 @@ export class Scorecardnew implements OnInit {
   //This is the function to delete scorecard
   public DeleteScorecard(id: string) {
     console.log('this is the delete id key  ', id);
-    const delID = { id: id };
+    const formdata = new FormData();
+    formdata.append('id', id);
+    // const delID = { id: id };
     this.notification.set('Removed successfully!');
-    this.delscorecard.Deletescorecard(delID, this.authkey).subscribe({
+    this.delscorecard.Deletescorecard(formdata, this.authkey).subscribe({
       next: (Response: any): void => {
         console.log('this is the respomse from delete api', Response);
         this.notification.set(null);
@@ -161,6 +234,39 @@ export class Scorecardnew implements OnInit {
   public EditScorecard(id: string) {
     console.log('this is the Edit id key  ', id);
     this.router.navigate(['edit'], { queryParams: { id: this.selectedRowId() } });
+  }
+
+  public CloneScoreCad(id: any) {
+    console.log(id);
+    this.isActive.isActiveData(this.authkey).subscribe({
+      next: (response: any): void => {
+        console.log('this is the response of the is active API..', response);
+      },
+      error: (error: any) => {
+        console.log('this is the error from isActive api', error);
+      },
+    });
+    this.groups.fetchGroupsData(this.authkey).subscribe({
+      next: (data: any): void => {
+        // this.groupsdata = data.data;
+        console.log('API response of the group data ', data);
+        // this.groupsdata
+      },
+      error: (err: any) => {
+        console.log(err);
+      },
+    });
+    if (this.isCloneModalOpen() === id) {
+      this.isCloneModalOpen.set(null);
+      this.selectedRowId.set(null);
+    } else {
+      this.isCloneModalOpen.set(id);
+      this.selectedRowId.set(id);
+    }
+  }
+  public closeClone(id: any) {
+    console.log(id);
+    this.isCloneModalOpen.set(null);
   }
   //This is to close the 3 dot dropdown
   public close3DotDropDown() {
@@ -183,12 +289,23 @@ export class Scorecardnew implements OnInit {
   });
   public filterScorecardSubmit() {
     console.log('Filter Scorecard Submit');
-    console.log('values of filter forms are', this.filterForm.value);
-    const formValues = this.filterForm.value;
+
+    // const formValues = this.filterForm.value;
+    const formValues = new FormData();
+    formValues.append('isActive', this.filterForm.value.isActive);
+    formValues.append('evaluationTypeFilter', this.filterForm.value.evaluationTypeFilter);
+    formValues.append('scoringModelFilter', this.filterForm.value.scoringModelFilter);
+    formValues.append('page', this.currentPage().toString());
+    if (Array.isArray(this.filterForm.value.groups)) {
+      this.filterForm.value.groups.forEach((groupId: string, index: number) => {
+        formValues.append(`groups[${index}]`, groupId);
+      });
+    }
     this.ScorecardData.scoreCardData(formValues, this.authkey).subscribe({
       next: (response: any): void => {
         console.log('This is the response of the scorecard filter', response);
         this.scData.set(response?.data?.collection);
+        this.totalItems.set(response?.data?.pagination?.total);
         console.log('API Response of scorecard data:', this.scData());
       },
       error: (error: any) => {
@@ -196,15 +313,23 @@ export class Scorecardnew implements OnInit {
       },
     });
     this.filterToggle.update((currentVal) => !currentVal);
+    this.filterForm.reset();
   }
   //This is to be the search function functionality...
   public onSearchInput(event: Event): void {
     const searchItem = (event.target as HTMLInputElement).value;
     console.log(searchItem);
-    const searchPayload = { isActive: this.scorecardForm.value.isActive, search: searchItem };
+    const searchPayload = new FormData();
+    searchPayload.append('isActive', this.scorecardForm.value.isActive);
+    searchPayload.append('search', searchItem);
+
     this.ScorecardData.scoreCardData(searchPayload, this.authkey).subscribe({
       next: (response: any): void => {
-        this.scData.set(response?.data?.collection);
+        const activeData = (response?.data?.collection || []).filter(
+          (item: any) => item.isActive === true
+        );
+        this.scData.set(activeData);
+        this.totalItems.set(response?.data?.pagination?.total);
         console.log('API Response of scorecard data:', this.scData()); // Log to console
       },
       error: (error: any) => {

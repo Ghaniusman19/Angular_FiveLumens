@@ -55,7 +55,7 @@
 /* Logout Button */
 .btn-logout {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 8px;
