@@ -7,6 +7,7 @@
   justify-content: space-between;
   box-shadow: 0 2px 6px rgba(0, 0, 1, 0.5);
 }
+
 .right-div {
   display: flex;
   align-items: center;
@@ -193,7 +194,19 @@ input:checked + .slider:before {
 }
 .dropdown-btn button {
   width: 100%;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
+}
+.btn-logout1 {
+  border: none;
+  border-color: white;
+  background-color: white;
+  color: #444;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.btn-logout1:hover {
+  background-color: #f0f0f0;
 }
 .table-row {
   position: relative;

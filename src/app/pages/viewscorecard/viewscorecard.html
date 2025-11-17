@@ -1,1 +1,222 @@
-<p>viewscorecard works!</p>
+<div class="container">
+  <div class="overall-container">
+    <div class="scorecard-header">
+      <div class="sc-title">
+        <h2>{{ apiResponse()?.title }}</h2>
+        <p>{{ apiResponse()?.description }}</p>
+      </div>
+      <div class="sc-view-setting">
+        <button class="btn-logout"
+        (click)="viewSettings(apiResponse()._id)"
+        >Seting</button>
+      </div>
+    </div>
+
+    <!-- METADATA SECTION AS ACCORDION -->
+    @if(apiResponse()?.metaData && (apiResponse()?.metaData)) {
+    <div class="metadata-section">
+      <h3>Meta Data</h3>
+      <cdk-accordion class="example-accordion metadata-accordion">
+        @for (meta of apiResponse()?.metaData; track meta._id; let metaIndex = $index) {
+        <cdk-accordion-item
+          #metaItem="cdkAccordionItem"
+          [expanded]="false"
+          class="example-accordion-item metadata-item"
+        >
+          <button
+            class="example-accordion-item-header metadata-header"
+            (click)="metaItem.toggle()"
+            tabindex="0"
+            [attr.id]="'accordion-header-meta-' + metaIndex"
+            [attr.aria-expanded]="metaItem.expanded"
+            [attr.aria-controls]="'accordion-body-meta-' + metaIndex"
+          >
+            <strong>{{ meta.title }}</strong>
+            <!-- <span class="example-accordion-item-description">
+              {{ metaItem.expanded ? '▼' : '►' }}
+            </span> -->
+          </button>
+          <!-- @if(metaItem.expanded) {
+          <div
+            class="example-accordion-item-body metadata-body"
+            role="region"
+            [style.display]="metaItem.expanded ? '' : 'none'"
+            [attr.id]="'accordion-body-meta-' + metaIndex"
+            [attr.aria-labelledby]="'accordion-header-meta-' + metaIndex"
+          >
+            <div class="metadata-content">
+              <div class="metadata-prompt">
+                <h5>Instructions:</h5>
+                <p>{{ meta.prompt }}</p>
+              </div>
+              <div class="metadata-field-info">
+                <p><strong>Field Type:</strong> {{ meta.fieldType }}</p>
+                <p><strong>Required:</strong> {{ meta.isRequired ? 'Yes' : 'No' }}</p>
+                @if(meta.options && meta.options.length > 0) {
+                <p><strong>Options:</strong> {{ meta.options.join(', ') }}</p>
+                }
+              </div>
+            </div>
+          </div>
+          } -->
+        </cdk-accordion-item>
+        }
+      </cdk-accordion>
+    </div>
+    }
+    <!-- Level 1: Criterias -->
+    <cdk-accordion class="example-accordion">
+      @for (criteria of viewSCData(); track criteria._id; let criteriaIndex = $index) {
+      <cdk-accordion-item
+        #criteriaItem="cdkAccordionItem"
+        [expanded]="true"
+        class="example-accordion-item"
+      >
+        <button
+          class="example-accordion-item-header"
+          (click)="criteriaItem.toggle()"
+          tabindex="0"
+          [attr.id]="'accordion-header-criteria-' + criteriaIndex"
+          [attr.aria-expanded]="criteriaItem.expanded"
+          [attr.aria-controls]="'accordion-body-criteria-' + criteriaIndex"
+        >
+          Scoring
+          <span class="example-accordion-item-description">
+            {{ criteriaItem.expanded ? '▼' : '►' }}
+          </span>
+        </button>
+        @if(criteriaItem.expanded) {
+        <div
+          class="example-accordion-item-body"
+          role="region"
+          [style.display]="criteriaItem.expanded ? '' : 'none'"
+          [attr.id]="'accordion-body-criteria-' + criteriaIndex"
+          [attr.aria-labelledby]="'accordion-header-criteria-' + criteriaIndex"
+        >
+          <!-- Level 2: Scoring Sections -->
+          <cdk-accordion class="nested-accordion">
+            @for (section of criteria.scoringSections; track section._id; let sectionIndex = $index)
+            {
+            <cdk-accordion-item
+              #sectionItem="cdkAccordionItem"
+              [expanded]="true"
+              class="example-accordion-item nested"
+            >
+              <button
+                class="example-accordion-item-header nested-header"
+                (click)="sectionItem.toggle()"
+                tabindex="0"
+                [attr.id]="'accordion-header-section-' + criteriaIndex + '-' + sectionIndex"
+                [attr.aria-expanded]="sectionItem.expanded"
+                [attr.aria-controls]="
+                  'accordion-body-section-' + criteriaIndex + '-' + sectionIndex
+                "
+              >
+                <strong>{{ section.title }} </strong>
+                <span class="example-accordion-item-description">
+                  {{ sectionItem.expanded ? '▼' : '►' }}
+                </span>
+              </button>
+              @if(sectionItem.expanded) {
+              <div
+                class="example-accordion-item-body nested-body"
+                role="region"
+                [style.display]="sectionItem.expanded ? '' : 'none'"
+                [attr.id]="'accordion-body-section-' + criteriaIndex + '-' + sectionIndex"
+                [attr.aria-labelledby]="
+                  'accordion-header-section-' + criteriaIndex + '-' + sectionIndex
+                "
+              >
+                <!-- Level 3: Details -->
+                <cdk-accordion class="detail-accordion">
+                  @for (detail of section.details; track detail._id; let detailIndex = $index) {
+                  <cdk-accordion-item
+                    #detailItem="cdkAccordionItem"
+                    [expanded]="true"
+                    class="example-accordion-item detail"
+                  >
+                    <button
+                      class="example-accordion-item-header detail-header"
+                      (click)="detailItem.toggle()"
+                      tabindex="0"
+                      [attr.id]="
+                        'accordion-header-detail-' +
+                        criteriaIndex +
+                        '-' +
+                        sectionIndex +
+                        '-' +
+                        detailIndex
+                      "
+                      [attr.aria-expanded]="detailItem.expanded"
+                      [attr.aria-controls]="
+                        'accordion-body-detail-' +
+                        criteriaIndex +
+                        '-' +
+                        sectionIndex +
+                        '-' +
+                        detailIndex
+                      "
+                    >
+                      <span class="detail-title">{{ detail.description }}</span>
+                      <span class="example-accordion-item-description">
+                        {{ detailItem.expanded ? '▼' : '►' }}
+                      </span>
+                    </button>
+                    @if(detailItem.expanded) {
+                    <div
+                      class="example-accordion-item-body detail-body"
+                      role="region"
+                      [style.display]="detailItem.expanded ? '' : 'none'"
+                      [attr.id]="
+                        'accordion-body-detail-' +
+                        criteriaIndex +
+                        '-' +
+                        sectionIndex +
+                        '-' +
+                        detailIndex
+                      "
+                      [attr.aria-labelledby]="
+                        'accordion-header-detail-' +
+                        criteriaIndex +
+                        '-' +
+                        sectionIndex +
+                        '-' +
+                        detailIndex
+                      "
+                    >
+                      <div class="score-section">
+                        <p class="score"><strong></strong> {{ detail.score }}</p>
+                        <p><strong></strong> {{ detail.scoringPercentage }}%</p>
+                        <!-- <p>
+                            <strong>Is Auto Fail:</strong> {{ detail.isAutoFail ? 'Yes' : 'No' }}
+                          </p> -->
+                      </div>
+                      <div class="detail-content">
+                        <div class="prompt-section">
+                          <p>{{ detail.prompt }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    }
+                  </cdk-accordion-item>
+                  }
+                </cdk-accordion>
+              </div>
+              }
+            </cdk-accordion-item>
+            }
+          </cdk-accordion>
+        </div>
+        }
+      </cdk-accordion-item>
+
+      <div class="total-possible-points">
+        <h4>Total Possible Points</h4>
+
+        <p>{{ criteria.criteriaTotal }}</p>
+      </div>
+
+      }
+    </cdk-accordion>
+  </div>
+</div>

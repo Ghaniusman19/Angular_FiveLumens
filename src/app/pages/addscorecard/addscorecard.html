@@ -19,6 +19,7 @@
               class="btn save-only-btn br-5 mr-3"
               id="submitButton"
               (click)="SaveOnlyScoreCard()"
+              [disabled]="!canSaveScorecard()"
             >
               Save Only
             </button>
@@ -64,9 +65,6 @@
           </div>
           }
           <!-- 3 dot button -->
-          <!-- <div class="menu-container">
-          
-          </div> -->
         </li>
         }
       </ul>
@@ -110,8 +108,6 @@
             <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
           </div>
           }
-          <!-- <div class="menu-container">
-          </div> -->
         </li>
         }
       </ul>
@@ -163,9 +159,7 @@
           </button>
         </div>
         }
-        <!-- <div class="menu-container">
-         
-        </div> -->
+
         <ul class="criteria-list" cdkDropList (cdkDropListDropped)="dropCriteria($event, section)">
           @for (criteria of section.criteria; track criteria.id) {
           <li
@@ -183,22 +177,31 @@
                   <span class="drag-handle" cdkDragHandle>⋮⋮</span>
                   <span class="meta-text">{{ criteria.description }}</span>
                 </div>
-                <!-- <div class="input__">
-                  <form [formGroup]="criteriaVal">
-                    <input type="number" formControlName="crValue" />
-                  </form>
-                </div> -->
+
                 @if (criteria.autofill) {
                 <span class="autofill-tag">autofill </span>
                 }
               </div>
-              <div>
+              <div style="display: flex; align-items: center; justify-content: center; gap: 5px">
+                <div class="criteria-input">
+                  <input
+                    type="number"
+                    min="0"
+                    max="3"
+                    maxlength="3"
+                    (keydown)="limitToMax($event)"
+                    [value]="criteria.value || 0"
+                    (input)="onCriteriaValueChange(section.id, criteria.id, $event)"
+                  />
+                </div>
+                <div style="margin-bottom: 0">
+                  <span class="percentage">{{ criteria.percentage }}%</span>
+                </div>
+
                 <button class="three-dots" (click)="toggleCriteriaMenu(criteria.id)">⋮</button>
               </div>
             </div>
-            <!-- <div class="menu-container">
-            
-            </div> -->
+
             @if (openCriteriaMenuId() === criteria.id) {
             <div class="dropdown-menu">
               <button
@@ -227,32 +230,9 @@
         <div class="heading">
           <h3>Total Possible Points</h3>
         </div>
-        <div class="quantity">1</div>
+        <div class="quantity"><strong>Total:</strong> {{ getGrandTotal() }}</div>
       </div>
     </div>
-
-    <!-- <ul class="meta-data-descriptions" cdkDropList (cdkDropListDropped)="drop($event)">
-      @for (item of submittedMetaData; track item.id; let i = $index) {
-      <li class="meta-item" cdkDrag>
-        <div class="meta-left">
-          <span class="drag-handle" cdkDragHandle>⋮⋮</span>
-          <span class="meta-text">{{ item.title }}</span>
-          <span class="meta-type">({{ item.type }})  </span>
-         
-        </div>
-
-        <div class="menu-container">
-          <button class="three-dots" (click)="toggleMenu(item.id)">⋮</button>
-          @if (openMenuId() === item.id) {
-          <div class="dropdown-menu">
-            <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
-            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
-          </div>
-          }
-        </div>
-      </li>
-      }
-    </ul> -->
   </div>
 
   @if (isMetaDataModalOpened()) {
@@ -307,6 +287,7 @@
         <!-- First Level Chips -->
         <div>
           <label>Single Select Options</label>
+
           <mat-form-field>
             <mat-chip-grid #chipGrid1>
               @for (ctrl of optionsArray.controls; track ctrl; let i = $index) {
@@ -316,11 +297,7 @@
               </mat-chip-row>
               }
             </mat-chip-grid>
-            <input
-              placeholder="Enter option"
-              [matChipInputFor]="chipGrid1"
-              (matChipInputTokenEnd)="addOptionChip($event)"
-            />
+            <input [matChipInputFor]="chipGrid1" (matChipInputTokenEnd)="addOptionChip($event)" />
           </mat-form-field>
         </div>
 
@@ -338,7 +315,22 @@
             {{ subCtrl.get('title')?.value }}
             <span>Second Level</span>
           </h4>
-          <mat-form-field>
+
+          <mat-form-field style="background-color: green">
+            <mat-chip-grid #chipGrid2>
+              @for (ctrl of getSecondLevelOptions(subCtrl).controls; track ctrl; let j = $index) {
+              <mat-chip-row (removed)="removeSecondLevelChip(i, j)">
+                {{ ctrl.value }}
+                <button matChipRemove>&times;</button>
+              </mat-chip-row>
+              }
+            </mat-chip-grid>
+            <input
+              [matChipInputFor]="chipGrid2"
+              (matChipInputTokenEnd)="addSecondLevelChip($event, i)"
+            />
+          </mat-form-field>
+          <!-- <mat-form-field>
             <mat-chip-grid #chipGrid2>
               @for (ctrl of getSecondLevelOptions(subCtrl).controls; track ctrl; let j = $index) {
               <mat-chip-row (removed)="removeSecondLevelChip(i, j)">
@@ -352,31 +344,37 @@
               [matChipInputFor]="chipGrid2"
               (matChipInputTokenEnd)="addSecondLevelChip($event, i)"
             />
-          </mat-form-field>
+          </mat-form-field> -->
           <div class="meta-data-secondlevel">
             <label>Add Third Level</label>
-            <input type="checkbox" formControlName="isThirdLevel" />
+            <input type="checkbox" />
+
+            <!-- [formControl]="subCtrl.get('isThirdLevel')"  -->
           </div>
-          @if (SingleSelectModal.get('isThirdLevel')?.value) {
-          <div class="mt-2" formArrayName="subOptions">
-            <label>Third Level Options (for {{ subCtrl.get('title')?.value }})</label>
-            <mat-form-field class="w-100">
+          @for (levelCtrl of getThirdLevels(subCtrl).controls; track levelCtrl; let j = $index) {
+          <div class="ml-3">
+            <label>{{ levelCtrl.get('title')?.value }} Third Level</label>
+            <mat-form-field style="background-color: yellow">
               <mat-chip-grid #chipGrid3>
-                @for (ctrl of getThirdLevel(subCtrl).controls; track ctrl; let k = $index) {
-                <mat-chip-row (removed)="removeThirdLevelChip(i, k)">
-                  {{ ctrl.get('title')?.value }}
+                @for (opt of getOptionsArray(levelCtrl).controls; track opt; let k = $index) {
+                <mat-chip-row (removed)="removeThirdLevelChip(i, j, k)">
+                  {{ opt.value }}
                   <button matChipRemove>&times;</button>
                 </mat-chip-row>
                 }
               </mat-chip-grid>
               <input
-                placeholder="Enter 3rd level option"
                 [matChipInputFor]="chipGrid3"
-                (matChipInputTokenEnd)="addThirdLevelChip($event, i)"
+                (matChipInputTokenEnd)="addThirdLevelChip($event, i, j)"
               />
             </mat-form-field>
           </div>
-          } }
+          }
+          <!-- @if (subCtrl.get('isThirdLevel')?.value) 
+          {
+        } -->
+
+          }
         </div>
         }
 

@@ -5,7 +5,7 @@
 <div class="container" style="margin-top: 50px">
   <div class="header" style="background-color: white">
     <div>
-      <h3>ScoreCard</h3>
+      <h3>ScoreCards</h3>
       <p>Manage your scorecards and its details here</p>
     </div>
     <div class="right-div">
@@ -309,7 +309,9 @@
       </div>
     </div>
   </div>
-  } @if (filterToggle()) {
+  }
+  <!-- // Filter Modal -->
+  @if (filterToggle()) {
   <div class="filter-Modal">
     Filters Modal
     <div class="form-container">
@@ -399,7 +401,7 @@
       <div class="col">Scoring</div>
       <div class="col">Updated</div>
       <div class="col">Status</div>
-      <div class="col">Actions</div>
+      <!-- <div class="col">Actions</div> -->
     </div>
 
     <!-- Table Rows -->
@@ -410,7 +412,7 @@
           <div class="title">{{ item.title }}</div>
           <div class="desc">{{ item.description }}</div>
         </div>
-        <div class="col">{{ item.evaluationType }}</div>
+        <div class="col">{{ item.evaluationType | uppercase }}</div>
         <div class="col">{{ item.scoringModel }}</div>
         <div class="col">{{ item.updatedAt | date : 'dd/MM/yyyy' }}</div>
         <div class="col">
@@ -429,26 +431,26 @@
         @if (is3DotDropdown() === item._id) {
         <div class="dropdown">
           <div class="dropdown-btn">
-            <button class="btn-logout" (click)="View(item._id); close3DotDropDown()">View</button>
+            <button class="btn-logout1" (click)="View(item._id); close3DotDropDown()">View</button>
           </div>
           <div class="dropdown-btn">
-            <button class="btn-logout" (click)="EditScorecard(item._id); close3DotDropDown()">
+            <button class="btn-logout1" (click)="EditScorecard(item._id); close3DotDropDown()">
               Edit
             </button>
           </div>
           <div class="dropdown-btn">
-            <button class="btn-logout" (click)="DeleteScorecard(item._id); close3DotDropDown()">
+            <button class="btn-logout1" (click)="DeleteScorecard(item._id); close3DotDropDown()">
               Delete
             </button>
           </div>
           <div class="dropdown-btn">
-            <button class="btn-logout" (click)="CloneScoreCad(item._id); close3DotDropDown()">
+            <button class="btn-logout1" (click)="CloneScoreCad(item._id); close3DotDropDown()">
               Clone
             </button>
           </div>
 
           @if (item.evaluationType === 'ai') {
-          <div class="dropdown-btn"><button class="btn-logout">Evaluate</button></div>
+          <div class="dropdown-btn"><button class="btn-logout1">Evaluate</button></div>
           }
         </div>
         } @if (isCloneModalOpen() === item._id) {

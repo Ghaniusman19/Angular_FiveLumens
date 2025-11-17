@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MetaData } from '../../user';
+// import { MetaData } from '../../user';
 import {
   FormControl,
   FormGroup,
@@ -51,7 +51,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     title: string;
     isFormChecked: boolean;
   }[] = [];
-
+  public saveErrorMessage = signal<string | null>(null);
   public multiselectOptions: string[] = [];
   public singleSelectOptions: string[] = [];
   public secondLevelSelect: string[] = [];
@@ -145,6 +145,26 @@ export class Addscorecard implements OnInit, OnDestroy {
       type: new FormControl('singleSelect'),
     });
   }
+  isThirdLevelOpened = signal(false);
+
+  getOptionsArray(levelCtrl: AbstractControl): FormArray<any> {
+    const control = levelCtrl?.get('options');
+
+    if (control instanceof FormArray) {
+      return control;
+    }
+
+    const newArray = new FormArray<any>([]);
+
+    if (levelCtrl instanceof FormGroup) {
+      levelCtrl.setControl('options', newArray);
+    }
+
+    return newArray;
+  }
+  getIsThirdLevel(subCtrl: AbstractControl) {
+    return subCtrl.get('isThirdLevel') as FormControl;
+  }
 
   get optionsArray() {
     return this.SingleSelectModal.get('options') as FormArray;
@@ -152,6 +172,23 @@ export class Addscorecard implements OnInit, OnDestroy {
   get subOptionsArray() {
     return this.SingleSelectModal.get('subOptions') as FormArray;
   }
+  getSecondLevelOptions(subCtrl: AbstractControl): FormArray {
+    return subCtrl.get('secondLevelOptions') as FormArray;
+  }
+  getThirdLevels(subCtrl: AbstractControl): FormArray<any> {
+    const control = subCtrl?.get('thirdLevels');
+    if (control instanceof FormArray) {
+      return control;
+    } else {
+      // Ensure the control exists to prevent null errors
+      const newArray = new FormArray<any>([]);
+      if (subCtrl instanceof FormGroup) {
+        subCtrl.setControl('thirdLevels', newArray);
+      }
+      return newArray;
+    }
+  }
+
   get subFields(): FormArray {
     return this.SingleSelectModal.get('subFields') as FormArray;
   }
@@ -268,7 +305,7 @@ export class Addscorecard implements OnInit, OnDestroy {
           title: new FormControl(value),
           secondLevelOptions: new FormArray([]),
           isThirdLevel: new FormControl(false),
-          thirdLevel: new FormArray([]),
+          thirdLevels: new FormArray([]),
         })
       );
     }
@@ -283,43 +320,50 @@ export class Addscorecard implements OnInit, OnDestroy {
   addSecondLevelChip(event: MatChipInputEvent, parentIndex: number) {
     const value = (event.value || '').trim();
     if (value) {
-      const secondLevelArray = this.subOptionsArray
-        .at(parentIndex)
-        .get('secondLevelOptions') as FormArray;
+      const parent = this.subOptionsArray.at(parentIndex);
+      const secondLevelArray = parent.get('secondLevelOptions') as FormArray;
       secondLevelArray.push(new FormControl(value));
-    }
-    event.chipInput!.clear();
-  }
 
-  removeSecondLevelChip(parentIndex: number, chipIndex: number) {
-    const secondLevelArray = this.subOptionsArray
-      .at(parentIndex)
-      .get('secondLevelOptions') as FormArray;
-    secondLevelArray.removeAt(chipIndex);
-  }
-
-  addThirdLevelChip(event: MatChipInputEvent, i: number) {
-    const value = (event.value || '').trim();
-    if (value) {
-      const thirdLevel = this.getThirdLevel(this.subOptionsArray.at(i));
-      thirdLevel.push(
+      // Also create corresponding third-level container for this child
+      const thirdLevelsArray = parent.get('thirdLevels') as FormArray;
+      thirdLevelsArray.push(
         new FormGroup({
           title: new FormControl(value),
-          options: new FormControl([]),
+          options: new FormArray([]), // will store 3rd-level chips
         })
       );
     }
     event.chipInput!.clear();
   }
 
-  removeThirdLevelChip(i: number, k: number) {
-    this.getThirdLevel(this.subOptionsArray.at(i)).removeAt(k);
+  removeSecondLevelChip(parentIndex: number, chipIndex: number) {
+    const parent = this.subOptionsArray.at(parentIndex);
+    (parent.get('secondLevelOptions') as FormArray).removeAt(chipIndex);
+    (parent.get('thirdLevels') as FormArray).removeAt(chipIndex);
   }
-  getSecondLevelOptions(subCtrl: AbstractControl): FormArray {
-    return subCtrl.get('secondLevelOptions') as FormArray;
+
+  addThirdLevelChip(event: MatChipInputEvent, parentIndex: number, secondIndex: number) {
+    const value = (event.value || '').trim();
+    if (value) {
+      const parent = this.subOptionsArray.at(parentIndex);
+      const thirdLevelsArray = parent.get('thirdLevels') as FormArray;
+      const targetThirdLevel = thirdLevelsArray.at(secondIndex).get('options') as FormArray;
+      targetThirdLevel.push(new FormControl(value));
+    }
+    event.chipInput!.clear();
   }
-  getThirdLevel(subCtrl: AbstractControl): FormArray {
-    return subCtrl.get('thirdLevel') as FormArray;
+  limitToMax(event: any) {
+    const value = event.target.value;
+    if (value >= 3) {
+      event.target.value = 3;
+    }
+  }
+
+  removeThirdLevelChip(parentIndex: number, secondIndex: number, chipIndex: number) {
+    const parent = this.subOptionsArray.at(parentIndex);
+    const thirdLevelsArray = parent.get('thirdLevels') as FormArray;
+    const targetThirdLevel = thirdLevelsArray.at(secondIndex).get('options') as FormArray;
+    targetThirdLevel.removeAt(chipIndex);
   }
 
   //ngOnIniT methods triggers first and then when any event happens and change ...
@@ -517,12 +561,20 @@ export class Addscorecard implements OnInit, OnDestroy {
         id: Date.now(),
         type: 'Single Select',
         title: this.SingleSelectModal.value.title,
-        isFormChecked: this.SingleSelectModal.get('addSecondLevel')?.value || false,
-        options: this.SingleSelectModal.value.options,
         addSecondLevel: this.SingleSelectModal.value.addSecondLevel,
+        isFormChecked: this.SingleSelectModal.value.isFormChecked,
+        options: this.SingleSelectModal.value.options,
         subOptions: this.SingleSelectModal.value.subOptions,
-      };
 
+        // id: Date.now(),
+        // type: 'Single Select',
+        // title: this.SingleSelectModal.value.title,
+        // isFormChecked: this.SingleSelectModal.get('addSecondLevel')?.value || false,
+        // options: this.SingleSelectModal.value.options,
+        // addSecondLevel: this.SingleSelectModal.value.addSecondLevel,
+        // subOptions: this.SingleSelectModal.value.subOptions,
+      };
+      console.log('Final Nested Data:', newItem);
       this.submittedMetaData.push(newItem);
       console.log('All Meta Data:', this.submittedMetaData);
 
@@ -652,6 +704,8 @@ export class Addscorecard implements OnInit, OnDestroy {
         id: Date.now(),
         description: formValue.description,
         autofill: formValue.autofill,
+        value: 0,
+        percentage: 0,
       };
       section.criteria.push(newCriteria);
     }
@@ -661,6 +715,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.editingCriteriaId = null;
     this.activeSectionId = null;
     this.criteriaModalOpen.set(false);
+    this.calculatePercentages(section.id); //
   }
   public deleteCriteria(sectionId: number, criteriaId: number) {
     const updated = this.scoringArray().map((section) =>
@@ -669,6 +724,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         : section
     );
     this.scoringArray.set(updated);
+    this.calculatePercentages(sectionId);
     localStorage.setItem('scoringArray', JSON.stringify(updated));
   }
   public toggleCriteriaMenu(criteriaId: number) {
@@ -692,18 +748,120 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
   }
 
+  public canSaveScorecard(): boolean {
+    const sections = this.scoringArray();
+    if (!sections || sections.length === 0) {
+      return false;
+    }
+    // ensure each section has at least one criteria
+    for (const s of sections) {
+      if (!s.criteria || s.criteria.length === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
   //Method to save only score card...
   public SaveOnlyScoreCard(): void {
     console.log('save only scorecard..');
-    if (this.scoringArray().length === 0) {
-      console.log('scoring array is empty ');
-      if (this.scoringArray().length !== 0) {
-        for (const scoringitem of this.scoringArray()) {
-          if (scoringitem.criteria.length === 0) {
-            console.log('please add some criterias ');
-          }
-        }
-      }
+    this.saveErrorMessage.set(null);
+    const sections = this.scoringArray();
+    if (!sections || sections.length === 0) {
+      const msg = 'Error: Please add at least one scoring section before saving.';
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
     }
+    const sectionsWithoutCriteria = sections.filter(
+      (sec) => !sec.criteria || sec.criteria.length === 0
+    );
+    if (sectionsWithoutCriteria.length > 0) {
+      // Build a helpful message listing offending sections (by id or value)
+      const ids = sectionsWithoutCriteria.map((s) => s.id ?? s.value ?? 'unknown').join(', ');
+      const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+    try {
+      // Recalculate totals/percentages before final submit (optional, but recommended)
+      for (const sec of sections) {
+        // ensure totals and percentages up-to-date
+        this.calculatePercentages(sec.id);
+        this.calculateTotal(sec.id);
+      }
+
+      const payload = {
+        metaData: this.submittedMetaData,
+        scoring: sections,
+        totals: this.sectionTotals,
+        percentages: this.sectionPercentages,
+        timestamp: Date.now(),
+      };
+
+      // Show in console (or call API here)
+      console.log('SaveOnlyScoreCard - payload ready:', payload);
+
+      // Example: Save locally (you already have helper)
+      localStorage.setItem('scorecardPayload', JSON.stringify(payload));
+
+      // Optionally show success message (console)
+      console.log('Scorecard saved successfully.');
+
+      // Clear error flag if any
+      this.saveErrorMessage.set(null);
+    } catch (err) {
+      console.error('Save error:', err);
+      this.saveErrorMessage.set('Error while saving, check console for details.');
+    } finally {
+    }
+  }
+
+  public sectionTotals: Record<number, number> = {};
+  public sectionPercentages: Record<number, number> = {};
+  calculatePercentages(sectionId: number) {
+    const section = this.scoringArray().find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const totalItems = section.criteria.length;
+    if (totalItems === 0) return;
+
+    const percentage = +(100 / totalItems).toFixed(2);
+
+    // assign this percentage to every criteria in that section
+    section.criteria.forEach((c) => (c.percentage = percentage));
+
+    // store for easy access
+    this.sectionPercentages[sectionId] = percentage;
+  }
+  calculateTotal(sectionId: number) {
+    const section = this.scoringArray().find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const total = section.criteria.reduce((sum, c) => sum + (Number(c.value) || 0), 0);
+    this.sectionTotals[sectionId] = total;
+  }
+  getGrandTotal(): number {
+    return Object.values(this.sectionTotals).reduce((sum, total) => sum + total, 0);
+  }
+
+  getSectionTotal(sectionId: number): number {
+    return this.sectionTotals[sectionId] || 0;
+  }
+  onCriteriaValueChange(sectionId: number, criteriaId: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const newValue = Number(input.value) || 0;
+
+    const section = this.scoringArray().find((s) => s.id === sectionId);
+    if (!section) return;
+
+    // ✅ Update the specific criteria value
+    const criteria = section.criteria.find((c) => c.id === criteriaId);
+    if (criteria) {
+      criteria.value = newValue;
+    }
+
+    // ✅ Recalculate the total
+    this.calculateTotal(sectionId);
   }
 }

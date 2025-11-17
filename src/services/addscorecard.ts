@@ -6,13 +6,27 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class Addscorecard {
-  private apiUrl = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/add';
+  private ADDSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/add';
+  private DELSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/delete';
+  private EDITSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/edit';
 
   constructor(private http: HttpClient) {}
   AddScoreCard(data: any, authToken: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${authToken}`, //
     });
-    return this.http.post(this.apiUrl, data, { headers });
+    return this.http.post(this.ADDSCORECARDAPIURL, data, { headers });
+  }
+  Deletescorecard(data: any, authToken: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${authToken}`, //
+    });
+    return this.http.post(this.DELSCORECARDAPIURL, data, { headers });
+  }
+  EditScoreCard(data: any, authToken: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${authToken}`,
+    });
+    return this.http.post(this.EDITSCORECARDAPIURL, data, { headers });
   }
 }

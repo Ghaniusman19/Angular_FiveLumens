@@ -9,7 +9,7 @@ import { Addscorecard } from '../../../services/addscorecard';
 import { Deletescorecard } from '../../../services/deletescorecard';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { NgZone } from '@angular/core';
+// import { NgZone } from '@angular/core';
 @Component({
   selector: 'app-scorecardnew',
   imports: [CommonModule, ReactiveFormsModule],
@@ -21,8 +21,8 @@ export class Scorecardnew implements OnInit {
     private groups: FetchAPIData,
     private ScorecardData: ScorecardData,
     private addScorecard: Addscorecard,
-    private delscorecard: Deletescorecard,
-    private ngZone: NgZone,
+    // private delscorecard: Deletescorecard,
+    // private ngZone: NgZone,
     private toggleStatus: ToggleStatus,
     private isActive: IsActive
   ) {
@@ -58,13 +58,14 @@ export class Scorecardnew implements OnInit {
     formData.append('perPage', this.pageSize().toString());
     this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
       next: (response: any): void => {
-        this.ngZone.run(() => {
-          this.scData.set(response?.data?.collection || []);
-          this.totalItems.set(response?.data?.pagination?.total);
-          console.log(this.totalItems(), ' these are our total items');
-          // total count from API
-          console.log('Paginated Data:', this.scData());
-        });
+        this.scData.set(response?.data?.collection || []);
+        this.totalItems.set(response?.data?.pagination?.total);
+        console.log(this.totalItems(), ' these are our total items');
+        // total count from API
+        console.log('Paginated Data:', this.scData());
+        // this.ngZone.run(() => {
+
+        // });
       },
       error: (error: any) => {
         console.error('API Error in fetchData:', error);
@@ -126,7 +127,6 @@ export class Scorecardnew implements OnInit {
     const formVal = new FormData();
     formVal.append('id', item);
     this.isActiveStatusModal.set(null);
-
     this.toggleStatus.ToggleActiveState(formVal, this.authkey).subscribe({
       next: (response: any): void => {
         console.log('This is the response of the toggle status', response);
@@ -148,7 +148,6 @@ export class Scorecardnew implements OnInit {
       console.error('Authorization token is missing');
       return;
     }
-
     const formData = new FormData();
     formData.append('isActive', 'true');
     formData.append('page', this.currentPage().toString());
@@ -156,13 +155,14 @@ export class Scorecardnew implements OnInit {
     //This is the code of the fetching of the scorecard  by post method
     this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
       next: (response: any): void => {
-        this.ngZone.run(() => {
-          const activeData = (response?.data?.collection || []).filter(
-            (item: any) => item.isActive === true
-          );
-          this.scData.set(activeData);
-          console.log('API Response of scorecard data 1111:', this.scData()); // Log to console
-        });
+        const activeData = (response?.data?.collection || []).filter(
+          (item: any) => item.isActive === true
+        );
+        this.scData.set(activeData);
+        console.log('API Response of scorecard data 1111:', this.scData()); // Log to console
+        // this.ngZone.run(() => {
+
+        // });
       },
       error: (error: any) => {
         console.error('API Error:', error);
@@ -220,7 +220,7 @@ export class Scorecardnew implements OnInit {
     formdata.append('id', id);
     // const delID = { id: id };
     this.notification.set('Removed successfully!');
-    this.delscorecard.Deletescorecard(formdata, this.authkey).subscribe({
+    this.addScorecard.Deletescorecard(formdata, this.authkey).subscribe({
       next: (Response: any): void => {
         console.log('this is the respomse from delete api', Response);
         this.notification.set(null);
