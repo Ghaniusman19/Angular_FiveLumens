@@ -377,33 +377,27 @@ export class Scorecardnew implements OnInit {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     const checkbox = event.target as HTMLInputElement;
     groupsArray.clear();
-
     if (checkbox.checked) {
       this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
       this.scorecardForm.get('isAllGroups')?.setValue(true);
     } else {
       this.scorecardForm.get('isAllGroups')?.setValue(false);
     }
-
     console.log('Groups in FormArray:', groupsArray.value);
   }
-
   // ✅ Helper to check if a group is selected
   public isSelected(id: string): boolean {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     return groupsArray.value.includes(id);
   }
-
   // ✅ Helper to check Select All status
   public isAllSelected(): boolean {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     return groupsArray.length === this.groupsdata.length;
   }
-
   public onFilterGroupCheckboxChange(id: string, event: Event) {
     const groupsArray = this.filterForm.get('groups') as FormArray;
     const checkbox = event.target as HTMLInputElement;
-
     if (checkbox.checked) {
       groupsArray.push(new FormControl(id));
     } else {
@@ -433,12 +427,10 @@ export class Scorecardnew implements OnInit {
     const groupsArray = this.filterForm.get('groups') as FormArray;
     return groupsArray.value.includes(id);
   }
-
   public isAllFilterSelected(): boolean {
     const groupsArray = this.filterForm.get('groups') as FormArray;
     return groupsArray.length === this.groupsdata.length && this.groupsdata.length > 0;
   }
-
   //This is the event / function to submit the form of add scorecard...
   public scorecardSubmit(): void {
     console.log('button submit .....');

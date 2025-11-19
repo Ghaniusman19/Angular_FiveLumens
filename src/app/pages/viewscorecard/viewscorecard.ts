@@ -4,10 +4,10 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 @Component({
   selector: 'app-viewscorecard',
-  imports: [CdkAccordionModule],
+  imports: [CdkAccordionModule, ReactiveFormsModule],
   templateUrl: './viewscorecard.html',
   styleUrl: './viewscorecard.css',
 })
@@ -23,7 +23,9 @@ export class Viewscorecard implements OnInit, OnDestroy {
   authorization = localStorage.getItem('authToken');
   authkey: any = this.authorization;
   public viewSCData = signal<any[]>([]);
+  public viewSCDataDetails = signal<any[]>([]);
   public apiResponse = signal<any>(null);
+  public SettingModalOpen = signal<boolean>(false);
 
   ngOnInit(): void {
     this.routeSubscription = this.route.queryParams.subscribe((params) => {
@@ -33,7 +35,9 @@ export class Viewscorecard implements OnInit, OnDestroy {
     const viewPayLoad = { id: this.viewID };
     this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
       next: (response: any): void => {
-        console.log('Full API Response:', response);
+        console.log('Full API Response:', response.data);
+        this.viewSCDataDetails.set(response.data);
+        console.log(this.viewSCDataDetails(), 'This is our view scorecard data ');
         // Store the entire data object for accordion display
         // Calculate totals for each section and criteria
         const criterias = (response.data.criterias || []).map((crit: any) => {
@@ -51,11 +55,48 @@ export class Viewscorecard implements OnInit, OnDestroy {
         this.viewSCData.set(criterias);
         this.apiResponse.set({ ...response.data, criterias });
         console.log('Criterias:', this.viewSCData());
+        // populate the scorecard form and make it readonly
+        this.populateFormFromAPI(response.data);
       },
       error: (error: any) => {
         console.log(error);
       },
     });
+    // initial patch will be done when API response arrives
+  }
+
+  // Fill the form from API data and disable it (readonly)
+  private populateFormFromAPI(data: any): void {
+    if (!data) return;
+
+    // patch basic fields
+    this.scorecardForm.patchValue({
+      id: data._id || '',
+      title: data.title || '',
+      description: data.description || '',
+      evaluationType: data.evaluationType || '',
+      scoringModel: data.scoringModel || '',
+      coachingForm: data.coachingForm || '',
+      visibleToManagers: data.visibleToManagers || Boolean,
+      coachingPurposeOnly: data.coachingPurposeOnly || Boolean,
+      isActive: data.isActive || Boolean,
+      isAllGroups: data.isAllGroups || Boolean,
+      groups: data.groups || [],
+    });
+
+    // groups
+    if (Array.isArray(data.groups)) {
+      const groupsFA = this.scorecardForm.get('groups') as FormArray;
+      groupsFA.clear();
+      data.groups.forEach((g: any) => groupsFA.push(new FormControl(g)));
+    }
+
+    // disable the form to make view readonly
+    try {
+      this.scorecardForm.disable({ emitEvent: false });
+    } catch (e) {
+      console.warn('Could not disable form', e);
+    }
   }
   ngOnDestroy(): void {
     // Unsubscribe to prevent memory leaks if using observable-based access
@@ -66,5 +107,32 @@ export class Viewscorecard implements OnInit, OnDestroy {
   // function to handle view settings click / Modal
   public viewSettings(id: any) {
     console.log('View Settings Clicked', id);
+    this.SettingModalOpen.set(true);
+  }
+  public closeSettingModal() {
+    this.SettingModalOpen.set(false);
+  }
+  public scorecardForm: FormGroup = new FormGroup({
+    id: new FormControl(''),
+    title: new FormControl(''),
+    description: new FormControl(''),
+    evaluationType: new FormControl(''),
+    scoringModel: new FormControl(''),
+    coachingForm: new FormControl(''),
+    visibleToManagers: new FormControl(false),
+    coachingPurposeOnly: new FormControl(false),
+    groups: new FormArray([]),
+    isActive: new FormControl(true),
+    isAllGroups: new FormControl(false),
+  });
+
+  submitSettings() {
+    if (this.scorecardForm.valid) {
+      const formData = this.scorecardForm.value;
+      console.log('Form Data Submitted:', formData);
+      // Here you can call the update API with formData
+    } else {
+      console.log('Form is invalid');
+    }
   }
 }

@@ -194,3 +194,35 @@
 .score-section strong {
   color: #1976d2;
 }
+
+.scorecard-modal {
+  background-color: white;
+  position: absolute;
+  z-index: 1001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgb(204, 197, 197);
+  padding: 20px;
+  border-radius: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.close-btn {
+  padding: 10px;
+  border: 1px solid rgb(209, 187, 187);
+  border-radius: 10px;
+  margin-right: 10px;
+}
+.form-header,
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.row_only_s {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

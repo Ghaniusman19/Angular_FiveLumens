@@ -379,7 +379,9 @@ export class Addscorecard implements OnInit, OnDestroy {
         next: (response: any): void => {
           console.log('hey how are you this is my response ....', response);
           this.APIDATA.set(response.data);
-          console.log(this.APIDATA());
+          // populate local forms/state from API response and set readonly
+          this.populateFormFromAPI(response.data);
+          console.log('APIDATA set and form populated');
         },
         error: (error: any) => {
           console.log(error);
@@ -393,6 +395,67 @@ export class Addscorecard implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
+    }
+  }
+
+  // Populate component state and forms from API response (readonly)
+  private populateFormFromAPI(data: any): void {
+    if (!data) return;
+
+    // Normalize metadata
+    if (Array.isArray(data.metaData)) {
+      this.submittedMetaData = data.metaData.map((m: any) => ({
+        id: m._id || m.id || Date.now(),
+        fieldType: m.fieldType || m.fieldType || '',
+        title: m.title || '',
+        isRequired: Boolean(m.isRequired),
+        isSecondLevel: Boolean(m.isSecondLevel),
+        options: m.options || [],
+      }));
+    }
+
+    // Convert API criterias -> local scoringArray structure
+    const localSections: ScoringItems[] = [];
+    if (Array.isArray(data.criterias)) {
+      data.criterias.forEach((crit: any, critIndex: number) => {
+        (crit.scoringSections || []).forEach((sec: any, secIndex: number) => {
+          const sectionId = Date.now() + critIndex * 1000 + secIndex;
+          const section: ScoringItems = {
+            id: sectionId,
+            value: sec.title || crit.title || `Section ${sectionId}`,
+            criteria: (sec.details || []).map((d: any, di: number) => ({
+              id: d._id || Number(d.uniqueId) || Date.now() + di,
+              description: d.description || d.prompt || '',
+              autofill: Boolean(d.isAutoFail),
+              type: crit.type || '',
+              method: crit.method || '',
+              option: crit.option || '',
+              value: Number(d.score) || 0,
+              percentage: Number(d.scoringPercentage) || 0,
+            })),
+          };
+          localSections.push(section);
+        });
+      });
+    }
+
+    if (localSections.length > 0) {
+      this.scoringArray.set(localSections);
+      // compute totals for each section
+      localSections.forEach((s) => this.calculateTotal(s.id));
+    }
+
+    // Disable editing - make forms read-only
+    try {
+      this.DateScoreCard.disable();
+      this.LargeScoreCard.disable();
+      this.SmallTextModal.disable();
+      this.MultiSelectModal.disable();
+      this.SingleSelectModal.disable();
+      this.criteriaForm.disable();
+      this.scoringForm.disable();
+    } catch (e) {
+      // ignore if forms not initialized
     }
   }
   //methods to open and close single select modal

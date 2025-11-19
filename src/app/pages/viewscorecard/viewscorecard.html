@@ -6,10 +6,154 @@
         <p>{{ apiResponse()?.description }}</p>
       </div>
       <div class="sc-view-setting">
-        <button class="btn-logout" (click)="viewSettings(apiResponse()._id)">Seting</button>
+        <button class="btn-logout" (click)="viewSettings(apiResponse()._id)">Setting</button>
       </div>
     </div>
+    @if (SettingModalOpen()) {
+    <div class="setting-modal">
+      <button class="btn-logout" (click)="closeSettingModal()">close seting modal</button>
+      <div class="scorecard-modal">
+        <div class="form-container">
+          <div class="form-header">
+            <div>
+              <h3>ScoreCard Setting</h3>
+              <p>Manage ScoreCard Here</p>
+            </div>
 
+            <button class="close-btn" (click)="closeSettingModal()">close</button>
+          </div>
+          <div class="form-body">
+            <form [formGroup]="scorecardForm" (ngSubmit)="submitSettings()">
+              <div class="modal-body container">
+                <div class="mb-3">
+                  <label for="" class="form-label">ID</label>
+                  <input type="text" name="id" class="form-control mxw-270" formControlName="id" />
+                </div>
+                <div class="mb-3">
+                  <label for="" class="form-label">Name</label
+                  ><input
+                    maxlength="64"
+                    name="title"
+                    type="text"
+                    class="form-control mxw-270"
+                    formControlName="title"
+                    placeholder="Enter scorecard name here..."
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="" class="form-label">Description</label
+                  ><textarea
+                    maxlength="364"
+                    name="description"
+                    type="text"
+                    class="form-control"
+                    rows="4"
+                    cols="50"
+                    formControlName="description"
+                    placeholder="Enter scorecard description here..."
+                    style="height: 50px"
+                  ></textarea>
+                </div>
+                <div class="row" style="margin-top: 15px">
+                  <div class="col-md-9">
+                    <p class="all-groups-label">All Groups (Apply to All New Groups)</p>
+                  </div>
+                </div>
+
+                <div class="mb-3 group-header">
+                  <div>
+                    <label class="form-label">Groups</label>
+                  </div>
+                  <div class="custom-checkbox-list">
+                    <!-- Select All -->
+                    <!-- <label class="checkbox-item">
+                      <input type="checkbox" />
+                      Select All
+                    </label> -->
+
+                    <!-- Groups -->
+
+                    <label class="checkbox-item">
+                      <input type="checkbox" formControlName="isAllGroups" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="" class="form-label">Evaluation Type</label
+                  ><select
+                    name="evaluationType"
+                    class="form-control"
+                    formControlName="evaluationType"
+                  >
+                    <option value="" disabled="">Select Evaluation Type</option>
+                    <option value="manual">Manual</option>
+                    <option value="ai">AI</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="" class="form-label">Scoring Model</label
+                  ><select
+                    name="scoringModel"
+                    class="form-control"
+                    formControlName="scoringModel"
+                  ></select>
+                </div>
+                <div class="">
+                  <label for="" class="form-label">Coaching Form</label
+                  ><select
+                    name="coachingForm"
+                    type="text"
+                    class="form-control"
+                    formControlName="coachingForm"
+                  ></select>
+                </div>
+                <div class="my-2 ad_s">
+                  <label for="" class="form-label">Additional Settings</label>
+                  <div class="ml-3">
+                    <div class="row row_only_s">
+                      <div class="col-md-9"><p>Visible to Manager Only</p></div>
+                      <div class="col-md-3 text-right">
+                        <label class="ios-switch"
+                          ><input
+                            name="visibleToManagers"
+                            formControlName="visibleToManagers"
+                            type="checkbox"
+                            id="test3"
+                            class="toggle" /><span class=""></span
+                        ></label>
+                      </div>
+                    </div>
+                    <div class="row row_only_s">
+                      <div class="col-md-9"><p>Coaching Purposes Only</p></div>
+                      <div class="col-md-3 text-right">
+                        <label class="ios-switch">
+                          <input
+                            name="coachingPurposeOnly"
+                            formControlName="coachingPurposeOnly"
+                            type="checkbox"
+                            id="test4"
+                            class="toggle" /><span class=""></span
+                        ></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-footer">
+                <button class="filter-close-btn close-btn" (click)="closeSettingModal()">
+                  Cancel
+                </button>
+                <button type="submit" class="btn-logout">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
     <!-- METADATA SECTION AS ACCORDION -->
     @if(apiResponse()?.metaData && (apiResponse()?.metaData)) {
     <div class="metadata-section">
