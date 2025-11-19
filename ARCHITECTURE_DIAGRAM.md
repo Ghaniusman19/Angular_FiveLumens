@@ -237,4 +237,3 @@ Mobile (<768px)
    ├─ .score-section (min-width: 300px)
    └─ Display stacked (flex-wrap: wrap)
 ```
-

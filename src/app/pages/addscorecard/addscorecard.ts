@@ -47,9 +47,11 @@ export class Addscorecard implements OnInit, OnDestroy {
   public submittedSmallTextData: any[] = [];
   public submittedMetaData: {
     id: number;
-    type: string;
+    fieldType: string;
     title: string;
-    isFormChecked: boolean;
+    isRequired: boolean;
+    isSecondLevel: boolean;
+    options?: string[];
   }[] = [];
   public saveErrorMessage = signal<string | null>(null);
   public multiselectOptions: string[] = [];
@@ -108,21 +110,21 @@ export class Addscorecard implements OnInit, OnDestroy {
     });
     this.DateScoreCard = new FormGroup({
       title: new FormControl('', Validators.required),
-      isFormChecked: new FormControl('', Validators.required),
+      isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('date'),
     });
 
     this.LargeScoreCard = new FormGroup({
       title: new FormControl('', Validators.required),
-      isFormChecked: new FormControl('', Validators.required),
+      isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('largeText'),
     });
 
     this.SmallTextModal = new FormGroup({
       title: new FormControl('', Validators.required),
-      isFormChecked: new FormControl('', Validators.required),
+      isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('smallText'),
     });
@@ -130,18 +132,20 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.MultiSelectModal = new FormGroup({
       title: new FormControl('', Validators.required),
       multiselect: new FormControl([], Validators.required),
-      isFormChecked: new FormControl('', Validators.required),
+      isFormChecked: new FormControl(false),
+      isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
-      type: new FormControl('MultiSelect'),
+      type: new FormControl('multiSelect'),
     });
 
     this.SingleSelectModal = new FormGroup({
       title: new FormControl('', Validators.required),
       options: new FormArray([], Validators.required), // First Level Chips
-      addSecondLevel: new FormControl(false),
+      isSecondLevel: new FormControl(false),
       isThirdLevel: new FormControl(false),
       subOptions: new FormArray([], Validators.required), // Second Level Array
       isFormChecked: new FormControl(false),
+      isRequired: new FormControl(false),
       type: new FormControl('singleSelect'),
     });
   }
@@ -445,7 +449,16 @@ export class Addscorecard implements OnInit, OnDestroy {
   private getDatafromLocalStorage(): void {
     const storedData = localStorage.getItem('description val');
     if (storedData) {
-      this.submittedMetaData = JSON.parse(storedData);
+      const parsed = JSON.parse(storedData);
+      // ✅ Normalize metadata: ensure all required fields exist
+      this.submittedMetaData = parsed.map((meta: any) => ({
+        id: meta.id,
+        fieldType: meta.fieldType || '',
+        title: meta.title || '',
+        isRequired: meta.hasOwnProperty('isRequired') ? Boolean(meta.isRequired) : false,
+        isSecondLevel: meta.hasOwnProperty('isSecondLevel') ? Boolean(meta.isSecondLevel) : false,
+        options: meta.options || [],
+      }));
     }
   }
   private SaveDataToLocalStorage(): void {
@@ -462,9 +475,11 @@ export class Addscorecard implements OnInit, OnDestroy {
 
       const newMetaData = {
         id,
-        type: descriptionValue,
-        title: descriptionValue, // or another value if you have a title input
-        isFormChecked: false, // default value
+        fieldType: descriptionValue,
+        title: descriptionValue,
+        isRequired: false,
+        isSecondLevel: false,
+        options: [],
       };
 
       if (descriptionValue || id) {
@@ -482,16 +497,18 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (this.DateScoreCard.valid) {
       const newItem = {
         id: Date.now(),
-        type: 'Date',
+        fieldType: 'date',
         title: this.DateScoreCard.value.title,
-        isFormChecked: this.DateScoreCard.value.isFormChecked,
-        newType: this.DateScoreCard.value.newType,
+        isRequired: Boolean(this.DateScoreCard.value.isRequired),
+        isSecondLevel: false,
+        options: [],
       };
 
       this.submittedMetaData.push(newItem);
+      this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
 
-      this.DateScoreCard.reset({ title: '', isFormChecked: false });
+      this.DateScoreCard.reset({ title: '', isRequired: false });
       this.closeDateModal();
     }
   }
@@ -502,16 +519,18 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (this.LargeScoreCard.valid) {
       const newItem = {
         id: Date.now(),
-        type: 'Large Text',
+        fieldType: 'largeText',
         title: this.LargeScoreCard.value.title,
-        isFormChecked: this.LargeScoreCard.value.isFormChecked,
-        newType: this.LargeScoreCard.value.newType,
+        isRequired: Boolean(this.LargeScoreCard.value.isRequired),
+        isSecondLevel: false,
+        options: [],
       };
 
       this.submittedMetaData.push(newItem);
+      this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
 
-      this.LargeScoreCard.reset({ title: '', isFormChecked: false });
+      this.LargeScoreCard.reset({ title: '', isRequired: false });
       this.closeLargeTextModal();
     }
   }
@@ -521,14 +540,16 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (this.SmallTextModal.valid) {
       const newItem = {
         id: Date.now(),
-        type: 'Small Text',
+        fieldType: 'smallText',
         title: this.SmallTextModal.value.title,
-        isFormChecked: this.SmallTextModal.value.isFormChecked,
-        newType: this.SmallTextModal.value.newType,
+        isRequired: Boolean(this.SmallTextModal.value.isRequired),
+        isSecondLevel: false,
+        options: [],
       };
       this.submittedMetaData.push(newItem);
+      this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
-      this.SmallTextModal.reset({ title: '', isFormChecked: false });
+      this.SmallTextModal.reset({ title: '', isRequired: false });
       this.closeSmallTextModal();
     }
   }
@@ -541,15 +562,16 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (this.MultiSelectModal.valid) {
       const newItem = {
         id: Date.now(),
-        type: 'Multi Select',
+        fieldType: 'multiSelect',
         title: this.MultiSelectModal.value.title,
-        isFormChecked: this.MultiSelectModal.value.isFormChecked,
-        newType: this.MultiSelectModal.value.newType,
-        multiSelect: this.MultiSelectModal.value.multiselect,
+        isRequired: Boolean(this.MultiSelectModal.value.isRequired),
+        isSecondLevel: false,
+        options: this.MultiSelectModal.value.multiselect,
       };
       this.submittedMetaData.push(newItem);
+      this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
-      this.MultiSelectModal.reset({ title: '', isFormChecked: false });
+      this.MultiSelectModal.reset({ title: '', isRequired: false });
       this.closeMultiSelectModal();
     }
   }
@@ -559,28 +581,21 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (this.SingleSelectModal.valid) {
       const newItem = {
         id: Date.now(),
-        type: 'Single Select',
+        fieldType: 'singleSelect',
         title: this.SingleSelectModal.value.title,
-        addSecondLevel: this.SingleSelectModal.value.addSecondLevel,
-        isFormChecked: this.SingleSelectModal.value.isFormChecked,
+        isRequired: Boolean(this.SingleSelectModal.value.isRequired),
+        isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
         options: this.SingleSelectModal.value.options,
-        subOptions: this.SingleSelectModal.value.subOptions,
-
-        // id: Date.now(),
-        // type: 'Single Select',
-        // title: this.SingleSelectModal.value.title,
-        // isFormChecked: this.SingleSelectModal.get('addSecondLevel')?.value || false,
-        // options: this.SingleSelectModal.value.options,
-        // addSecondLevel: this.SingleSelectModal.value.addSecondLevel,
-        // subOptions: this.SingleSelectModal.value.subOptions,
       };
       console.log('Final Nested Data:', newItem);
       this.submittedMetaData.push(newItem);
+      this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
 
       this.SingleSelectModal.reset({
         title: '',
         addSecondLevel: false,
+        isRequired: false,
       });
       this.closeSingleSelectModal();
     }
@@ -668,6 +683,9 @@ export class Addscorecard implements OnInit, OnDestroy {
   public criteriaForm = new FormGroup({
     description: new FormControl('', { nonNullable: true }),
     autofill: new FormControl(false, { nonNullable: true }),
+    type: new FormControl('', { nonNullable: true }),
+    method: new FormControl('', { nonNullable: true }),
+    option: new FormControl('', { nonNullable: true }),
   });
   public openCriteriaModal(sectionId: number) {
     this.activeSectionId = sectionId;
@@ -695,7 +713,14 @@ export class Addscorecard implements OnInit, OnDestroy {
       // ✅ Update existing item
       section.criteria = section.criteria.map((c) =>
         c.id === this.editingCriteriaId
-          ? { ...c, description: formValue.description, autofill: formValue.autofill }
+          ? {
+              ...c,
+              description: formValue.description,
+              autofill: formValue.autofill,
+              type: formValue.type,
+              method: formValue.method,
+              option: formValue.option,
+            }
           : c
       );
     } else {
@@ -704,6 +729,9 @@ export class Addscorecard implements OnInit, OnDestroy {
         id: Date.now(),
         description: formValue.description,
         autofill: formValue.autofill,
+        type: formValue.type,
+        method: formValue.method,
+        option: formValue.option,
         value: 0,
         percentage: 0,
       };
@@ -738,6 +766,9 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.criteriaForm.patchValue({
         description: criteria.description,
         autofill: criteria.autofill,
+        type: criteria.type || '',
+        method: criteria.method || '',
+        option: criteria.option || '',
       });
       this.activeSectionId = sectionId;
       this.editingCriteriaId = criteriaId;
@@ -764,6 +795,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   //Method to save only score card...
   public SaveOnlyScoreCard(): void {
     console.log('save only scorecard..');
+
     this.saveErrorMessage.set(null);
     const sections = this.scoringArray();
     if (!sections || sections.length === 0) {
@@ -792,19 +824,49 @@ export class Addscorecard implements OnInit, OnDestroy {
       }
 
       const payload = {
-        metaData: this.submittedMetaData,
-        scoring: sections,
-        totals: this.sectionTotals,
-        percentages: this.sectionPercentages,
-        timestamp: Date.now(),
+        id: this.AddScoreCardID,
+        _id: this.AddScoreCardID,
+        title: 'Scorecard',
+        description: 'Scorecard',
+        isPublished: false,
+        isActive: false,
+        metaData: this.submittedMetaData.map((meta) => ({
+          id: meta.id,
+          fieldType: meta.fieldType,
+          title: meta.title,
+          isRequired: Boolean(meta.isRequired),
+          isSecondLevel: Boolean(meta.isSecondLevel),
+          options: meta.options || [],
+        })),
+        criterias: this.transformScoringToAPIFormat(sections),
       };
+      // Diagnostic logs to inspect payload before sending
+      try {
+        console.log('DEBUG: final payload.metaData items:', payload.metaData);
+        console.log(
+          'DEBUG: metaData keys per item:',
+          payload.metaData.map((m: any) => Object.keys(m))
+        );
+        console.log('DEBUG: final payload JSON:', JSON.stringify(payload));
+      } catch (e) {
+        console.log('DEBUG: payload serialization error', e);
+      }
 
+      this.editscorecard.UpdateScoreCard(payload, this.authkey).subscribe({
+        next: (response: any): void => {
+          console.log('hey how are you this is my response ....', response);
+          console.log(this.AddScoreCardID);
+          // this.APIDATA.set(response.data);
+          // console.log(this.APIDATA());
+        },
+        error: (error: any) => {
+          console.log(error);
+        },
+      });
       // Show in console (or call API here)
       console.log('SaveOnlyScoreCard - payload ready:', payload);
-
       // Example: Save locally (you already have helper)
       localStorage.setItem('scorecardPayload', JSON.stringify(payload));
-
       // Optionally show success message (console)
       console.log('Scorecard saved successfully.');
 
@@ -816,7 +878,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     } finally {
     }
   }
-
+  // new code starts
   public sectionTotals: Record<number, number> = {};
   public sectionPercentages: Record<number, number> = {};
   calculatePercentages(sectionId: number) {
@@ -863,5 +925,34 @@ export class Addscorecard implements OnInit, OnDestroy {
 
     // ✅ Recalculate the total
     this.calculateTotal(sectionId);
+  }
+
+  // ===== TRANSFORMATION FUNCTION FOR API PAYLOAD =====
+  private transformScoringToAPIFormat(sections: ScoringItems[]): any[] {
+    return sections.map((section) => ({
+      type: section.criteria[0]?.type || 'customerExperience', // ✅ Must be: customerExperience or compliance
+      title: section.value,
+      method: section.criteria[0]?.method || 'numeric',
+      option: section.criteria[0]?.option || 'none',
+      totalScore: this.getSectionTotal(section.id),
+      scoringSections: [
+        {
+          title: section.value,
+          details: section.criteria.map((crit: any) => ({
+            description: crit.description,
+            score: crit.value,
+            scoringPercentage: crit.percentage,
+            prompt: crit.description,
+            isAutoFail: crit.autofill,
+            uniqueId: crit.id.toString(),
+            definition: {
+              title: crit.description,
+              description: crit.description,
+              descriptions: [],
+            },
+          })),
+        },
+      ],
+    }));
   }
 }

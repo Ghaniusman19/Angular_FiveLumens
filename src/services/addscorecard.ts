@@ -9,6 +9,7 @@ export class Addscorecard {
   private ADDSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/add';
   private DELSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/delete';
   private EDITSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/edit';
+  private UPDATESCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/update';
 
   constructor(private http: HttpClient) {}
   AddScoreCard(data: any, authToken: string): Observable<any> {
@@ -28,5 +29,11 @@ export class Addscorecard {
       Authorization: `Bearer ${authToken}`,
     });
     return this.http.post(this.EDITSCORECARDAPIURL, data, { headers });
+  }
+  UpdateScoreCard(payload: any, authToken: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${authToken}`,
+    });
+    return this.http.post(this.UPDATESCORECARDAPIURL, payload, { headers });
   }
 }

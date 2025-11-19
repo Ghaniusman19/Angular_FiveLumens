@@ -13,39 +13,42 @@
 ## **Solutions Implemented:**
 
 ### 1. **TypeScript Component (`viewscorecard.ts`)**
-   - ✅ Added `UpperCasePipe` import from `@angular/common`
-   - ✅ Added `UpperCasePipe` to component imports
-   - ✅ Added new signal `apiResponse` to store entire response data
-   - ✅ Updated data setting to properly store full response object
-   - ✅ Removed incorrect `viewScoringSections` signal
-   - ✅ Removed duplicate `OnDestroy` in class declaration
-   - ✅ Removed unused `items` and `expandedIndex` properties
+
+- ✅ Added `UpperCasePipe` import from `@angular/common`
+- ✅ Added `UpperCasePipe` to component imports
+- ✅ Added new signal `apiResponse` to store entire response data
+- ✅ Updated data setting to properly store full response object
+- ✅ Removed incorrect `viewScoringSections` signal
+- ✅ Removed duplicate `OnDestroy` in class declaration
+- ✅ Removed unused `items` and `expandedIndex` properties
 
 ### 2. **HTML Template (`viewscorecard.html`)**
-   - ✅ Created **3-level nested accordion structure**:
-     - **Level 1**: Criterias with type and title
-     - **Level 2**: Scoring Sections under each criteria
-     - **Level 3**: Details under each scoring section
-   - ✅ Displayed full API response metadata (title, description)
-   - ✅ Added proper `track` expressions for performance
-   - ✅ Implemented detailed content display with:
-     - Prompt section
-     - Score information
-     - Scoring percentage
-     - Auto-fail status
-   - ✅ Improved accessibility with proper ARIA attributes
+
+- ✅ Created **3-level nested accordion structure**:
+  - **Level 1**: Criterias with type and title
+  - **Level 2**: Scoring Sections under each criteria
+  - **Level 3**: Details under each scoring section
+- ✅ Displayed full API response metadata (title, description)
+- ✅ Added proper `track` expressions for performance
+- ✅ Implemented detailed content display with:
+  - Prompt section
+  - Score information
+  - Scoring percentage
+  - Auto-fail status
+- ✅ Improved accessibility with proper ARIA attributes
 
 ### 3. **CSS Styling (`viewscorecard.css`)**
-   - ✅ Added comprehensive styling for all accordion levels
-   - ✅ Created visual hierarchy with:
-     - Different background colors for each level
-     - Left border for nested sections
-     - Proper padding and margins
-   - ✅ Styled headers with gradients
-   - ✅ Added hover effects for better UX
-   - ✅ Formatted detail content with two-column layout
-   - ✅ Styled prompt text with proper wrapping
-   - ✅ Color-coded sections for better visual distinction
+
+- ✅ Added comprehensive styling for all accordion levels
+- ✅ Created visual hierarchy with:
+  - Different background colors for each level
+  - Left border for nested sections
+  - Proper padding and margins
+- ✅ Styled headers with gradients
+- ✅ Added hover effects for better UX
+- ✅ Formatted detail content with two-column layout
+- ✅ Styled prompt text with proper wrapping
+- ✅ Color-coded sections for better visual distinction
 
 ## **Data Structure Expected:**
 
@@ -90,6 +93,7 @@ API Response
 ## **Testing:**
 
 Run your application and:
+
 1. Navigate to the view scorecard page
 2. Verify API response displays in console
 3. Check that all levels of accordions expand/collapse properly

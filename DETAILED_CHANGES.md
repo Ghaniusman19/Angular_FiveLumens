@@ -3,6 +3,7 @@
 ## File 1: viewscorecard.ts
 
 ### Change 1: Added Import for UpperCasePipe
+
 ```typescript
 // BEFORE
 import { CdkAccordionModule } from '@angular/cdk/accordion';
@@ -13,6 +14,7 @@ import { UpperCasePipe } from '@angular/common';
 ```
 
 ### Change 2: Updated Component Imports
+
 ```typescript
 // BEFORE
 @Component({
@@ -30,6 +32,7 @@ import { UpperCasePipe } from '@angular/common';
 ```
 
 ### Change 3: Fixed Class Declaration
+
 ```typescript
 // BEFORE
 export class Viewscorecard implements OnInit, OnDestroy, OnDestroy {
@@ -42,6 +45,7 @@ export class Viewscorecard implements OnInit, OnDestroy {
 ```
 
 ### Change 4: Updated Signals
+
 ```typescript
 // BEFORE
 public viewSCData = signal<any[]>([]);
@@ -53,6 +57,7 @@ public apiResponse = signal<any>(null);  // NEW: Store full response
 ```
 
 ### Change 5: Updated Subscription Logic
+
 ```typescript
 // BEFORE
 this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
@@ -81,6 +86,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ### Complete Template Replacement
 
 #### BEFORE:
+
 ```html
 <h1>viewscorecard works!</h1>
 
@@ -102,10 +108,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
         </span>
       </button>
       @if(accordionItem.expanded) {
-      <div
-        class="example-accordion-item-body"
-        ...
-      >
+      <div class="example-accordion-item-body" ...>
         Lorem ipsum dolor, sit amet, consectetur adipisicing elit...
       </div>
       }
@@ -116,22 +119,26 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ```
 
 **Issues:**
+
 - ❌ Only shows plain text
 - ❌ No nested structure
 - ❌ No access to object properties
 - ❌ Hard-coded Lorem ipsum text
 
 #### AFTER:
+
 ```html
 <div class="container">
-  <h2>{{ apiResponse()?.title }}</h2>  <!-- Display metadata -->
+  <h2>{{ apiResponse()?.title }}</h2>
+  <!-- Display metadata -->
   <p>{{ apiResponse()?.description }}</p>
 
   <!-- ========== LEVEL 1: CRITERIAS ========== -->
   <cdk-accordion class="example-accordion">
     @for (criteria of viewSCData(); track criteria._id; let criteriaIndex = $index) {
     <cdk-accordion-item #criteriaItem="cdkAccordionItem" class="example-accordion-item">
-      <button class="example-accordion-item-header"
+      <button
+        class="example-accordion-item-header"
         (click)="criteriaItem.toggle()"
         tabindex="0"
         [attr.id]="'accordion-header-criteria-' + criteriaIndex"
@@ -145,12 +152,12 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
       </button>
       @if(criteriaItem.expanded) {
       <div class="example-accordion-item-body" ...>
-
         <!-- ========== LEVEL 2: SCORING SECTIONS ========== -->
         <cdk-accordion class="nested-accordion">
           @for (section of criteria.scoringSections; track section._id; let sectionIndex = $index) {
           <cdk-accordion-item #sectionItem="cdkAccordionItem" class="example-accordion-item nested">
-            <button class="example-accordion-item-header nested-header"
+            <button
+              class="example-accordion-item-header nested-header"
               (click)="sectionItem.toggle()"
               tabindex="0"
               [attr.id]="'accordion-header-section-' + criteriaIndex + '-' + sectionIndex"
@@ -164,12 +171,15 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
             </button>
             @if(sectionItem.expanded) {
             <div class="example-accordion-item-body nested-body" ...>
-
               <!-- ========== LEVEL 3: DETAILS ========== -->
               <cdk-accordion class="detail-accordion">
                 @for (detail of section.details; track detail._id; let detailIndex = $index) {
-                <cdk-accordion-item #detailItem="cdkAccordionItem" class="example-accordion-item detail">
-                  <button class="example-accordion-item-header detail-header"
+                <cdk-accordion-item
+                  #detailItem="cdkAccordionItem"
+                  class="example-accordion-item detail"
+                >
+                  <button
+                    class="example-accordion-item-header detail-header"
                     (click)="detailItem.toggle()"
                     tabindex="0"
                     [attr.id]="'accordion-header-detail-' + criteriaIndex + '-' + sectionIndex + '-' + detailIndex"
@@ -213,6 +223,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ```
 
 **Improvements:**
+
 - ✅ Shows API metadata (title, description)
 - ✅ 3-level nested accordion structure
 - ✅ Proper property binding with safe navigation (`?.`)
@@ -228,6 +239,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ### Added Comprehensive Styling
 
 #### Container Styling
+
 ```css
 .container {
   padding: 20px;
@@ -245,6 +257,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ```
 
 #### Level 1 Styling (Criterias)
+
 ```css
 .example-accordion-item-header {
   background: linear-gradient(to right, #f5f5f5, #ffffff);
@@ -253,11 +266,12 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 }
 
 .example-accordion-item-header strong {
-  color: #1976d2;  /* Blue accent */
+  color: #1976d2; /* Blue accent */
 }
 ```
 
 #### Level 2 Styling (Sections)
+
 ```css
 .nested-accordion {
   margin-left: 20px;
@@ -272,11 +286,12 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 }
 
 .nested-header strong {
-  color: #424242;  /* Dark gray accent */
+  color: #424242; /* Dark gray accent */
 }
 ```
 
 #### Level 3 Styling (Details)
+
 ```css
 .detail-accordion {
   margin-top: 10px;
@@ -292,7 +307,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 .detail-content {
   display: flex;
   gap: 20px;
-  flex-wrap: wrap;  /* Responsive */
+  flex-wrap: wrap; /* Responsive */
 }
 
 .prompt-section,
@@ -302,12 +317,13 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 }
 
 .prompt-section p {
-  white-space: pre-wrap;  /* Preserve formatting */
-  word-wrap: break-word;   /* Handle long text */
+  white-space: pre-wrap; /* Preserve formatting */
+  word-wrap: break-word; /* Handle long text */
 }
 ```
 
 #### Responsive Design
+
 ```css
 /* Flex layout automatically stacks on mobile */
 .detail-content {
@@ -319,7 +335,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 .prompt-section,
 .score-section {
   flex: 1;
-  min-width: 300px;  /* Mobile: 300px min width */
+  min-width: 300px; /* Mobile: 300px min width */
 }
 ```
 
@@ -327,17 +343,18 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 
 ## Summary of Changes
 
-| Component | Changes | Impact |
-|-----------|---------|--------|
-| **TypeScript** | 5 major changes | Proper data storage and imports |
-| **Template** | Complete rewrite | 3-level nested structure |
-| **CSS** | 110+ lines added | Professional styling & hierarchy |
+| Component      | Changes          | Impact                           |
+| -------------- | ---------------- | -------------------------------- |
+| **TypeScript** | 5 major changes  | Proper data storage and imports  |
+| **Template**   | Complete rewrite | 3-level nested structure         |
+| **CSS**        | 110+ lines added | Professional styling & hierarchy |
 
 ---
 
 ## Testing the Changes
 
 ### Quick Test Steps:
+
 1. Save all files
 2. Run `npm start`
 3. Navigate to viewscorecard page
@@ -347,6 +364,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 7. Verify styling displays correctly
 
 ### Expected Behavior:
+
 - ✅ Title and description visible at top
 - ✅ Main criterias expand to show scoring sections
 - ✅ Sections expand to show details
@@ -359,6 +377,7 @@ this.editscorecard.EditScoreCard(viewPayLoad, this.authkey).subscribe({
 ## Rollback Instructions (if needed)
 
 If you need to revert changes:
+
 1. Restore original `viewscorecard.ts`
 2. Restore original `viewscorecard.html`
 3. Restore original `viewscorecard.css`
@@ -374,4 +393,3 @@ Or use git: `git checkout HEAD -- src/app/pages/viewscorecard/`
 - **DOM Elements**: Minimal - only visible items rendered
 - **Accessibility**: Full keyboard navigation support
 - **Bundle Size**: No new dependencies added
-

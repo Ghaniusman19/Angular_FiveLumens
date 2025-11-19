@@ -32,43 +32,40 @@ criterias: [
 ## ✅ The Solution
 
 ### 1. **Store Full Response**
+
 ```typescript
-this.apiResponse.set(response.data);        // Store everything
+this.apiResponse.set(response.data); // Store everything
 this.viewSCData.set(response.data.criterias); // Store criterias array
 ```
 
 ### 2. **Create Nested Accordions**
+
 ```html
 <!-- Level 1: Criterias -->
 @for (criteria of viewSCData(); track criteria._id) {
-  <button>{{ criteria.title }}</button>
-  @if(expanded) {
-    <!-- Level 2: Scoring Sections -->
-    @for (section of criteria.scoringSections; track section._id) {
-      <button>{{ section.title }}</button>
-      @if(expanded) {
-        <!-- Level 3: Details -->
-        @for (detail of section.details; track detail._id) {
-          <button>{{ detail.description }}</button>
-          @if(expanded) {
-            <div>{{ detail.prompt }}</div>
-          }
-        }
-      }
-    }
-  }
-}
+<button>{{ criteria.title }}</button>
+@if(expanded) {
+<!-- Level 2: Scoring Sections -->
+@for (section of criteria.scoringSections; track section._id) {
+<button>{{ section.title }}</button>
+@if(expanded) {
+<!-- Level 3: Details -->
+@for (detail of section.details; track detail._id) {
+<button>{{ detail.description }}</button>
+@if(expanded) {
+<div>{{ detail.prompt }}</div>
+} } } } } }
 ```
 
 ---
 
 ## 📁 Files Modified
 
-| File | What Changed |
-|------|-------------|
-| **viewscorecard.ts** | Added `apiResponse` signal, fixed data assignment, added imports |
-| **viewscorecard.html** | Complete rewrite with 3-level nested accordions |
-| **viewscorecard.css** | Added comprehensive styling for nested levels |
+| File                   | What Changed                                                     |
+| ---------------------- | ---------------------------------------------------------------- |
+| **viewscorecard.ts**   | Added `apiResponse` signal, fixed data assignment, added imports |
+| **viewscorecard.html** | Complete rewrite with 3-level nested accordions                  |
+| **viewscorecard.css**  | Added comprehensive styling for nested levels                    |
 
 ---
 
@@ -96,6 +93,7 @@ this.viewSCData.set(response.data.criterias); // Store criterias array
 ## 📊 Data Display
 
 When expanded, each detail shows:
+
 - **Prompt**: The evaluation criteria instruction
 - **Score**: Numeric score value
 - **Scoring Percentage**: Percentage contribution (9.1% in your case)
@@ -115,13 +113,13 @@ When expanded, each detail shows:
 
 ## 🐛 Common Issues & Fixes
 
-| Issue | Fix |
-|-------|-----|
-| "No pipe found with name 'uppercase'" | Import `UpperCasePipe` from `@angular/common` |
-| Only showing first level | Add `@for` loops for each level |
-| Accordions not expanding | Check `track` expressions use unique IDs |
-| Styling looks flat | Apply different background colors per level |
-| Memory leaks | Unsubscribe in `ngOnDestroy()` ✅ Already done |
+| Issue                                 | Fix                                            |
+| ------------------------------------- | ---------------------------------------------- |
+| "No pipe found with name 'uppercase'" | Import `UpperCasePipe` from `@angular/common`  |
+| Only showing first level              | Add `@for` loops for each level                |
+| Accordions not expanding              | Check `track` expressions use unique IDs       |
+| Styling looks flat                    | Apply different background colors per level    |
+| Memory leaks                          | Unsubscribe in `ngOnDestroy()` ✅ Already done |
 
 ---
 

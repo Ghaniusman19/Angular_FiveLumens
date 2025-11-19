@@ -15,7 +15,7 @@ export const routes: Routes = [
   { path: 'scorecardnew', component: Scorecardnew, canActivate: [authLoginGuard] },
   { path: 'view', component: Viewscorecard, canActivate: [authLoginGuard] },
   { path: 'edit', component: Editscorecard, canActivate: [authLoginGuard] },
-  { path: 'add', component: Addscorecard, canActivate: [authLoginGuard] },
+  { path: 'addscorecard', component: Addscorecard, canActivate: [authLoginGuard] },
   {
     path: '',
     component: Layout,

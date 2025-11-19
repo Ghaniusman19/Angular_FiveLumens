@@ -1,6 +1,7 @@
 # ✅ Implementation Checklist & Verification Guide
 
 ## Pre-Implementation Checklist
+
 - [x] API response structure analyzed
 - [x] Data hierarchy identified (3 levels)
 - [x] Component template examined
@@ -10,6 +11,7 @@
 ## Implementation Checklist
 
 ### TypeScript Changes
+
 - [x] Import `UpperCasePipe` from `@angular/common`
 - [x] Add `UpperCasePipe` to component imports array
 - [x] Add new signal: `apiResponse = signal<any>(null)`
@@ -23,6 +25,7 @@
 - [x] Add console.log for debugging
 
 ### HTML Template Changes
+
 - [x] Create metadata display section (title, description)
 - [x] Replace entire accordion structure
 - [x] Create Level 1 loop for criterias
@@ -37,6 +40,7 @@
 - [x] Format expand/collapse indicators (`▼`/`►`)
 
 ### CSS Styling Changes
+
 - [x] Add container styling
 - [x] Add Level 1 header styling (blue accent)
 - [x] Add Level 2 styling (nested indentation, left border)
@@ -52,6 +56,7 @@
 ## Post-Implementation Testing
 
 ### 1. Browser Console Tests
+
 - [ ] Open browser DevTools (F12)
 - [ ] Navigate to viewscorecard page with valid ID
 - [ ] Check console for "Full API Response" log
@@ -60,6 +65,7 @@
 - [ ] Check network tab - API call successful
 
 ### 2. Accordion Functionality Tests
+
 - [ ] Level 1 accordion expands when clicked
 - [ ] Level 1 accordion collapses when clicked
 - [ ] Level 2 accordion visible when Level 1 expanded
@@ -73,6 +79,7 @@
 - [ ] Multiple details can be expanded simultaneously
 
 ### 3. Content Display Tests
+
 - [ ] Page title displayed at top
 - [ ] Page description displayed below title
 - [ ] Criterion type displayed (e.g., "CUSTOMEREXPERIENCE")
@@ -85,6 +92,7 @@
 - [ ] Auto-fail status displayed (Yes/No)
 
 ### 4. Styling Tests
+
 - [ ] Level 1 headers have blue accent
 - [ ] Level 2 headers have blue left border
 - [ ] Level 2 has left padding/indentation
@@ -96,6 +104,7 @@
 - [ ] Spacing is consistent throughout
 
 ### 5. Accessibility Tests
+
 - [ ] Keyboard navigation works (Tab key)
 - [ ] Buttons are focused with visible outline
 - [ ] Enter/Space key expands/collapses items
@@ -107,18 +116,21 @@
 ### 6. Responsiveness Tests
 
 #### Desktop (1920x1080)
+
 - [ ] All content visible without scrolling horizontally
 - [ ] Prompt and score sections side-by-side
 - [ ] Spacing looks good
 - [ ] Indentation is clear
 
 #### Tablet (768x1024)
+
 - [ ] Content responsive and readable
 - [ ] Prompt and score sections visible
 - [ ] Accordion still functional
 - [ ] No horizontal scrollbar
 
 #### Mobile (375x812)
+
 - [ ] Content fills screen width
 - [ ] Prompt and score sections stack vertically
 - [ ] Accordion functional with smaller viewport
@@ -126,6 +138,7 @@
 - [ ] Headers don't overlap content
 
 ### 7. Edge Cases Tests
+
 - [ ] Multiple criterias expand independently
 - [ ] Empty scoringSections handled gracefully
 - [ ] Empty details handled gracefully
@@ -134,6 +147,7 @@
 - [ ] All sections have proper track IDs
 
 ### 8. Performance Tests
+
 - [ ] Page loads quickly
 - [ ] No lag when clicking accordions
 - [ ] No memory leaks (DevTools Memory tab)
@@ -141,6 +155,7 @@
 - [ ] CPU usage is minimal
 
 ### 9. Error Handling Tests
+
 - [ ] Invalid ID shows error gracefully
 - [ ] Missing fields don't break display
 - [ ] Safe navigation (`?.`) prevents errors
@@ -150,30 +165,39 @@
 ## Common Issues & Solutions
 
 ### Issue: "No pipe found with name 'uppercase'"
+
 **Solution**: ✅ Already fixed - `UpperCasePipe` is imported
 
 ### Issue: Accordions don't expand
+
 **Status**: Check
+
 - [ ] Track expressions use unique `_id`
 - [ ] `@if(itemExpanded)` condition is correct
 - [ ] Click handlers are attached to buttons
 - [ ] No JavaScript errors in console
 
 ### Issue: Data shows as `[object Object]`
+
 **Status**: Check
+
 - [ ] Are you binding to correct properties?
 - [ ] Is the API response structure matching expected format?
 - [ ] Are you using `{{ obj.property }}` instead of `{{ obj }}`?
 
 ### Issue: Styling doesn't look nested
+
 **Status**: Check
+
 - [ ] CSS file is linked correctly
 - [ ] Classes match between HTML and CSS
 - [ ] Browser cache cleared (Ctrl+Shift+R)
 - [ ] No CSS conflicts from other stylesheets
 
 ### Issue: API response not showing
+
 **Status**: Check
+
 - [ ] Is the service being called?
 - [ ] Check network tab - API endpoint correct?
 - [ ] Is response data being set to signals?
@@ -217,6 +241,7 @@ ng build
 ## Rollback Plan
 
 If critical issues found:
+
 1. Stop the server
 2. Revert files to original version
 3. Restart server
@@ -256,6 +281,7 @@ Command: `git checkout HEAD~1 -- src/app/pages/viewscorecard/`
 ## Contact & Support
 
 If you encounter issues:
+
 1. Check the documentation files
 2. Review error messages in console
 3. Verify API response structure

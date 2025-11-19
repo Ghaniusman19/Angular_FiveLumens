@@ -1,5 +1,251 @@
-<p>editscorecard works!</p>
-<p>Detailed ID is {{ detailId }}</p>
-<div>
-  {{ editSCData() | json }}
+<h1>Edit scorecard</h1>
+
+<div class="edit-scorecard-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Edit Scorecard</h1>
+    @if (saveMessage) {
+    <p
+      [ngClass]="{
+        success: saveMessage.includes('successfully'),
+        error: saveMessage.includes('Error')
+      }"
+    >
+      {{ saveMessage }}
+    </p>
+    }
+  </div>
+
+  <form [formGroup]="form">
+    <!-- Meta Data Accordion -->
+    <!-- @if (metaControls.length <= 0) { } -->
+    <div class="meta-section">
+      <div class="meta-header-container">
+        <h3>Meta Data</h3>
+        <button type="button" class="btn-add" (click)="addMeta()">+ Add Meta Data</button>
+      </div>
+      <cdk-accordion class="meta-accordion">
+        @for ( m of metaControls; track m ;let mi = $index ) {
+        <cdk-accordion-item [formGroupName]="mi" [expanded]="true" #metaItem="cdkAccordionItem">
+          <button
+            type="button"
+            class="meta-header"
+            (click)="metaItem.toggle(); $event.preventDefault()"
+          >
+            <span class="meta-title">{{ m.get('title')?.value || 'Untitled Meta' }}</span>
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="removeMeta(mi); $event.stopPropagation()"
+              title="Delete"
+            >
+              ×
+            </button>
+          </button>
+          @if (metaItem.expanded) { }
+          <div class="meta-body">
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" formControlName="title" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Field Type:</label>
+              <input type="text" formControlName="fieldType" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Prompt:</label>
+              <textarea formControlName="prompt" class="form-textarea"></textarea>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" formControlName="isRequired" />
+                Required
+              </label>
+            </div>
+          </div>
+        </cdk-accordion-item>
+        }
+      </cdk-accordion>
+    </div>
+    <!-- Scoring Accordion -->
+    <div class="scoring-section">
+      <h3>Scoring</h3>
+      <cdk-accordion class="example-accordion" formArrayName="criterias">
+        @for (criteria of criteriaControls; track criteria; let ci = $index) {
+        <cdk-accordion-item
+          [formGroupName]="ci"
+          [expanded]="true"
+          #criteriaItem="cdkAccordionItem"
+          class="criteria-item"
+        >
+          <!-- Criteria Header -->
+          <button
+            type="button"
+            class="criteria-header"
+            (click)="criteriaItem.toggle(); $event.preventDefault()"
+          >
+            <div class="header-content">
+              <input
+                type="text"
+                formControlName="title"
+                placeholder="Criteria Title"
+                class="header-input"
+                (click)="$event.stopPropagation()"
+              />
+              <span class="criteria-total">Total: {{ criteria.get('criteriaTotal')?.value }}</span>
+            </div>
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="removeCriteria(ci); $event.stopPropagation()"
+              title="Delete"
+            >
+              <i class="icon-delete">×</i>
+            </button>
+          </button>
+
+          <!-- Criteria Body -->
+          @if (criteriaItem.expanded) {
+          <div class="criteria-body">
+            <!-- <div class="form-group">
+              <label>Type:</label>
+              <input type="text" formControlName="type" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Method:</label>
+              <input type="text" formControlName="method" class="form-input" />
+            </div> -->
+
+            <!-- Scoring Sections (nested accordion) -->
+            <div class="nested-accordion-container" formArrayName="scoringSections">
+              <h4>Scoring Sections</h4>
+              <cdk-accordion
+                class="nested-accordion"
+                cdkDropList
+                (cdkDropListDropped)="dropSection($event, ci)"
+              >
+                @for (section of sectionControls(ci); track section; let si = $index) {
+                <!-- Scoring section drag and drop -->
+                <cdk-accordion-item
+                  [formGroupName]="si"
+                  [expanded]="true"
+                  #sectionItem="cdkAccordionItem"
+                  class="section-item"
+                  cdkDrag
+                >
+                  <!-- Section Header -->
+
+                  <button
+                    type="button"
+                    class="section-header"
+                    (click)="sectionItem.toggle(); $event.preventDefault()"
+                  >
+                    <div>:::</div>
+                    <div class="header-content">
+                      <input
+                        type="text"
+                        formControlName="title"
+                        placeholder="Section Title"
+                        class="header-input"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <button class="btn-icon">
+                        <span>▼</span>
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-icon"
+                      (click)="removeSection(ci, si); $event.stopPropagation()"
+                      title="Delete"
+                    >
+                      <i class="icon-delete">×</i>
+                    </button>
+                  </button>
+
+                  <!-- Section Body -->
+                  @if (sectionItem.expanded) {
+                  <div class="section-body">
+                    <!-- Details (innermost items) -->
+                    <div class="details-container" formArrayName="details">
+                      <span class="section-total"
+                        >Section Total: {{ section.get('sectionTotal')?.value }}</span
+                      >
+                      <h5>Details</h5>
+                      @for ( detail of detailControls(ci, si); track detail; let di=$index) {
+                      <div [formGroupName]="di" class="detail-item">
+                        <div class="detail-header">
+                          <textarea
+                            formControlName="prompt"
+                            placeholder="Detail Prompt"
+                            class="form-textarea"
+                          ></textarea>
+                          <input
+                            type="number"
+                            formControlName="score"
+                            placeholder="Score"
+                            class="form-input score-input"
+                            (input)="onScoreChange(ci, si)"
+                          />
+                          <span class="scoring-percentage"
+                            >{{ detail.get('scoringPercentage')?.value }}%</span
+                          >
+                          <button
+                            type="button"
+                            class="btn-icon"
+                            (click)="removeDetail(ci, si, di)"
+                            title="Delete"
+                          >
+                            <i class="icon-delete">×</i>
+                          </button>
+                        </div>
+
+                        @if (detail.get('description')?.value || detail.get('fieldType')?.value) {
+                        <div class="detail-body">
+                          <div class="form-group">
+                            <label>Description:</label>
+                            <input type="text" formControlName="description" class="form-input" />
+                          </div>
+                          <!-- <div class="form-group">
+                            <label>Field Type:</label>
+                            <input type="text" formControlName="fieldType" class="form-input" />
+                          </div> -->
+                        </div>
+                        }
+                      </div>
+                      }
+                      <!-- Add Detail Button -->
+                      <button type="button" class="btn-add-detail" (click)="addDetail(ci, si)">
+                        + Add Detail
+                      </button>
+                    </div>
+                  </div>
+                  }
+                </cdk-accordion-item>
+                }
+              </cdk-accordion>
+
+              <!-- Add Section Button -->
+              <button type="button" class="btn-add-section" (click)="addSection(ci)">
+                + Add Section
+              </button>
+            </div>
+          </div>
+          }
+        </cdk-accordion-item>
+        }
+      </cdk-accordion>
+
+      <!-- Add Criteria Button -->
+      <button type="button" class="btn-add-criteria" (click)="addCriteria()">+ Add Criteria</button>
+    </div>
+
+    <!-- Save Button -->
+    <div class="action-buttons">
+      <button type="button" class="btn-save" (click)="save()" [disabled]="form.invalid || saving">
+        {{ saving ? 'Saving...' : 'Save Changes' }}
+        save
+      </button>
+    </div>
+  </form>
 </div>

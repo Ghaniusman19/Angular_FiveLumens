@@ -1,6 +1,5 @@
 import { Addscorecard } from '../../../services/addscorecard';
 import { ActivatedRoute, Router } from '@angular/router';
-import { editscorecard } from './../../../services/editscorecard';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';

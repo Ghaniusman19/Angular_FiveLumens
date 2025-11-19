@@ -18,10 +18,7 @@
         />
       </div>
       <div class="filter">
-        <button class="btn-logout" (click)="FilterToggle()">
-          <span><img src="/public/filternew-icon.svg" alt="" /></span>
-          Filter
-        </button>
+        <button class="filter-close-btn" (click)="FilterToggle()">Filter</button>
       </div>
       <div class="scorecard-btn">
         <button class="btn-logout" (click)="OpenModal()">Add Scorecard</button>
@@ -37,7 +34,9 @@
           <h3>ScoreCard Setting</h3>
           <p>Manage ScoreCard Here</p>
         </div>
-        <div class="close-btn btn-logout" (click)="closeModal()">close</div>
+        <div class="close-btn">
+          <button class="filter-close-btn" (click)="closeModal()">close</button>
+        </div>
       </div>
       <div class="form-body">
         <form [formGroup]="scorecardForm" (ngSubmit)="scorecardSubmit()">
@@ -302,7 +301,7 @@
             }
           </div>
           <div class="form-footer">
-            <a class="btn-logout close-btn decoration-0" (click)="OpenModal()">Cancel</a>
+            <button class="filter-close-btn close-btn" (click)="OpenModal()">Cancel</button>
             <button type="submit" class="btn-logout">Add</button>
           </div>
         </form>
@@ -313,11 +312,12 @@
   <!-- // Filter Modal -->
   @if (filterToggle()) {
   <div class="filter-Modal">
-    Filters Modal
     <div class="form-container">
       <div class="filter-header">
         <h4>Filters</h4>
-        <div class="close-filter btn-logout" (click)="closeFilter()">close</div>
+        <div class="close-filter">
+          <button class="filter-close-btn" (click)="closeFilter()">close</button>
+        </div>
       </div>
       <form [formGroup]="filterForm" (ngSubmit)="filterScorecardSubmit()">
         <div class="modal-body filter_body">
@@ -387,7 +387,7 @@
         </div>
         <div class="modal-footer filter_p_f">
           <button type="button" class="filter-close-btn" (click)="closeFilter()">Clear</button
-          ><button type="submit" class="btn btn-theme1 btn-logout">Filter</button>
+          ><button type="submit" class="btn btn-logout">Filter</button>
         </div>
       </form>
     </div>

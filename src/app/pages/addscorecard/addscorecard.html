@@ -19,8 +19,9 @@
               class="btn save-only-btn br-5 mr-3"
               id="submitButton"
               (click)="SaveOnlyScoreCard()"
-              [disabled]="!canSaveScorecard()"
             >
+              <!-- [disabled]="!canSaveScorecard()" -->
+
               Save Only
             </button>
             <button class="btn btn-primary save-review-btn" id="submitButton" type="submit">
@@ -304,11 +305,11 @@
         <!-- Toggle for 2nd Level -->
         <div class="meta-data-secondlevel">
           <label>Add Second Level</label>
-          <input type="checkbox" formControlName="addSecondLevel" />
+          <input type="checkbox" formControlName="isSecondLevel" />
         </div>
 
         <!-- Second Level -->
-        @if (SingleSelectModal.get('addSecondLevel')?.value) {
+        @if (SingleSelectModal.get('isSecondLevel')?.value) {
         <div>
           @for (subCtrl of subOptionsArray.controls; track subCtrl; let i = $index) {
           <h4>
@@ -316,7 +317,7 @@
             <span>Second Level</span>
           </h4>
 
-          <mat-form-field style="background-color: green">
+          <mat-form-field>
             <mat-chip-grid #chipGrid2>
               @for (ctrl of getSecondLevelOptions(subCtrl).controls; track ctrl; let j = $index) {
               <mat-chip-row (removed)="removeSecondLevelChip(i, j)">
@@ -354,7 +355,7 @@
           @for (levelCtrl of getThirdLevels(subCtrl).controls; track levelCtrl; let j = $index) {
           <div class="ml-3">
             <label>{{ levelCtrl.get('title')?.value }} Third Level</label>
-            <mat-form-field style="background-color: yellow">
+            <mat-form-field>
               <mat-chip-grid #chipGrid3>
                 @for (opt of getOptionsArray(levelCtrl).controls; track opt; let k = $index) {
                 <mat-chip-row (removed)="removeThirdLevelChip(i, j, k)">
@@ -380,7 +381,7 @@
 
         <!-- Third Level  rendering-->
         <div class="meta-data-chechbox">
-          <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+          <input id="date-field" type="checkbox" formControlName="isRequired" />
           <label for="date-field">This meta data entry field is required</label>
         </div>
         <!-- Submit -->
@@ -444,7 +445,7 @@
             </mat-form-field>
           </div>
           <div class="meta-data-chechbox">
-            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <input id="date-field" type="checkbox" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
@@ -481,7 +482,7 @@
             ></textarea>
           </div>
           <div class="meta-data-chechbox">
-            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <input id="date-field" type="checkbox" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
@@ -518,7 +519,7 @@
             ></textarea>
           </div>
           <div class="meta-data-chechbox">
-            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <input id="date-field" type="checkbox" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
@@ -555,7 +556,7 @@
             ></textarea>
           </div>
           <div class="meta-data-chechbox">
-            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <input id="date-field" type="checkbox" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
           </div>
         </div>
