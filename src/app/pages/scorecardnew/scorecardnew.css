@@ -45,6 +45,19 @@
   max-height: 80vh;
   overflow-y: auto;
 }
+.scorecard-modal1 {
+  background-color: white;
+  position: absolute;
+  z-index: 1001;
+  top: 50%;
+  left: 20%;
+  /* transform: translate(-50%, -50%); */
+  border: 1px solid rgb(204, 197, 197);
+  padding: 20px;
+  border-radius: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
 .filter-close-btn {
   padding: 10px;
   border: 1px solid rgb(209, 187, 187);
@@ -357,4 +370,26 @@ input:checked + .slider:before {
 .title__ {
   color: #444;
   font-weight: bold;
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

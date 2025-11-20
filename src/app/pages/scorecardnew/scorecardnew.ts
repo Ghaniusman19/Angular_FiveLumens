@@ -26,7 +26,7 @@ export class Scorecardnew implements OnInit {
     private toggleStatus: ToggleStatus,
     private isActive: IsActive
   ) {
-    console.log('scorecard New Constructor Called');
+    console.log('scorecard New Constructor Called', this.titlename());
   }
 
   public http = inject(HttpClient);
@@ -39,6 +39,7 @@ export class Scorecardnew implements OnInit {
   public isActiveStatusModal = signal<string | null>(null);
   //state to change clone ... modal toggle state
   public isCloneModalOpen = signal<string | null>(null);
+  public isEvaluateModalOpen = signal<string | null>(null);
   //This is to show the notification of delete scorecard row
   public notification = signal<string | null>(null);
   public filterToggle = signal(false);
@@ -50,6 +51,8 @@ export class Scorecardnew implements OnInit {
   public currentPage = signal(1); // default first page
   public pageSize = signal(25); // default page size
   public totalItems = signal(0);
+  public teamsData: any[] = [];
+  public userData: any[] = [];
   //This method is to fetch API for the pagination
   public fetchData() {
     const formData = new FormData();
@@ -66,6 +69,28 @@ export class Scorecardnew implements OnInit {
         // this.ngZone.run(() => {
 
         // });
+      },
+      error: (error: any) => {
+        console.error('API Error in fetchData:', error);
+      },
+    });
+  }
+  public getAllTeams() {
+    this.groups.getAllTeams(this.authkey).subscribe({
+      next: (data: any): void => {
+        this.teamsData = data.data;
+        console.log(this.teamsData, 'This is our teams data again');
+      },
+      error: (error: any) => {
+        console.error('API Error in fetchData:', error);
+      },
+    });
+  }
+  public getAllUsers() {
+    this.groups.getAllUsers(this.authkey).subscribe({
+      next: (data: any): void => {
+        this.userData = data.data;
+        console.log(this.userData, 'This is our userData data again');
       },
       error: (error: any) => {
         console.error('API Error in fetchData:', error);
@@ -143,6 +168,8 @@ export class Scorecardnew implements OnInit {
   //This is to close the status check Modal...
   ngOnInit(): void {
     this.fetchData();
+    this.getAllTeams();
+    this.getAllUsers();
     console.log('ng on in it called console');
     if (!this.authorization) {
       console.error('Authorization token is missing');
@@ -172,6 +199,8 @@ export class Scorecardnew implements OnInit {
     this.groups.fetchGroupsData(this.authkey).subscribe({
       next: (data: any): void => {
         this.groupsdata = data.data;
+        this.selectAllGroupsInCloneForm();
+
         console.log('API response of the group data ', this.groupsdata);
       },
       error: (err: any) => {
@@ -268,9 +297,29 @@ export class Scorecardnew implements OnInit {
     console.log(id);
     this.isCloneModalOpen.set(null);
   }
+  public closeEvaluate(id: any) {
+    console.log(id);
+    this.isEvaluateModalOpen.set(null);
+  }
   //This is to close the 3 dot dropdown
   public close3DotDropDown() {
     this.is3DotDropdown.set(null);
+  }
+  public titlename = signal<string>('');
+  EvaluateScorecard(id: string, item: any) {
+    const scItemdata = item.title;
+    console.log(scItemdata);
+    console.log(id);
+    if (this.isEvaluateModalOpen() === id) {
+      this.isEvaluateModalOpen.set(null);
+      this.selectedRowId.set(null);
+    } else {
+      this.isEvaluateModalOpen.set(id);
+      this.selectedRowId.set(id);
+      this.titlename.set(scItemdata);
+      console.log(this.titlename(), 'ye mene title ka name print krwaya hai');
+    }
+    // this.router.navigate(['evaluate'], { queryParams: { id: id } });
   }
   public FilterToggle() {
     console.log('filter clicked');
@@ -350,6 +399,67 @@ export class Scorecardnew implements OnInit {
     isActive: new FormControl(true),
     isAllGroups: new FormControl(false),
   });
+  public scorecardFormclone: FormGroup = new FormGroup({
+    id: new FormControl(''),
+    title: new FormControl('', Validators.required),
+    description: new FormControl(''),
+    evaluationType: new FormControl(''),
+    scoringModel: new FormControl(''),
+    coachingForm: new FormControl(''),
+    visibleToManagers: new FormControl(false),
+    coachingPurposeOnly: new FormControl(false),
+    groups: new FormArray([]),
+    isActive: new FormControl(true),
+    isAllGroups: new FormControl(true),
+  });
+  public scorecardFormEvaluate: FormGroup = new FormGroup({
+    id: new FormControl(''),
+    title: new FormControl(this.titlename()),
+    evaluationType: new FormControl(''),
+    groups: new FormArray([]),
+    teams: new FormArray([]),
+    users: new FormControl(''),
+    isActive: new FormControl(true),
+    isAllGroups: new FormControl(true),
+    isAllteams: new FormControl(true),
+  });
+  scorecardSubmitEvaluate(item: any) {
+    console.log(item);
+    console.log('Evaluate Submit Clicked');
+    if (this.scorecardFormEvaluate) {
+      console.log(this.selectedRowId());
+      this.scorecardFormEvaluate.get('id')?.setValue(this.selectedRowId());
+      // this.scorecardFormEvaluate
+      //   .get('title')
+      //   ?.setValue(this.scData().find((item) => item._id === this.selectedRowId()).title);
+      console.log(this.scorecardFormEvaluate.value, 'evaluate scorecard form values');
+      console.log('again clicked...');
+    }
+  }
+  scorecardSubmitclone() {
+    console.log('button submit .....');
+    if (this.scorecardFormclone) {
+      console.log(this.selectedRowId());
+      this.scorecardFormclone.get('id')?.setValue(this.selectedRowId());
+      console.log(this.scorecardFormclone.value, 'clone scorecard form values');
+      console.log('again clicked...');
+
+      this.addScorecard.CloneScoreCard(this.scorecardFormclone.value, this.authkey).subscribe({
+        next: (response: any): void => {
+          console.log('this is the response from clone api', response);
+        },
+        error: (error: any) => {
+          console.log('this is the error from clone api', error);
+        },
+      });
+      this.scorecardFormclone.reset();
+      this.isCloneModalOpen.set(null);
+      // const scorecardPayload = { FormData: this.scorecardForm.value };
+      // const formValues = this.scorecardFormclone.value;
+      // console.log(formValues);
+      //This is the code to convert json form key value data into formdata format
+    }
+  }
   get groupsArray(): FormArray {
     return this.scorecardForm.get('groups') as FormArray;
   }
@@ -372,7 +482,49 @@ export class Scorecardnew implements OnInit {
     this.scorecardForm.get('isAllGroups')?.setValue(this.isAllSelected());
     console.log('Groups in FormArray:', groupsArray.value);
   }
+  public onGroupCheckboxChangeEvaluate(id: string, event: Event) {
+    const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
 
+    if (checkbox.checked) {
+      groupsArray.push(new FormControl(id));
+
+      this.groups.AllUsersPost(this.authkey, groupsArray).subscribe({
+        next: (response: any): void => {
+          console.log(response, 'This is the response of all users api in evaluate form');
+        },
+        error: (error: any) => {
+          console.error('API Error in fetchData:', error);
+        },
+      });
+    } else {
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
+    }
+
+    // Update Select All flag
+    this.scorecardFormEvaluate.get('isAllGroups')?.setValue(this.isAllSelected());
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
+  public onGroupCheckboxChangeTeams(id: string, event: Event) {
+    const groupsArray = this.scorecardFormEvaluate.get('teams') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      groupsArray.push(new FormControl(id));
+    } else {
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
+    }
+
+    // Update Select All flag
+    this.scorecardFormEvaluate.get('isAllteams')?.setValue(this.isAllSelected());
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
   public onSelectAllChange(event: Event) {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     const checkbox = event.target as HTMLInputElement;
@@ -385,9 +537,115 @@ export class Scorecardnew implements OnInit {
     }
     console.log('Groups in FormArray:', groupsArray.value);
   }
+  public onSelectAllChangeEvaluate(event: Event) {
+    const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    console.log('sharam');
+    groupsArray.clear();
+    if (checkbox.checked) {
+      console.log('values checked');
+      this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
+      // const formdata = new FormData();
+      // this.groupsArray.forEach(item => {
+      //   formdata.append('groups', item);
+      // })
+
+      this.scorecardFormEvaluate.get('isAllGroups')?.setValue(true);
+      this.groups.AllUsersPost(this.authkey, this.groupsArray.value).subscribe({
+        next: (response: any): void => {
+          console.log(response, 'This is the response of all users api in evaluate form');
+        },
+        error: (error: any) => {
+          console.error('API Error in fetchData:', error);
+        },
+      });
+    } else {
+      this.scorecardFormEvaluate.get('isAllGroups')?.setValue(false);
+    }
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
+  public onSelectAllChangeTeams(event: Event) {
+    const groupsArray = this.scorecardFormEvaluate.get('teams') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    groupsArray.clear();
+    if (checkbox.checked) {
+      this.teamsData.forEach((g) => groupsArray.push(new FormControl(g._id)));
+      this.scorecardFormEvaluate.get('isAllTeams')?.setValue(true);
+    } else {
+      this.scorecardFormEvaluate.get('isAllTeams')?.setValue(false);
+    }
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
+  public selectAllGroupsInCloneForm() {
+    const groupsArray = this.scorecardFormclone.get('groups') as FormArray;
+    groupsArray.clear();
+    this.groupsdata.forEach((g) => groupsArray.push(new FormControl(g._id)));
+    this.scorecardFormclone.get('isAllGroups')?.setValue(true);
+  }
+  public isSelectedInClone(id: any): boolean {
+    const groupsArray = this.scorecardFormclone.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+  // Helper for checking if all groups are selected in the clone form
+  public isAllSelectedInClone(): boolean {
+    const groupsArray = this.scorecardFormclone.get('groups') as FormArray;
+    return (
+      this.groupsdata &&
+      this.groupsdata.length > 0 &&
+      groupsArray.value.length === this.groupsdata.length
+    );
+  }
+
+  // Handler for select all checkbox in the clone form
+  public onSelectAllChangeClone(event: Event): void {
+    const groupsArray = this.scorecardFormclone.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    groupsArray.clear();
+    if (checkbox.checked) {
+      this.groupsdata.forEach((g: any) => groupsArray.push(new FormControl(g._id)));
+      this.scorecardFormclone.get('isAllGroups')?.setValue(true);
+    } else {
+      this.scorecardFormclone.get('isAllGroups')?.setValue(false);
+    }
+    groupsArray.markAsDirty();
+    groupsArray.markAsTouched();
+  }
+
+  // Handler for individual group checkbox in the clone form
+  public onGroupCheckboxChangeClone(id: string, event: Event): void {
+    const groupsArray = this.scorecardFormclone.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      if (!groupsArray.value.includes(id)) {
+        groupsArray.push(new FormControl(id));
+      }
+    } else {
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
+    }
+    // Update Select All flag
+    this.scorecardFormclone.get('isAllGroups')?.setValue(this.isAllSelectedInClone());
+    groupsArray.markAsDirty();
+    groupsArray.markAsTouched();
+  }
   // ✅ Helper to check if a group is selected
   public isSelected(id: string): boolean {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+  public isSelectedEvaluate(id: string): boolean {
+    const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+  public isSelectedTeams(id: string): boolean {
+    const groupsArray = this.scorecardFormEvaluate.get('teams') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+
+  public isSelectEvaluate(id: string): boolean {
+    const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
     return groupsArray.value.includes(id);
   }
   // ✅ Helper to check Select All status
@@ -395,6 +653,17 @@ export class Scorecardnew implements OnInit {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     return groupsArray.length === this.groupsdata.length;
   }
+
+  public isAllSelectedEvaluate(): boolean {
+    const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
+
+    return groupsArray.length === this.groupsdata.length;
+  }
+  public isAllSelectedTeams(): boolean {
+    const groupsArray = this.scorecardFormEvaluate.get('teams') as FormArray;
+    return groupsArray.length === this.teamsData.length;
+  }
+
   public onFilterGroupCheckboxChange(id: string, event: Event) {
     const groupsArray = this.filterForm.get('groups') as FormArray;
     const checkbox = event.target as HTMLInputElement;
