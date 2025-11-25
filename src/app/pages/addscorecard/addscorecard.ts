@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+
 // import { MetaData } from '../../user';
 import {
   FormControl,
@@ -66,6 +67,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public SmallTextModal: FormGroup;
   public MultiSelectModal: FormGroup;
   public SingleSelectModal: FormGroup;
+
   // public submittedMetaData: MetaData[] = [];
   public openCriteriaMenuId = signal<number | null>(null);
   public APIDATA = signal<any>(null);
@@ -92,6 +94,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public authorization = localStorage.getItem('authToken');
   public authkey: any = this.authorization;
   //constructor method calls very first when the page loads
+
   constructor(private editscorecard: editscorecard) {
     console.log('add scorecard page called!');
     console.log(this.AddScoreCardID);
@@ -379,6 +382,8 @@ export class Addscorecard implements OnInit, OnDestroy {
         next: (response: any): void => {
           console.log('hey how are you this is my response ....', response);
           this.APIDATA.set(response.data);
+          this.populateEditForm(response.data);
+
           // populate local forms/state from API response and set readonly
           this.populateFormFromAPI(response.data);
           console.log('APIDATA set and form populated');
@@ -388,8 +393,36 @@ export class Addscorecard implements OnInit, OnDestroy {
         },
       });
     });
+
     this.getDatafromLocalStorage();
     // this.getScoringFromLocal();
+  }
+
+  EditFormData = new FormGroup({
+    title: new FormControl('', Validators.required),
+    description: new FormControl('', Validators.required),
+    id: new FormControl(''),
+    groups: new FormArray([]),
+    isAllGroups: new FormControl(false),
+    evaluationType: new FormControl('', Validators.required),
+    scoringModel: new FormControl('', Validators.required),
+    coachingForm: new FormControl(''),
+    visibleToManagers: new FormControl(false),
+    coachingPurposeOnly: new FormControl(false),
+  });
+  populateEditForm(data: any): void {
+    this.EditFormData.patchValue({
+      title: data.title,
+      description: data.description,
+      id: data._id,
+      groups: data.groups,
+      isAllGroups: data.isAllGroups,
+      evaluationType: data.evaluationType,
+      scoringModel: data.scoringModel,
+      coachingForm: data.coachingForm,
+      visibleToManagers: data.visibleToManagers,
+      coachingPurposeOnly: data.coachingPurposeOnly,
+    });
   }
   //ngOnDestroy
   ngOnDestroy(): void {
@@ -824,9 +857,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       });
       this.activeSectionId = sectionId;
       this.editingCriteriaId = criteriaId;
-      // this.activeSectionId.set(sectionId);
-      // // delete old criteria before editing
-      // this.deleteCriteria(sectionId, criteriaId);
       this.criteriaModalOpen.set(true);
     }
   }
@@ -847,7 +877,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   //Method to save only score card...
   public SaveOnlyScoreCard(): void {
     console.log('save only scorecard..');
-
     this.saveErrorMessage.set(null);
     const sections = this.scoringArray();
     if (!sections || sections.length === 0) {
@@ -878,8 +907,8 @@ export class Addscorecard implements OnInit, OnDestroy {
       const payload = {
         id: this.AddScoreCardID,
         _id: this.AddScoreCardID,
-        title: 'Scorecard',
-        description: 'Scorecard',
+        title: this.APIDATA().title,
+        description: this.APIDATA().description,
         isPublished: false,
         isActive: false,
         metaData: this.submittedMetaData.map((meta) => ({
@@ -1004,5 +1033,19 @@ export class Addscorecard implements OnInit, OnDestroy {
         },
       ],
     }));
+  }
+  public isEditModalOpen = signal(true);
+  OpenEditModal(): void {
+    this.isEditModalOpen.set(true);
+    console.log('setting clicked');
+  }
+  public closeEditModal(): void {
+    this.isEditModalOpen.set(false);
+  }
+
+  public EditFormSubmit(): void {
+    console.log('Edit ...Form Submitted');
+    console.log('Our data of form is ', this.EditFormData.value);
+    this.isEditModalOpen.set(false);
   }
 }

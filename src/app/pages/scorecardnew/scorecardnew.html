@@ -17,7 +17,7 @@
         <button class="filter-close-btn" (click)="FilterToggle()">Filter</button>
       </div>
       <div class="scorecard-btn">
-        <button class="btn-logout" (click)="OpenModal()">Add Scorecard</button>
+        <button class="btn-logout" (click)="OpenModal()">+ Add Scorecard</button>
       </div>
     </div>
   </div>
@@ -393,11 +393,11 @@
   <div class="scorecard-container" style="background-color: white">
     <!-- Table Header -->
     <div class="table-header">
-      <div class="col col-name">Name & Description</div>
-      <div class="col">Evaluation</div>
-      <div class="col">Scoring</div>
-      <div class="col">Updated</div>
-      <div class="col">Status</div>
+      <div class="col col-name bold-head">Name & Description</div>
+      <div class="col bold-head">Evaluation</div>
+      <div class="col bold-head">Scoring</div>
+      <div class="col bold-head">Updated</div>
+      <div class="col bold-head">Status</div>
       <!-- <div class="col">Actions</div> -->
     </div>
 
@@ -943,6 +943,11 @@
         </div>
       </div>
     </div>
+
+
+
+
+
     @if (notification()) {
     <div class="toast">
       {{ notification() }}
@@ -950,4 +955,3 @@
     }
   </div>
 </div>
-
