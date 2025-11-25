@@ -263,8 +263,8 @@ export class Scorecardnew implements OnInit {
   //This is the funcpublic tion to Edit scorecard
   public EditScorecard(id: string): void {
     console.log('this is the Edit id key  ', id);
-    // this.router.navigate(['edit'], { queryParams: { id: this.selectedRowId() } });
-    this.router.navigate(['addscorecard'], { queryParams: { id: this.selectedRowId() } });
+    this.router.navigate(['edit'], { queryParams: { id: this.selectedRowId() } });
+    // this.router.navigate(['addscorecard'], { queryParams: { id: this.selectedRowId() } });
   }
   public CloneScoreCad(id: any): void {
     console.log(id);
@@ -647,7 +647,7 @@ export class Scorecardnew implements OnInit {
     const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
     return groupsArray.value.includes(id);
   }
-  // ✅ Helper to check Select All status
+  //  Helper to check Select All status
   public isAllSelected(): boolean {
     const groupsArray = this.scorecardForm.get('groups') as FormArray;
     return groupsArray.length === this.groupsdata.length;

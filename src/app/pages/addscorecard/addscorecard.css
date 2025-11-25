@@ -58,6 +58,23 @@
   justify-content: end;
   gap: 10px;
 }
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.checkbox-item input {
+  margin-right: 8px;
+}
+.custom-checkbox-list {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
 .percentage {
   display: inline-block;
   background-color: #f9fbff; /* light input-like background */

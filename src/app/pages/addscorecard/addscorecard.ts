@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { FetchAPIData } from '../../../services/fetch-apidata';
 // import { MetaData } from '../../user';
 import {
   FormControl,
@@ -67,6 +67,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public SmallTextModal: FormGroup;
   public MultiSelectModal: FormGroup;
   public SingleSelectModal: FormGroup;
+  public groupsdata: any[] = [];
 
   // public submittedMetaData: MetaData[] = [];
   public openCriteriaMenuId = signal<number | null>(null);
@@ -87,7 +88,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   public criteriaModalOpen = signal(false);
   public activeSectionId: number | null = null;
   public editingCriteriaId: number | null = null;
-
   public http = inject(HttpClient);
   public router = inject(Router);
   public route = inject(ActivatedRoute);
@@ -95,7 +95,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   public authkey: any = this.authorization;
   //constructor method calls very first when the page loads
 
-  constructor(private editscorecard: editscorecard) {
+  constructor(private editscorecard: editscorecard, private groups: FetchAPIData) {
     console.log('add scorecard page called!');
     console.log(this.AddScoreCardID);
 
@@ -372,21 +372,29 @@ export class Addscorecard implements OnInit, OnDestroy {
     const targetThirdLevel = thirdLevelsArray.at(secondIndex).get('options') as FormArray;
     targetThirdLevel.removeAt(chipIndex);
   }
-
   //ngOnIniT methods triggers first and then when any event happens and change ...
   ngOnInit(): void {
     this.routeSubscription = this.route.queryParams.subscribe((params) => {
       this.AddScoreCardID = params['id'];
       const editPayload = { id: this.AddScoreCardID };
+      this.groups.fetchGroupsData(this.authkey).subscribe({
+        next: (data: any): void => {
+          this.groupsdata = data.data;
+
+          console.log('API response of the group data ', this.groupsdata);
+        },
+        error: (err: any) => {
+          console.log(err);
+        },
+      });
       this.editscorecard.EditScoreCard(editPayload, this.authkey).subscribe({
         next: (response: any): void => {
           console.log('hey how are you this is my response ....', response);
           this.APIDATA.set(response.data);
           this.populateEditForm(response.data);
-
           // populate local forms/state from API response and set readonly
           this.populateFormFromAPI(response.data);
-          console.log('APIDATA set and form populated');
+          console.log('APIDATA set and form populated', this.APIDATA());
         },
         error: (error: any) => {
           console.log(error);
@@ -430,8 +438,44 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.routeSubscription.unsubscribe();
     }
   }
-
   // Populate component state and forms from API response (readonly)
+  public isAllSelected(): boolean {
+    const groupsArray = this.EditFormData.get('groups') as FormArray;
+    return groupsArray.length === this.groupsdata.length;
+  }
+  public onSelectAllChange(event: Event) {
+    const groupsArray = this.EditFormData.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+    groupsArray.clear();
+    if (checkbox.checked) {
+      this.groupsdata.forEach((g: any) => groupsArray.push(new FormControl(g._id)));
+      this.EditFormData.get('isAllGroups')?.setValue(true);
+    } else {
+      this.EditFormData.get('isAllGroups')?.setValue(false);
+    }
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
+  public isSelected(id: string): boolean {
+    const groupsArray = this.EditFormData.get('groups') as FormArray;
+    return groupsArray.value.includes(id);
+  }
+  public onGroupCheckboxChange(id: string, event: Event) {
+    const groupsArray = this.EditFormData.get('groups') as FormArray;
+    const checkbox = event.target as HTMLInputElement;
+
+    if (checkbox.checked) {
+      groupsArray.push(new FormControl(id));
+    } else {
+      const index = groupsArray.controls.findIndex((c) => c.value === id);
+      if (index !== -1) {
+        groupsArray.removeAt(index);
+      }
+    }
+
+    // Update Select All flag
+    this.EditFormData.get('isAllGroups')?.setValue(this.isAllSelected());
+    console.log('Groups in FormArray:', groupsArray.value);
+  }
   private populateFormFromAPI(data: any): void {
     if (!data) return;
 
@@ -1046,6 +1090,18 @@ export class Addscorecard implements OnInit, OnDestroy {
   public EditFormSubmit(): void {
     console.log('Edit ...Form Submitted');
     console.log('Our data of form is ', this.EditFormData.value);
+    this.editscorecard.ScoreCardSetting(this.EditFormData.value, this.authkey).subscribe({
+      next: (response: any): void => {
+        console.log('hey how are you this is my response ....', response);
+        // this.APIDATA.set(response.data);
+        // console.log(this.APIDATA());
+      },
+      error: (error: any) => {
+        console.log(error);
+      },
+    });
     this.isEditModalOpen.set(false);
+    this.router.navigate(['scorecardnew']);
+    // scorecardnew
   }
 }

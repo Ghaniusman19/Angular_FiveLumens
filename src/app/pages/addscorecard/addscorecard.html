@@ -17,24 +17,22 @@
           <button class="btn save-only-btn br-5 mr-3" id="submitButton" (click)="OpenEditModal()">
             Setting
           </button>
-          <!-- <button
-              class="btn save-only-btn br-5 mr-3"
-              id="submitButton"
-              (click)="SaveOnlyScoreCard()"
-            >
-              
-
-              Save Only
-            </button>
-            <button class="btn btn-primary save-review-btn" id="submitButton" type="submit">
-              Save &amp; Publish
-            </button> -->
+          <button
+            class="btn save-only-btn br-5 mr-3"
+            id="submitButton"
+            (click)="SaveOnlyScoreCard()"
+          >
+            Save Only
+          </button>
+          <button class="btn btn-primary save-review-btn" id="submitButton" type="submit">
+            Save &amp; Publish
+          </button>
           @if (isEditModalOpen()) {
           <div class="modal-backdrop" (click)="closeEditModal()"></div>
           <div class="scorecard-modal">
-            <p>{{ APIDATA().title }}</p>
+            <!-- <p>{{ APIDATA().title }}</p>
             <p>{{ APIDATA().description }}</p>
-            <p>{{ APIDATA().scoringModel }}</p>
+            <p>{{ APIDATA().scoringModel }}</p> -->
             <div class="form-container">
               <div class="form-header">
                 <div>
@@ -95,17 +93,29 @@
                       </div>
                     </div>
                     <div class="mb-3">
-                      <label for="" class="form-label">Groups</label
-                      ><textarea
-                        maxlength="364"
-                        name="id"
-                        type="text"
-                        formArrayName="groups"
-                        class="form-control"
-                        rows="4"
-                        cols="50"
-                        style="height: 50px"
-                      ></textarea>
+                      <label class="form-label">Groups</label>
+                      <div class="custom-checkbox-list">
+                        <!-- Select All -->
+                        <label class="checkbox-item">
+                          <input
+                            type="checkbox"
+                            [checked]="isAllSelected()"
+                            (change)="onSelectAllChange($event)"
+                          />
+                          Select All
+                        </label>
+
+                        <!-- Groups -->
+                        @for (item of groupsdata; track $index) {
+                        <label class="checkbox-item">
+                          <input
+                            type="checkbox"
+                            [checked]="isSelected(item._id)"
+                            (change)="onGroupCheckboxChange(item._id, $event)"
+                          />
+                          {{ item.title }} </label
+                        >}
+                      </div>
                     </div>
                     <div class="mb-3">
                       <label for="" class="form-label">Evaluation Type</label
