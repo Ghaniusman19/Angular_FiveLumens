@@ -642,12 +642,10 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.submittedMetaData.push(newItem);
       this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
-
       this.DateScoreCard.reset({ title: '', isRequired: false });
       this.closeDateModal();
     }
   }
-
   //This is to submit the Date modal
   // Large Text
   public SubmitLargeTextData(): void {
@@ -671,15 +669,27 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Small Text
   public SubmitSmallTextData(): void {
     if (this.SmallTextModal.valid) {
-      const newItem = {
-        id: Date.now(),
-        fieldType: 'smallText',
-        title: this.SmallTextModal.value.title,
-        isRequired: Boolean(this.SmallTextModal.value.isRequired),
-        isSecondLevel: true,
-        options: [],
-      };
-      this.submittedMetaData.push(newItem);
+      if (this.editingItemId) {
+        const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
+        if (index !== -1) {
+          this.submittedMetaData[index] = {
+            ...this.submittedMetaData[index],
+            title: this.SmallTextModal.value.title,
+            isRequired: Boolean(this.SmallTextModal.value.isRequired),
+          };
+        }
+        this.editingItemId = null;
+      } else {
+        const newItem = {
+          id: Date.now(),
+          fieldType: 'smallText',
+          title: this.SmallTextModal.value.title,
+          isRequired: Boolean(this.SmallTextModal.value.isRequired),
+          isSecondLevel: true,
+          options: [],
+        };
+        this.submittedMetaData.push(newItem);
+      }
       this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.SmallTextModal.reset({ title: '', isRequired: false });
@@ -693,15 +703,28 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Multi Select
   public SubmitMultiSelectData(): void {
     if (this.MultiSelectModal.valid) {
-      const newItem = {
-        id: Date.now(),
-        fieldType: 'multiSelect',
-        title: this.MultiSelectModal.value.title,
-        isRequired: Boolean(this.MultiSelectModal.value.isRequired),
-        isSecondLevel: true,
-        options: this.MultiSelectModal.value.multiselect,
-      };
-      this.submittedMetaData.push(newItem);
+      if (this.editingItemId) {
+        const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
+        if (index !== -1) {
+          this.submittedMetaData[index] = {
+            ...this.submittedMetaData[index],
+            title: this.MultiSelectModal.value.title,
+            isRequired: Boolean(this.MultiSelectModal.value.isRequired),
+            options: this.MultiSelectModal.value.multiselect,
+          };
+        }
+        this.editingItemId = null;
+      } else {
+        const newItem = {
+          id: Date.now(),
+          fieldType: 'multiSelect',
+          title: this.MultiSelectModal.value.title,
+          isRequired: Boolean(this.MultiSelectModal.value.isRequired),
+          isSecondLevel: true,
+          options: this.MultiSelectModal.value.multiselect,
+        };
+        this.submittedMetaData.push(newItem);
+      }
       this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.MultiSelectModal.reset({ title: '', isRequired: false });
@@ -712,16 +735,29 @@ export class Addscorecard implements OnInit, OnDestroy {
   public SubmitSingleSelectData(): void {
     console.log(this.SingleSelectModal.value);
     if (this.SingleSelectModal.valid) {
-      const newItem = {
-        id: Date.now(),
-        fieldType: 'singleSelect',
-        title: this.SingleSelectModal.value.title,
-        isRequired: Boolean(this.SingleSelectModal.value.isRequired),
-        isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
-        options: this.SingleSelectModal.value.options,
-      };
-      console.log('Final Nested Data:', newItem);
-      this.submittedMetaData.push(newItem);
+      if (this.editingItemId) {
+        const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
+        if (index !== -1) {
+          this.submittedMetaData[index] = {
+            ...this.submittedMetaData[index],
+            title: this.SingleSelectModal.value.title,
+            isRequired: Boolean(this.SingleSelectModal.value.isRequired),
+            isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
+            options: this.SingleSelectModal.value.options,
+          };
+        }
+        this.editingItemId = null;
+      } else {
+        const newItem = {
+          id: Date.now(),
+          fieldType: 'singleSelect',
+          title: this.SingleSelectModal.value.title,
+          isRequired: Boolean(this.SingleSelectModal.value.isRequired),
+          isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
+          options: this.SingleSelectModal.value.options,
+        };
+        this.submittedMetaData.push(newItem);
+      }
       this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.SingleSelectModal.reset({
@@ -745,23 +781,106 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public deleteItem(id: string | number): void {
     this.submittedMetaData = this.submittedMetaData.filter((item) => item.id !== id);
-    localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
+    // localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
     this.openMenuId.set(null); // close menu after delete
   }
+  public editingItemId: number | null = null;
+  public editingFieldType: string | null = null;
+
   public editItem(id: string | number): void {
+    this.isOpenedMetaData.update((currentVal) => !currentVal);
     const item = this.submittedMetaData.find((m) => m.id === id);
     if (item) {
-      const newValue = prompt('Edit description:', item.title);
-      if (newValue !== null && newValue.trim() !== '') {
-        item.title = newValue.trim();
-        localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
+      this.editingItemId = item.id;
+      this.editingFieldType = item.fieldType;
+      // Prefill the appropriate form based on fieldType
+      switch (item.fieldType) {
+        case 'date':
+          this.DateScoreCard.patchValue({
+            title: item.title,
+            isRequired: item.isRequired,
+          });
+          this.OpenDateModal();
+          break;
+        case 'smallText':
+          this.SmallTextModal.patchValue({
+            title: item.title,
+            isRequired: item.isRequired,
+          });
+          this.OpenSmallTextModal();
+          break;
+        case 'largeText':
+          this.LargeScoreCard.patchValue({
+            title: item.title,
+            isRequired: item.isRequired,
+          });
+          this.OpenLargeTextModal();
+          break;
+        case 'multiSelect':
+          this.MultiSelectModal.patchValue({
+            title: item.title,
+            multiselect: item.options,
+            isRequired: item.isRequired,
+          });
+          // this.multiselectOptions = [...(item.options || [])];
+          this.OpenMultiSelectModal();
+          break;
+        case 'singleSelect':
+          // For single select, we need to handle the complex structure
+          this.SingleSelectModal.patchValue({
+            title: item.title,
+            isRequired: item.isRequired,
+            isSecondLevel: item.isSecondLevel,
+            options: item.options,
+            // subOptions: item.subOptions,
+            // isThirdLevel: item.isThirdLevel,
+            // thirdLevels: item.thirdLevels,
+            // isFormChecked: item.isFormChecked,
+          });
+          //  this.SingleSelectModal = new FormGroup({
+          //       title: new FormControl('', Validators.required),
+          //       options: new FormArray([], Validators.required), // First Level Chips
+          //       isSecondLevel: new FormControl(false),
+          //       isThirdLevel: new FormControl(false),
+          //       subOptions: new FormArray([], Validators.required), // Second Level Array
+          //       isFormChecked: new FormControl(false),
+          //       isRequired: new FormControl(false),
+          //       type: new FormControl('singleSelect'),
+          //     });
+          // Clear existing arrays
+          this.optionsArray.clear();
+          this.subOptionsArray.clear();
+          // Populate options
+          if (item.options && Array.isArray(item.options)) {
+            item.options.forEach((opt: any) => {
+              this.optionsArray.push(new FormControl(opt));
+              this.subOptionsArray.push(
+                new FormGroup({
+                  title: new FormControl(opt),
+                  secondLevelOptions: new FormArray([]),
+                  isThirdLevel: new FormControl(false),
+                  thirdLevels: new FormArray([]),
+                })
+              );
+            });
+          }
+          this.OpenSingleSelectModal();
+          break;
+        default:
+          // Fallback to prompt for unknown types
+          const newValue = prompt('Edit description:', item.title);
+          if (newValue !== null && newValue.trim() !== '') {
+            item.title = newValue.trim();
+            localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
+          }
+          break;
       }
     }
     this.openMenuId.set(null); // close menu after edit
   }
   public OpenScoringModal(): void {
-    this.isScoringModalOpened.update((c) => !c);
-    this.isToggleScoringOpen.update((c) => !c);
+    this.isScoringModalOpened.update((c: any) => !c);
+    this.isToggleScoringOpen.update((c: any) => !c);
   }
   public closeScoringModal(): void {
     this.isScoringModalOpened.set(false);
@@ -787,7 +906,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.openScoringMenuId.set(this.openScoringMenuId() === id ? null : id);
   }
   public editScoring(id: number): void {
-    const item = this.scoringArray().find((x) => x.id === id);
+    const item = this.scoringArray().find((x: any) => x.id === id);
     if (item) {
       const newVal = prompt('Edit Scoring ', item.value);
       if (newVal !== null && newVal.trim() !== '') {
@@ -807,7 +926,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   // Delete
   public deleteScoring(id: number): void {
-    this.scoringArray.set(this.scoringArray().filter((x) => x.id !== id));
+    this.scoringArray.set(this.scoringArray().filter((x: any) => x.id !== id));
     this.saveScoringToLocal();
   }
   public criteriaForm = new FormGroup({
@@ -831,17 +950,13 @@ export class Addscorecard implements OnInit, OnDestroy {
   public isCriteriaModalOpened() {
     return this.criteriaModalOpen();
   }
-
   public saveCriteria() {
     const formValue = this.criteriaForm.value;
-
-    const section = this.scoringArray().find((s) => s.id === this.activeSectionId);
-
+    const section = this.scoringArray().find((s: any) => s.id === this.activeSectionId);
     if (!section) return;
-
     if (this.editingCriteriaId) {
       //  Update existing item
-      section.criteria = section.criteria.map((c) =>
+      section.criteria = section.criteria.map((c: any) =>
         c.id === this.editingCriteriaId
           ? {
               ...c,
@@ -876,9 +991,9 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.calculatePercentages(section.id); //
   }
   public deleteCriteria(sectionId: number, criteriaId: number) {
-    const updated = this.scoringArray().map((section) =>
+    const updated = this.scoringArray().map((section: any) =>
       section.id === sectionId
-        ? { ...section, criteria: section.criteria.filter((c) => c.id !== criteriaId) }
+        ? { ...section, criteria: section.criteria.filter((c: any) => c.id !== criteriaId) }
         : section
     );
     this.scoringArray.set(updated);
@@ -889,8 +1004,8 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.openCriteriaMenuId.set(this.openCriteriaMenuId() === criteriaId ? null : criteriaId);
   }
   public editCriteria(sectionId: number, criteriaId: number) {
-    const section = this.scoringArray().find((s) => s.id === sectionId);
-    const criteria = section?.criteria.find((c) => c.id === criteriaId);
+    const section = this.scoringArray().find((s: any) => s.id === sectionId);
+    const criteria = section?.criteria.find((c: any) => c.id === criteriaId);
     if (criteria) {
       this.criteriaForm.patchValue({
         description: criteria.description,
@@ -930,11 +1045,11 @@ export class Addscorecard implements OnInit, OnDestroy {
       return;
     }
     const sectionsWithoutCriteria = sections.filter(
-      (sec) => !sec.criteria || sec.criteria.length === 0
+      (sec: any) => !sec.criteria || sec.criteria.length === 0
     );
     if (sectionsWithoutCriteria.length > 0) {
       // Build a helpful message listing offending sections (by id or value)
-      const ids = sectionsWithoutCriteria.map((s) => s.id ?? s.value ?? 'unknown').join(', ');
+      const ids = sectionsWithoutCriteria.map((s: any) => s.id ?? s.value ?? 'unknown').join(', ');
       const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
       console.error(msg);
       this.saveErrorMessage.set(msg);
@@ -976,7 +1091,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       } catch (e) {
         console.log('DEBUG: payload serialization error', e);
       }
-
       this.editscorecard.UpdateScoreCard(payload, this.authkey).subscribe({
         next: (response: any): void => {
           console.log('hey how are you this is my response ....', response);
@@ -988,13 +1102,13 @@ export class Addscorecard implements OnInit, OnDestroy {
           console.log(error);
         },
       });
+      this.router.navigate(['scorecardnew']);
       // Show in console (or call API here)
       console.log('SaveOnlyScoreCard - payload ready:', payload);
       // Example: Save locally (you already have helper)
       localStorage.setItem('scorecardPayload', JSON.stringify(payload));
       // Optionally show success message (console)
       console.log('Scorecard saved successfully.');
-
       // Clear error flag if any
       this.saveErrorMessage.set(null);
     } catch (err) {
@@ -1007,17 +1121,13 @@ export class Addscorecard implements OnInit, OnDestroy {
   public sectionTotals: Record<number, number> = {};
   public sectionPercentages: Record<number, number> = {};
   calculatePercentages(sectionId: number) {
-    const section = this.scoringArray().find((s) => s.id === sectionId);
+    const section = this.scoringArray().find((s: any) => s.id === sectionId);
     if (!section) return;
-
     const totalItems = section.criteria.length;
     if (totalItems === 0) return;
-
     const percentage = +(100 / totalItems).toFixed(2);
-
     // assign this percentage to every criteria in that section
-    section.criteria.forEach((c) => (c.percentage = percentage));
-
+    section.criteria.forEach((c: any) => (c.percentage = percentage));
     // store for easy access
     this.sectionPercentages[sectionId] = percentage;
   }
@@ -1031,7 +1141,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   getGrandTotal(): number {
     return Object.values(this.sectionTotals).reduce((sum, total) => sum + total, 0);
   }
-
   getSectionTotal(sectionId: number): number {
     return this.sectionTotals[sectionId] || 0;
   }
@@ -1079,7 +1188,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     }));
   }
   public isEditModalOpen = signal(true);
-  OpenEditModal(): void {
+  public OpenEditModal(): void {
     this.isEditModalOpen.set(true);
     console.log('setting clicked');
   }

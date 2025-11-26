@@ -433,6 +433,7 @@
         This is the Code of the meta data modal opened.. -->
       </div>
       @if (isOpenedMetaData()) {
+      <div class="modal-backdrop" (click)="toggleMetaData()"></div>
       <div class="menu">
         <button class="btn-logout" (click)="OpenSingleSelectModal()">Add Single Select</button
         ><br />
@@ -454,8 +455,11 @@
           </div>
           <!-- 3 dot button -->
           @if (openMenuId() === item.id) {
+          <div class="modal-backdrop"></div>
           <div class="dropdown-menu">
-            <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
+            <button (click)="$event.stopPropagation(); editItem(item.id)" class="dropdown-btn">
+              Edit
+            </button>
             <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
           </div>
           }
@@ -469,11 +473,11 @@
         <div class="heading">
           <h3>Scoring</h3>
         </div>
-
         <div class="threedropdown scoring-dropdown">
           <button class="threedropbtn" (click)="ToggleScoring()">⋮</button>
 
           @if (isToggleScoringOpen()) {
+          <div class="modal-backdrop" (click)="ToggleScoring()"></div>
           <div class="scoring-menu">
             <button class="btn-action" (click)="OpenScoringModal()">Add Section</button>
           </div>
@@ -492,8 +496,12 @@
           <div><button class="three-dots" (click)="toggleScoringMenu(section.id)">⋮</button></div>
         </div>
         @if (openScoringMenuId() === section.id) {
+        <div class="modal-backdrop" (click)="toggleScoringMenu(section.id)"></div>
         <div class="dropdown-menu">
-          <button (click)="editScoring(section.id); closeScoringMenu()" class="dropdown-btn">
+          <button
+            (click)="$event.stopPropagation(); editScoring(section.id); closeScoringMenu()"
+            class="dropdown-btn"
+          >
             Edit Section
           </button>
           <button
@@ -548,12 +556,11 @@
                 <div style="margin-bottom: 0">
                   <span class="percentage">{{ criteria.percentage }}%</span>
                 </div>
-
                 <button class="three-dots" (click)="toggleCriteriaMenu(criteria.id)">⋮</button>
               </div>
             </div>
-
             @if (openCriteriaMenuId() === criteria.id) {
+            <div class="modal-backdrop" (click)="closeCriteriaMenu()"></div>
             <div class="dropdown-menu">
               <button
                 (click)="editCriteria(section.id, criteria.id); closeCriteriaMenu()"
@@ -575,7 +582,6 @@
       </li>
       }
     </ul>
-
     <div class="metadatasection1">
       <div class="meta-data1">
         <div class="heading">
@@ -620,6 +626,7 @@
   }
   <!-- IsSingle select Modal -->
   @if (isSingleSelectModalOpened()) {
+  <div class="modal-backdrop" (click)="closeSingleSelectModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -745,6 +752,7 @@
   }
   <!-- IsMulti Select Modal -->
   @if (isMultiSelectModalOpened()) {
+  <div class="modal-backdrop" (click)="closeMultiSelectModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -809,6 +817,7 @@
   }
   <!-- Small text Modal -->
   @if (isSmallTextModalOpened()) {
+  <div class="modal-backdrop" (click)="closeSmallTextModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -846,6 +855,7 @@
   }
   <!-- Add Large Text Modal-->
   @if (isLargeTextModalOpened()) {
+  <div class="modal-backdrop" (click)="closeLargeTextModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -883,6 +893,7 @@
   }
   <!-- Add Date Modal -->
   @if (isDateModalOpened()) {
+  <div class="modal-backdrop" (click)="closeDateModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -920,6 +931,7 @@
   }
   <!-- ================= Scoring Modal ================= -->
   @if (isScoringModalOpened()) {
+  <div class="modal-backdrop" (click)="closeScoringModal()"></div>
   <div class="metaDataModal">
     <div class="modal-content">
       <div class="modal-header hc0">
@@ -948,6 +960,7 @@
 </div>
 <!-- Modal for criteria -->
 @if (isCriteriaModalOpened()) {
+<div class="modal-backdrop" (click)="closeCriteriaModal()"></div>
 <div class="metaDataModal">
   <div class="modal-content">
     <div class="modal-header hc0">
