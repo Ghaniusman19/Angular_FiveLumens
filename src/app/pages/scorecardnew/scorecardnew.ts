@@ -1,3 +1,4 @@
+
 import { ScorecardData } from './../../../services/scorecard-data';
 import { FetchAPIData } from '../../../services/fetch-apidata';
 import { ToggleStatus } from '../../../services/toggle-status';
@@ -8,10 +9,11 @@ import { FormGroup, FormControl, Validators, FormArray, ReactiveFormsModule } fr
 import { Addscorecard } from '../../../services/addscorecard';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { NgOptimizedImage } from '@angular/common';
 // import { NgZone } from '@angular/core';
 @Component({
   selector: 'app-scorecardnew',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule ],
   templateUrl: './scorecardnew.html',
   styleUrl: './scorecardnew.css',
 })
@@ -54,6 +56,7 @@ export class Scorecardnew implements OnInit {
   public userData: any[] = [];
   public scorecardFormArray: any[] = [];
   public titlename = signal<string>('');
+  public isLoading = signal(false);
 
   //This method is to fetch API for the pagination
   ngOnInit(): void {
@@ -102,6 +105,7 @@ export class Scorecardnew implements OnInit {
     });
   }
   public fetchData(): void {
+    this.isLoading.set(true);
     const formData = new FormData();
     formData.append('isActive', 'true');
     formData.append('page', this.currentPage().toString());
@@ -109,16 +113,17 @@ export class Scorecardnew implements OnInit {
     this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
       next: (response: any): void => {
         this.scData.set(response?.data?.collection || []);
+        this.isLoading.set(false);
         this.totalItems.set(response?.data?.pagination?.total);
         console.log(this.totalItems(), ' these are our total items');
         // total count from API
         console.log('Paginated Data:', this.scData());
         // this.ngZone.run(() => {
-
         // });
       },
       error: (error: any) => {
         console.error('API Error in fetchData:', error);
+        this.isLoading.set(false);
       },
     });
   }

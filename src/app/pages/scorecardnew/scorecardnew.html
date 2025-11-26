@@ -402,7 +402,13 @@
     </div>
 
     <!-- Table Rows -->
-
+    @if (isLoading()) {
+    <div class="spinner-overall">
+      <div class="spinner">
+        <!-- <img ngSrc="public\hzk6C.gif" width="400" height="400" alt="Loader Image" /> -->
+      </div>
+    </div>
+    } @if(!isLoading()) {
     <div class="table-body">
       @for (item of scData(); track $index) {
       <div class="table-row">
@@ -943,12 +949,7 @@
         </div>
       </div>
     </div>
-
-
-
-
-
-    @if (notification()) {
+    } @if (notification()) {
     <div class="toast">
       {{ notification() }}
     </div>

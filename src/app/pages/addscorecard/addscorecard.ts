@@ -380,7 +380,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.groups.fetchGroupsData(this.authkey).subscribe({
         next: (data: any): void => {
           this.groupsdata = data.data;
-
           console.log('API response of the group data ', this.groupsdata);
         },
         error: (err: any) => {
