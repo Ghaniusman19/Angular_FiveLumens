@@ -1018,7 +1018,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.criteriaModalOpen.set(true);
     }
   }
-
   public canSaveScorecard(): boolean {
     const sections = this.scoringArray();
     if (!sections || sections.length === 0) {
@@ -1194,7 +1193,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   public closeEditModal(): void {
     this.isEditModalOpen.set(false);
   }
-
   public EditFormSubmit(): void {
     console.log('Edit ...Form Submitted');
     console.log('Our data of form is ', this.EditFormData.value);

@@ -410,6 +410,7 @@
             <div><button class="three-dots" (click)="toggleMenu(item.id)">⋮</button></div>
           </div>
           @if (openMenuId() === item.id) {
+          <div class="modal-backdrop" (click)="toggleMenu(item.id)"></div>
           <div class="dropdown-menu">
             <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
             <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
@@ -455,7 +456,7 @@
           </div>
           <!-- 3 dot button -->
           @if (openMenuId() === item.id) {
-          <div class="modal-backdrop"></div>
+          <div class="modal-backdrop" (click)="toggleMenu(item.id)"></div>
           <div class="dropdown-menu">
             <button (click)="$event.stopPropagation(); editItem(item.id)" class="dropdown-btn">
               Edit
@@ -518,7 +519,6 @@
           </button>
         </div>
         }
-
         <ul class="criteria-list" cdkDropList (cdkDropListDropped)="dropCriteria($event, section)">
           @for (criteria of section.criteria; track criteria.id) {
           <li
@@ -538,7 +538,7 @@
                 </div>
 
                 @if (criteria.autofill) {
-                <span class="autofill-tag">autofill </span>
+                <span class="autofill-tag">AF.. </span>
                 }
               </div>
               <div style="display: flex; align-items: center; justify-content: center; gap: 5px">
@@ -591,7 +591,6 @@
       </div>
     </div>
   </div>
-
   @if (isMetaDataModalOpened()) {
   <div class="metaDataModal">
     <div class="modal-content">

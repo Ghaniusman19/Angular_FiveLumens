@@ -11,7 +11,7 @@ export class Addscorecard {
   private EDITSCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/edit';
   private UPDATESCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/update';
   private CLONESCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/clone';
-  
+  private USERSEDITURL = 'https://fldemo.fivelumenstest.com/api/auth/users/edit';
   constructor(private http: HttpClient) {}
   AddScoreCard(data: any, authToken: string): Observable<any> {
     const headers = new HttpHeaders({
@@ -43,5 +43,10 @@ export class Addscorecard {
     });
     return this.http.post(this.CLONESCORECARDAPIURL, payload, { headers });
   }
- 
+  UsersEdit(payload: any, authToken: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${authToken}`,
+    });
+    return this.http.post(this.USERSEDITURL, payload, { headers });
+  }
 }

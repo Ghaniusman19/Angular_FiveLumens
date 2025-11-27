@@ -1,4 +1,3 @@
-
 import { ScorecardData } from './../../../services/scorecard-data';
 import { FetchAPIData } from '../../../services/fetch-apidata';
 import { ToggleStatus } from '../../../services/toggle-status';
@@ -13,7 +12,7 @@ import { NgOptimizedImage } from '@angular/common';
 // import { NgZone } from '@angular/core';
 @Component({
   selector: 'app-scorecardnew',
-  imports: [CommonModule, ReactiveFormsModule ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './scorecardnew.html',
   styleUrl: './scorecardnew.css',
 })
@@ -391,14 +390,17 @@ export class Scorecardnew implements OnInit {
         formValues.append(`groups[${index}]`, groupId);
       });
     }
+    this.isLoading.set(true);
     this.ScorecardData.scoreCardData(formValues, this.authkey).subscribe({
       next: (response: any): void => {
         console.log('This is the response of the scorecard filter', response);
+        this.isLoading.set(false);
         this.scData.set(response?.data?.collection);
         this.totalItems.set(response?.data?.pagination?.total);
         console.log('API Response of scorecard data:', this.scData());
       },
       error: (error: any) => {
+        this.isLoading.set(false);
         console.log('This is the error of the scorecard filter', error);
       },
     });
@@ -436,23 +438,25 @@ export class Scorecardnew implements OnInit {
     const searchPayload = new FormData();
     searchPayload.append('isActive', this.scorecardForm.value.isActive);
     searchPayload.append('search', searchItem);
-
+    this.isLoading.set(true);
     this.ScorecardData.scoreCardData(searchPayload, this.authkey).subscribe({
       next: (response: any): void => {
+        this.isLoading.set(false);
+
         const activeData = (response?.data?.collection || []).filter(
           (item: any) => item.isActive === true
         );
         this.scData.set(activeData);
         this.totalItems.set(response?.data?.pagination?.total);
-        console.log('API Response of scorecard data:', this.scData()); // Log to console
+        console.log('API Response of scorecard data:', this.scData());
       },
       error: (error: any) => {
+        this.isLoading.set(false);
         console.error('API Error:', error);
       },
     });
   }
   //This is the model of the reactive form of AddScorecard...
-
   public scorecardSubmitEvaluate(item: any): void {
     console.log(item);
     console.log('Evaluate Submit Clicked');
@@ -460,6 +464,20 @@ export class Scorecardnew implements OnInit {
       console.log(this.selectedRowId());
       this.scorecardFormEvaluate.get('id')?.setValue(this.selectedRowId());
       this.scorecardFormEvaluate.get('title')?.setValue(this.titlename());
+      console.log(this.scorecardFormEvaluate.value.users);
+      const id: any = this.scorecardFormEvaluate.value.users;
+      this.addScorecard
+        .UsersEdit({ id: this.scorecardFormEvaluate.value.users }, this.authkey)
+        .subscribe({
+          next: (response: any): void => {
+            console.log('here is the response of user edit API', response);
+            // this.isLoading.set(false);
+          },
+          error: (error: any) => {
+            console.error('API Error in fetchData:', error);
+            this.isLoading.set(false);
+          },
+        });
       // this.scorecardFormEvaluate
       //   .get('title')
       //   ?.setValue(this.scData().find((item) => item._id === this.selectedRowId()).title);
@@ -492,10 +510,8 @@ export class Scorecardnew implements OnInit {
   public onGroupCheckboxChangeEvaluate(id: string, event: Event) {
     const groupsArray = this.scorecardFormEvaluate.get('groups') as FormArray;
     const checkbox = event.target as HTMLInputElement;
-
     if (checkbox.checked) {
       groupsArray.push(new FormControl(id));
-
       this.groups.AllUsersPost(this.authkey, groupsArray).subscribe({
         next: (response: any): void => {
           console.log(response, 'This is the response of all users api in evaluate form');

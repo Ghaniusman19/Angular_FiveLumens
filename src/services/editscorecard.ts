@@ -17,7 +17,6 @@ export class editscorecard {
     });
     return this.http.post(this.EDITAPIURL, data, { headers });
   }
-
   UpdateScoreCard(payload: any, authToken: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${authToken}`,
