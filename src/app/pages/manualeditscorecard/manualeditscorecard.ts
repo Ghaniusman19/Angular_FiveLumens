@@ -9,10 +9,10 @@ import { editscorecard } from '../../../services/editscorecard';
 @Component({
   selector: 'app-viewscorecard',
   imports: [CdkAccordionModule, ReactiveFormsModule],
-  templateUrl: './viewscorecard.html',
-  styleUrl: './viewscorecard.css',
+  templateUrl: './manualeditscorecard.html',
+  styleUrl: './manualeditscorecard.css',
 })
-export class Viewscorecard implements OnInit, OnDestroy {
+export class Manualeditscorecard implements OnInit, OnDestroy {
   public viewID: string = '';
   private routeSubscription: Subscription | undefined;
   constructor(private editscorecard: Addscorecard, private editsc: editscorecard) {
@@ -98,7 +98,7 @@ export class Viewscorecard implements OnInit, OnDestroy {
       // this.scorecardForm.get('id')?.setValue(data._id);
       // this.scorecardForm.get('id')?.disable();
       // this.scorecardForm.get('evaluationType')?.setValue(data.evaluationType);
-      this.scorecardForm.get('evaluationType')?.disable();
+      // this.scorecardForm.get('evaluationType')?.disable();
     } catch (e) {
       console.warn('Could not disable form', e);
     }

@@ -143,12 +143,12 @@
                   </div>
                 </div>
               </div>
-              <!-- <div class="form-footer">
+              <div class="form-footer">
                 <button class="filter-close-btn close-btn" (click)="closeSettingModal()">
                   Cancel
                 </button>
                 <button type="submit" class="btn-logout">Add</button>
-              </div> -->
+              </div>
             </form>
           </div>
         </div>
@@ -175,10 +175,14 @@
             [attr.aria-controls]="'accordion-body-meta-' + metaIndex"
           >
             <strong>{{ meta.title }}</strong>
+
             <!-- <span class="example-accordion-item-description">
               {{ metaItem.expanded ? '▼' : '►' }}
             </span> -->
           </button>
+          <div class="response">
+            <input type="text" placeholder="Enter Your Response Here..." disabled />
+          </div>
           <!-- @if(metaItem.expanded) {
           <div
             class="example-accordion-item-body metadata-body"

@@ -8,6 +8,8 @@ import { Scorecardnew } from './pages/scorecardnew/scorecardnew';
 import { Viewscorecard } from './pages/viewscorecard/viewscorecard';
 import { Editscorecard } from './pages/editscorecard/editscorecard';
 import { Addscorecard } from './pages/addscorecard/addscorecard';
+import { AIeditscorecard } from './pages/aieditscorecard/aieditscorecard';
+import { Manualeditscorecard } from './pages/manualeditscorecard/manualeditscorecard';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
@@ -16,6 +18,8 @@ export const routes: Routes = [
   { path: 'view', component: Viewscorecard, canActivate: [authLoginGuard] },
   { path: 'edit', component: Editscorecard, canActivate: [authLoginGuard] },
   { path: 'addscorecard', component: Addscorecard, canActivate: [authLoginGuard] },
+  { path: 'aieditscorecard', component: AIeditscorecard, canActivate: [authLoginGuard] },
+  { path: 'manualeditscorecard', component: Manualeditscorecard, canActivate: [authLoginGuard] },
   {
     path: '',
     component: Layout,

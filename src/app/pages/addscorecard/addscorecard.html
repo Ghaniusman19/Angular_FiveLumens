@@ -13,7 +13,7 @@
           </p>
         </div>
         <div class="table-search-right-cont">
-          @if (APIDATA().evaluationType == 'manual' ) {
+          @if (APIDATA().evaluationType === 'manual' ) {
           <button class="btn save-only-btn br-5 mr-3" id="submitButton" (click)="OpenEditModal()">
             Setting
           </button>
@@ -30,9 +30,6 @@
           @if (isEditModalOpen()) {
           <div class="modal-backdrop" (click)="closeEditModal()"></div>
           <div class="scorecard-modal">
-            <!-- <p>{{ APIDATA().title }}</p>
-            <p>{{ APIDATA().description }}</p>
-            <p>{{ APIDATA().scoringModel }}</p> -->
             <div class="form-container">
               <div class="form-header">
                 <div>
@@ -361,7 +358,6 @@
               </div>
             </div>
           </div>
-
           } } @else{
           <div class="btn_newui">
             <button class="btn save-only-btn br-5 mr-3" id="submitButton">Setting</button>
@@ -386,7 +382,9 @@
     <div class="metadatasection">
       <div class="meta-data">
         <div class="heading">
-          <h3>Meta Data "{{ APIDATA()?.evaluationType }} "</h3>
+          <h3>
+            Meta Data <b>{{ APIDATA()?.evaluationType | uppercase }}</b>
+          </h3>
         </div>
         <div class="threedropdown">
           <button class="threedropbtn" (click)="toggleMetaData()">⋮</button>
@@ -413,7 +411,7 @@
           <div class="modal-backdrop" (click)="toggleMenu(item.id)"></div>
           <div class="dropdown-menu">
             <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
-            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
+            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Deleteeeeeee</button>
           </div>
           }
           <!-- 3 dot button -->
@@ -425,7 +423,7 @@
     <div class="metadatasection">
       <div class="meta-data">
         <div class="heading">
-          <h3>Meta Data "{{ APIDATA()?.evaluationType }}"</h3>
+          <h3>Meta Data {{ APIDATA()?.evaluationType }}</h3>
         </div>
         <div class="threedropdown">
           <button class="threedropbtn" (click)="toggleMetaData()">⋮</button>

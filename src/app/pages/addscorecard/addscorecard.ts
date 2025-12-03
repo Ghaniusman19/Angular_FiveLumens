@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FetchAPIData } from '../../../services/fetch-apidata';
+import { appendFormData } from '../../object-to-formdata';
 // import { MetaData } from '../../user';
 import {
   FormControl,
@@ -22,7 +23,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-
 interface ScoringItems {
   id: number;
   value: string;
@@ -68,7 +68,6 @@ export class Addscorecard implements OnInit, OnDestroy {
   public MultiSelectModal: FormGroup;
   public SingleSelectModal: FormGroup;
   public groupsdata: any[] = [];
-
   // public submittedMetaData: MetaData[] = [];
   public openCriteriaMenuId = signal<number | null>(null);
   public APIDATA = signal<any>(null);
@@ -88,11 +87,16 @@ export class Addscorecard implements OnInit, OnDestroy {
   public criteriaModalOpen = signal(false);
   public activeSectionId: number | null = null;
   public editingCriteriaId: number | null = null;
+  public editMetaDataId: number | null = null;
   public http = inject(HttpClient);
   public router = inject(Router);
   public route = inject(ActivatedRoute);
   public authorization = localStorage.getItem('authToken');
   public authkey: any = this.authorization;
+  public isEditModalOpen = signal(true);
+  public isThirdLevelOpened = signal(false);
+  public editingItemId: number | null = null;
+  public editingFieldType: string | null = null;
   //constructor method calls very first when the page loads
 
   constructor(private editscorecard: editscorecard, private groups: FetchAPIData) {
@@ -152,7 +156,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       type: new FormControl('singleSelect'),
     });
   }
-  isThirdLevelOpened = signal(false);
 
   getOptionsArray(levelCtrl: AbstractControl): FormArray<any> {
     const control = levelCtrl?.get('options');
@@ -405,7 +408,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     // this.getScoringFromLocal();
   }
 
-  EditFormData = new FormGroup({
+  public EditFormData = new FormGroup({
     title: new FormControl('', Validators.required),
     description: new FormControl('', Validators.required),
     id: new FormControl(''),
@@ -582,8 +585,20 @@ export class Addscorecard implements OnInit, OnDestroy {
     console.log('opened meta data modal!');
     this.isOpenedMetaData.update((currentVal) => !currentVal);
   }
+  public openCriteriaModal(sectionId: number) {
+    this.activeSectionId = sectionId;
+    this.criteriaForm.reset();
+    this.criteriaModalOpen.set(true);
+  }
   public closeMetaDataModal(): void {
     this.isMetaDataModalOpened.update((cVal) => !cVal);
+    this.editMetaDataId = null;
+  }
+  public closeCriteriaModal() {
+    this.criteriaModalOpen.set(false);
+    this.editingCriteriaId = null;
+    this.criteriaForm.reset();
+    this.activeSectionId = null;
   }
   private getDatafromLocalStorage(): void {
     const storedData = localStorage.getItem('description val');
@@ -663,6 +678,46 @@ export class Addscorecard implements OnInit, OnDestroy {
       this.LargeScoreCard.reset({ title: '', isRequired: false });
       this.closeLargeTextModal();
     }
+  }
+  public saveCriteria() {
+    const formValue = this.criteriaForm.value;
+    const section = this.scoringArray().find((s: any) => s.id === this.activeSectionId);
+    if (!section) return;
+    if (this.editingCriteriaId) {
+      //  Update existing item
+      section.criteria = section.criteria.map((c: any) =>
+        c.id === this.editingCriteriaId
+          ? {
+              ...c,
+              description: formValue.description,
+              autofill: formValue.autofill,
+              type: formValue.type,
+              method: formValue.method,
+              option: formValue.option,
+            }
+          : c
+      );
+    } else {
+      //  Add new item
+      const newCriteria = {
+        id: Date.now(),
+        description: formValue.description,
+        autofill: formValue.autofill,
+        type: formValue.type,
+        method: formValue.method,
+        option: formValue.option,
+        value: 0,
+        percentage: 0,
+      };
+      section.criteria.push(newCriteria);
+    }
+
+    // Reset modal + states
+    this.criteriaForm.reset();
+    this.editingCriteriaId = null;
+    this.activeSectionId = null;
+    this.criteriaModalOpen.set(false);
+    this.calculatePercentages(section.id); //
   }
   //This is to submit the Small Text modal
   // Small Text
@@ -783,8 +838,6 @@ export class Addscorecard implements OnInit, OnDestroy {
     // localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
     this.openMenuId.set(null); // close menu after delete
   }
-  public editingItemId: number | null = null;
-  public editingFieldType: string | null = null;
 
   public editItem(id: string | number): void {
     this.isOpenedMetaData.update((currentVal) => !currentVal);
@@ -935,60 +988,11 @@ export class Addscorecard implements OnInit, OnDestroy {
     method: new FormControl('', { nonNullable: true }),
     option: new FormControl('', { nonNullable: true }),
   });
-  public openCriteriaModal(sectionId: number) {
-    this.activeSectionId = sectionId;
-    this.criteriaForm.reset();
-    this.criteriaModalOpen.set(true);
-  }
-  public closeCriteriaModal() {
-    this.criteriaModalOpen.set(false);
-    this.editingCriteriaId = null;
-    this.criteriaForm.reset();
-    this.activeSectionId = null;
-  }
+
   public isCriteriaModalOpened() {
     return this.criteriaModalOpen();
   }
-  public saveCriteria() {
-    const formValue = this.criteriaForm.value;
-    const section = this.scoringArray().find((s: any) => s.id === this.activeSectionId);
-    if (!section) return;
-    if (this.editingCriteriaId) {
-      //  Update existing item
-      section.criteria = section.criteria.map((c: any) =>
-        c.id === this.editingCriteriaId
-          ? {
-              ...c,
-              description: formValue.description,
-              autofill: formValue.autofill,
-              type: formValue.type,
-              method: formValue.method,
-              option: formValue.option,
-            }
-          : c
-      );
-    } else {
-      //  Add new item
-      const newCriteria = {
-        id: Date.now(),
-        description: formValue.description,
-        autofill: formValue.autofill,
-        type: formValue.type,
-        method: formValue.method,
-        option: formValue.option,
-        value: 0,
-        percentage: 0,
-      };
-      section.criteria.push(newCriteria);
-    }
 
-    // Reset modal + states
-    this.criteriaForm.reset();
-    this.editingCriteriaId = null;
-    this.activeSectionId = null;
-    this.criteriaModalOpen.set(false);
-    this.calculatePercentages(section.id); //
-  }
   public deleteCriteria(sectionId: number, criteriaId: number) {
     const updated = this.scoringArray().map((section: any) =>
       section.id === sectionId
@@ -1031,6 +1035,27 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
     return true;
   }
+
+  private appendToFormData(formData: FormData, data: any, parentKey: string = '') {
+    if (data !== null && data !== undefined && typeof data === 'object' && !Array.isArray(data)) {
+      // Object
+      Object.keys(data).forEach((key) => {
+        const value = data[key];
+        const formKey = parentKey ? `${parentKey}[${key}]` : key;
+        this.appendToFormData(formData, value, formKey);
+      });
+    } else if (Array.isArray(data)) {
+      // Array
+      data.forEach((value, index) => {
+        const formKey = `${parentKey}[${index}]`;
+        this.appendToFormData(formData, value, formKey);
+      });
+    } else {
+      // Primitive value
+      formData.append(parentKey, data);
+    }
+  }
+
   //Method to save only score card...
   public SaveOnlyScoreCard(): void {
     console.log('save only scorecard..');
@@ -1063,7 +1088,7 @@ export class Addscorecard implements OnInit, OnDestroy {
 
       const payload = {
         id: this.AddScoreCardID,
-        _id: this.AddScoreCardID,
+        // _id: this.AddScoreCardID,
         title: this.APIDATA().title,
         description: this.APIDATA().description,
         isPublished: false,
@@ -1089,7 +1114,12 @@ export class Addscorecard implements OnInit, OnDestroy {
       } catch (e) {
         console.log('DEBUG: payload serialization error', e);
       }
-      this.editscorecard.UpdateScoreCard(payload, this.authkey).subscribe({
+
+      const formdata = new FormData();
+      this.appendToFormData(formdata, payload);
+
+      formdata.forEach((v, k) => console.log(k, v, 'usman ghani....'));
+      this.editscorecard.UpdateScoreCard(formdata, this.authkey).subscribe({
         next: (response: any): void => {
           console.log('hey how are you this is my response ....', response);
           console.log(this.AddScoreCardID);
@@ -1185,7 +1215,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       ],
     }));
   }
-  public isEditModalOpen = signal(true);
   public OpenEditModal(): void {
     this.isEditModalOpen.set(true);
     console.log('setting clicked');
