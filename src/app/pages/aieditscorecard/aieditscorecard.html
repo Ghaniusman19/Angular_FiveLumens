@@ -223,16 +223,8 @@
 </div> -->
 <div class="scorecard-container">
   <div class="header-section">
-    <div class="breadcrumb-nav">
-      <span class="nav-item">Home</span>
-      <span class="separator">/</span>
-      <span class="nav-item">Scorecards</span>
-      <span class="separator">/</span>
-      <span class="nav-item active">Manage Scorecard</span>
-    </div>
-
     <div class="title-bar">
-      <h1 class="page-title">Inbound Hotel Bookings Scorecard</h1>
+      <h1 class="page-title">{{scorecardForm.value.title}}</h1>
       <div class="action-buttons">
         <button class="btn-secondary"><i class="icon-star"></i> Save Only</button>
         <button class="btn-primary" (click)="sendUpdate()" [disabled]="scorecardForm.invalid">
@@ -241,7 +233,7 @@
       </div>
     </div>
 
-    <p class="subtitle">Inbound Hotel Bookings Scorecard</p>
+    <p class="subtitle">{{ scorecardForm.value.title }}</p>
   </div>
 
   @if (scorecardForm.value) {
