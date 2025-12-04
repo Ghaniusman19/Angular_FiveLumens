@@ -8,7 +8,7 @@ import { FormGroup, FormControl, Validators, FormArray, ReactiveFormsModule } fr
 import { Addscorecard } from '../../../services/addscorecard';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { NgOptimizedImage } from '@angular/common';
+// import { NgOptimizedImage } from '@angular/common';
 // import { NgZone } from '@angular/core';
 @Component({
   selector: 'app-scorecardnew',
@@ -68,9 +68,8 @@ export class Scorecardnew implements OnInit {
       return;
     }
     const formData = new FormData();
-    formData.append('isActive', 'true');
+    // formData.append('isActive', 'true');
     formData.append('page', this.currentPage().toString());
-
     //This is the code of the fetching of the scorecard  by post method
     this.ScorecardData.scoreCardData(formData, this.authkey).subscribe({
       next: (response: any): void => {
@@ -734,8 +733,8 @@ export class Scorecardnew implements OnInit {
       const formValues = this.scorecardForm.value;
       console.log(formValues);
       //This is the code to convert json form key value data into formdata format
-
       const formData = new FormData();
+      formData.append('isActive', 'true');
       for (const key in formValues) {
         if (formValues.hasOwnProperty(key)) {
           if (Array.isArray(formValues[key])) {

@@ -1088,7 +1088,7 @@ export class Addscorecard implements OnInit, OnDestroy {
 
       const payload = {
         id: this.AddScoreCardID,
-        // _id: this.AddScoreCardID,
+        _id: this.AddScoreCardID,
         title: this.APIDATA().title,
         description: this.APIDATA().description,
         isPublished: false,

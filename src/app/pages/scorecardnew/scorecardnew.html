@@ -439,7 +439,10 @@
             <button class="btn-logout1" (click)="View(item._id); close3DotDropDown()">View</button>
           </div>
           <div class="dropdown-btn">
-            <button class="btn-logout1" (click)="EditScorecard(item._id , item.evaluationType); close3DotDropDown()">
+            <button
+              class="btn-logout1"
+              (click)="EditScorecard(item._id, item.evaluationType); close3DotDropDown()"
+            >
               Edit
             </button>
           </div>

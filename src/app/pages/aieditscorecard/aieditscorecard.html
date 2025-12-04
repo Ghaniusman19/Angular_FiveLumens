@@ -224,11 +224,13 @@
 <div class="scorecard-container">
   <div class="header-section">
     <div class="title-bar">
-      <h1 class="page-title">{{scorecardForm.value.title}}</h1>
+      <h1 class="page-title">{{ scorecardForm.value.title }}</h1>
       <div class="action-buttons">
-        <button class="btn-secondary"><i class="icon-star"></i> Save Only</button>
+        <button class="btn-secondary">Save Only</button>
         <button class="btn-primary" (click)="sendUpdate()" [disabled]="scorecardForm.invalid">
-          <i class="icon-check"></i> SEND UPDATE
+          <!-- <i class="icon-check"></i> -->
+
+          SAVE AND PUBLISH
         </button>
       </div>
     </div>
@@ -240,12 +242,27 @@
   <form [formGroup]="scorecardForm">
     <!-- Meta Data Section -->
     <div class="section-card">
-      <div class="section-header" (click)="toggleSection('metadata')">
+      <div class="section-header">
         <div class="section-title">
-          <i class="icon-chevron" [class.expanded]="expandedSections.metadata"></i>
+          <i
+            class="icon-chevron"
+            [class.expanded]="expandedSections.metadata"
+            (click)="toggleSection('metadata')"
+          ></i>
           <span>Meta Data</span>
         </div>
-        <span class="item-count">{{ metaDataArray.length }}</span>
+        <!-- <span class="item-count">{{ metaDataArray.length }}</span> -->
+        <div>
+          <button class="btn-secondary p-relative" (click)="openMetaDropdown()">&#8942;</button>
+          @if (isMetaDropdownOpen()) {
+          <div class="p-absolute">
+            <div class="modal-backdrop" (click)="closeMetaDropdown()"></div>
+            <div class="dropdown-menu">
+              <button class="dropdown-btn">Add Meta Data</button>
+            </div>
+          </div>
+          }
+        </div>
       </div>
 
       @if (expandedSections.metadata) {
@@ -254,8 +271,12 @@
           @for (meta of metaDataArray.controls; track meta; let i = $index) {
           <div class="question-card">
             <div [formGroupName]="i">
-              <div class="question-number">{{ i + 1 }}</div>
-
+              <div class="meta-item-header">
+                <div class="question-number">{{ i + 1 }}</div>
+                <div>
+                  <button class="btn-secondary" (click)="DeleteMetaData(i)">del &times;</button>
+                </div>
+              </div>
               <div class="form-group-inline">
                 <label class="form-label-inline">{{ meta.get('title')?.value }}</label>
               </div>
@@ -265,7 +286,7 @@
                 <input type="text" class="form-input" formControlName="title" />
               </div>
 
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label class="form-label">Field Type</label>
                 <input
                   type="text"
@@ -273,14 +294,14 @@
                   formControlName="fieldType"
                   readonly
                 />
-              </div>
+              </div> -->
 
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label class="form-label">Prompt</label>
                 <textarea class="form-textarea" rows="12" formControlName="prompt"></textarea>
-              </div>
+              </div> -->
 
-              <div class="checkbox-group">
+              <!-- <div class="checkbox-group">
                 <input
                   class="form-checkbox"
                   type="checkbox"
@@ -288,7 +309,7 @@
                   [id]="'metaRequired' + i"
                 />
                 <label class="checkbox-label" [for]="'metaRequired' + i">Is Required</label>
-              </div>
+              </div> -->
             </div>
           </div>
           }
@@ -299,12 +320,27 @@
 
     <!-- Scoring Section -->
     <div class="section-card">
-      <div class="section-header" (click)="toggleSection('scoring')">
+      <div class="section-header">
         <div class="section-title">
-          <i class="icon-chevron" [class.expanded]="expandedSections.scoring"></i>
+          <i
+            class="icon-chevron"
+            (click)="toggleSection('scoring')"
+            [class.expanded]="expandedSections.scoring"
+          ></i>
           <span>Scoring</span>
         </div>
-        <span class="item-count">{{ criteriasArray.length }}</span>
+        <!-- <span class="item-count">{{ criteriasArray.length }}</span> -->
+        <div>
+          <button class="btn-secondary p-relative" (click)="openScoringDropdown()">&#8942;</button>
+          @if (isScoringDropdownOpen()) {
+          <div class="p-absolute">
+            <div class="modal-backdrop" (click)="closeScoringDropdown()"></div>
+            <div class="dropdown-menu">
+              <button class="dropdown-btn">Add Section</button>
+            </div>
+          </div>
+          }
+        </div>
       </div>
 
       @if (expandedSections.scoring) {
@@ -316,12 +352,20 @@
             <div formArrayName="scoringSections">
               @for (section of getScoringSection(ci).controls; track section; let si = $index) {
               <div [formGroupName]="si">
-                <div class="subsection-header" (click)="toggleSubSection(ci, si)">
+                <div class="subsection-header">
                   <div class="subsection-title">
-                    <i class="icon-chevron-sm" [class.expanded]="isSubSectionExpanded(ci, si)"></i>
+                    <i
+                      class="icon-chevron-sm"
+                      [class.expanded]="isSubSectionExpanded(ci, si)"
+                      (click)="toggleSubSection(ci, si)"
+                    ></i>
                     <span>{{ section.get('title')?.value }}</span>
                   </div>
-                  <span class="item-count-sm">{{ getDetails(ci, si).length }}</span>
+                  <span class="item-count-sm">
+                    <!-- {{ getDetails(ci, si).length }} -->
+
+                    &#8942;</span
+                  >
                 </div>
 
                 @if (isSubSectionExpanded(ci, si)) {
@@ -400,7 +444,7 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="footer-actions">
+    <!-- <div class="footer-actions">
       <button
         type="button"
         class="btn-primary btn-lg"
@@ -409,7 +453,7 @@
       >
         <i class="icon-check"></i> SAVE SCORECARD
       </button>
-    </div>
+    </div> -->
   </form>
   }
 </div>

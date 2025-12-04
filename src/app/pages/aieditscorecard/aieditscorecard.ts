@@ -171,7 +171,7 @@
 //   }
 // }
 
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -212,14 +212,32 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
   authorization = localStorage.getItem('authToken');
   authkey: any = this.authorization;
-
+  public isMetaDropdownOpen = signal(false);
+  public isScoringDropdownOpen = signal(false);
   scorecardForm!: FormGroup;
   // isLoading = false;
 
   constructor(private editsc: editscorecard) {
     console.log('AI scorecard page Called!');
   }
+  public openMetaDropdown(): void {
+    this.isMetaDropdownOpen.set(!this.isMetaDropdownOpen());
+  }
+  public closeMetaDropdown(): void {
+    this.isMetaDropdownOpen.set(false);
+  }
+  public openScoringDropdown(): void {
+    this.isScoringDropdownOpen.set(!this.isScoringDropdownOpen());
+  }
+  public closeScoringDropdown(): void {
+    this.isScoringDropdownOpen.set(false);
+  }
 
+  public DeleteMetaData(i: number): void {
+    console.log(i, 'meta data section number');
+    this.metaDataArray.removeAt(i);
+    console.log(this.metaDataArray, 'Updated meta data array');
+  }
   ngOnInit(): void {
     this.initializeForm();
 
@@ -263,7 +281,6 @@ export class AIeditscorecard implements OnInit, OnDestroy {
       },
     });
   }
-
   populateForm(data: ScorecardData): void {
     // Populate basic fields
     this.scorecardForm.patchValue({
