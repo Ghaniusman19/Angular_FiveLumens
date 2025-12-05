@@ -1,6 +1,14 @@
 <div class="overall">
   <!-- <h2>{{ APIDATA()?.scoringModel }}</h2> -->
   <div class="main-container container">
+    @if (saveErrorMessage()) {
+    <div class="modal-backdrop"></div>
+
+    <div class="error-container">
+      <button class="btn save-only-btn cross-btn" (click)="closeMessage()">&times;</button>
+      <div class="error-msg">{{ saveErrorMessage() }}</div>
+    </div>
+    }
     <div class="header">
       <div class="d-flex justify-content-between align-items-center">
         <div class="left_sc_in">
@@ -24,7 +32,7 @@
           >
             Save Only
           </button>
-          <button class="btn btn-primary save-review-btn" id="submitButton" type="submit">
+          <button class="btn btn-primary save-review-btn" (click)="saveandPublish()" id="submitButton" type="submit">
             Save &amp; Publish
           </button>
           @if (isEditModalOpen()) {

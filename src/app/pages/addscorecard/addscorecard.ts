@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FetchAPIData } from '../../../services/fetch-apidata';
 import { appendFormData } from '../../object-to-formdata';
-// import { MetaData } from '../../user';
 import {
   FormControl,
   FormGroup,
@@ -175,7 +174,9 @@ export class Addscorecard implements OnInit, OnDestroy {
   getIsThirdLevel(subCtrl: AbstractControl) {
     return subCtrl.get('isThirdLevel') as FormControl;
   }
-
+  closeMessage() {
+    this.saveErrorMessage.set(null);
+  }
   get optionsArray() {
     return this.SingleSelectModal.get('options') as FormArray;
   }
@@ -252,18 +253,18 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   drop(event: CdkDragDrop<any[]>) {
     moveItemInArray(this.submittedMetaData, event.previousIndex, event.currentIndex);
-    this.SaveDataToLocalStorage(); // order save karna
+    // this.SaveDataToLocalStorage();
   }
   dropSection(event: CdkDragDrop<any[]>) {
     const sections = this.scoringArray();
     moveItemInArray(sections, event.previousIndex, event.currentIndex);
     this.scoringArray.set(sections); // signal update
-    this.saveScoringToLocal();
+    // this.saveScoringToLocal();
   }
   dropCriteria(event: CdkDragDrop<any[]>, section: any) {
     moveItemInArray(section.criteria, event.previousIndex, event.currentIndex);
     this.scoringArray.set([...this.scoringArray()]); // trigger UI refresh
-    this.saveScoringToLocal();
+    // this.saveScoringToLocal();
   }
 
   addChip(event: MatChipInputEvent): void {
@@ -616,7 +617,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
   }
   private SaveDataToLocalStorage(): void {
-    localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
+    // localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
   }
   //Method to submit meta data form
   public SubmitmetaData(): void {
@@ -654,7 +655,7 @@ export class Addscorecard implements OnInit, OnDestroy {
       };
 
       this.submittedMetaData.push(newItem);
-      this.SaveDataToLocalStorage();
+      // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.DateScoreCard.reset({ title: '', isRequired: false });
       this.closeDateModal();
@@ -673,7 +674,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         options: [],
       };
       this.submittedMetaData.push(newItem);
-      this.SaveDataToLocalStorage();
+      // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.LargeScoreCard.reset({ title: '', isRequired: false });
       this.closeLargeTextModal();
@@ -744,7 +745,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         };
         this.submittedMetaData.push(newItem);
       }
-      this.SaveDataToLocalStorage();
+      // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.SmallTextModal.reset({ title: '', isRequired: false });
       this.closeSmallTextModal();
@@ -779,7 +780,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         };
         this.submittedMetaData.push(newItem);
       }
-      this.SaveDataToLocalStorage();
+      // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.MultiSelectModal.reset({ title: '', isRequired: false });
       this.closeMultiSelectModal();
@@ -812,7 +813,7 @@ export class Addscorecard implements OnInit, OnDestroy {
         };
         this.submittedMetaData.push(newItem);
       }
-      this.SaveDataToLocalStorage();
+      // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.SingleSelectModal.reset({
         title: '',
@@ -923,7 +924,7 @@ export class Addscorecard implements OnInit, OnDestroy {
           const newValue = prompt('Edit description:', item.title);
           if (newValue !== null && newValue.trim() !== '') {
             item.title = newValue.trim();
-            localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
+            // localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
           }
           break;
       }
@@ -945,15 +946,15 @@ export class Addscorecard implements OnInit, OnDestroy {
       if (desc || id) {
         const newSection = { id, value: desc, criteria: [] };
         this.scoringArray.set([...this.scoringArray(), newSection]);
-        this.saveScoringToLocal();
+        // this.saveScoringToLocal();
       }
       this.scoringForm.reset();
       this.closeScoringModal();
     }
   }
-  private saveScoringToLocal(): void {
-    localStorage.setItem('scoringData', JSON.stringify(this.scoringArray));
-  }
+  // private saveScoringToLocal(): void {
+  //   // localStorage.setItem('scoringData', JSON.stringify(this.scoringArray));
+  // }
   public toggleScoringMenu(id: number): void {
     this.openScoringMenuId.set(this.openScoringMenuId() === id ? null : id);
   }
@@ -963,7 +964,7 @@ export class Addscorecard implements OnInit, OnDestroy {
       const newVal = prompt('Edit Scoring ', item.value);
       if (newVal !== null && newVal.trim() !== '') {
         item.value = newVal.trim();
-        localStorage.setItem('scoringData', JSON.stringify(this.SubmitScoring));
+        // localStorage.setItem('scoringData', JSON.stringify(this.SubmitScoring));
       }
       this.scoringForm.patchValue({ description: item.value, id: item.id });
       // this.OpenScoringModal();
@@ -979,7 +980,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Delete
   public deleteScoring(id: number): void {
     this.scoringArray.set(this.scoringArray().filter((x: any) => x.id !== id));
-    this.saveScoringToLocal();
+    // this.saveScoringToLocal();
   }
   public criteriaForm = new FormGroup({
     description: new FormControl('', { nonNullable: true }),
@@ -1001,7 +1002,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     );
     this.scoringArray.set(updated);
     this.calculatePercentages(sectionId);
-    localStorage.setItem('scoringArray', JSON.stringify(updated));
+    // localStorage.setItem('scoringArray', JSON.stringify(updated));
   }
   public toggleCriteriaMenu(criteriaId: number) {
     this.openCriteriaMenuId.set(this.openCriteriaMenuId() === criteriaId ? null : criteriaId);
@@ -1035,7 +1036,6 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
     return true;
   }
-
   private appendToFormData(formData: FormData, data: any, parentKey: string = '') {
     if (data !== null && data !== undefined && typeof data === 'object' && !Array.isArray(data)) {
       // Object
@@ -1055,96 +1055,7 @@ export class Addscorecard implements OnInit, OnDestroy {
       formData.append(parentKey, data);
     }
   }
-
   //Method to save only score card...
-  public SaveOnlyScoreCard(): void {
-    console.log('save only scorecard..');
-    this.saveErrorMessage.set(null);
-    const sections = this.scoringArray();
-    if (!sections || sections.length === 0) {
-      const msg = 'Error: Please add at least one scoring section before saving.';
-      console.error(msg);
-      this.saveErrorMessage.set(msg);
-      return;
-    }
-    const sectionsWithoutCriteria = sections.filter(
-      (sec: any) => !sec.criteria || sec.criteria.length === 0
-    );
-    if (sectionsWithoutCriteria.length > 0) {
-      // Build a helpful message listing offending sections (by id or value)
-      const ids = sectionsWithoutCriteria.map((s: any) => s.id ?? s.value ?? 'unknown').join(', ');
-      const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
-      console.error(msg);
-      this.saveErrorMessage.set(msg);
-      return;
-    }
-    try {
-      // Recalculate totals/percentages before final submit (optional, but recommended)
-      for (const sec of sections) {
-        // ensure totals and percentages up-to-date
-        this.calculatePercentages(sec.id);
-        this.calculateTotal(sec.id);
-      }
-
-      const payload = {
-        id: this.AddScoreCardID,
-        _id: this.AddScoreCardID,
-        title: this.APIDATA().title,
-        description: this.APIDATA().description,
-        isPublished: false,
-        isActive: false,
-        metaData: this.submittedMetaData.map((meta) => ({
-          id: meta.id,
-          fieldType: meta.fieldType,
-          title: meta.title,
-          isRequired: Boolean(meta.isRequired),
-          isSecondLevel: Boolean(meta.isSecondLevel),
-          options: meta.options || [],
-        })),
-        criterias: this.transformScoringToAPIFormat(sections),
-      };
-      // Diagnostic logs to inspect payload before sending
-      try {
-        console.log('DEBUG: final payload.metaData items:', payload.metaData);
-        console.log(
-          'DEBUG: metaData keys per item:',
-          payload.metaData.map((m: any) => Object.keys(m))
-        );
-        console.log('DEBUG: final payload JSON:', JSON.stringify(payload));
-      } catch (e) {
-        console.log('DEBUG: payload serialization error', e);
-      }
-
-      const formdata = new FormData();
-      this.appendToFormData(formdata, payload);
-
-      formdata.forEach((v, k) => console.log(k, v, 'usman ghani....'));
-      this.editscorecard.UpdateScoreCard(formdata, this.authkey).subscribe({
-        next: (response: any): void => {
-          console.log('hey how are you this is my response ....', response);
-          console.log(this.AddScoreCardID);
-          // this.APIDATA.set(response.data);
-          // console.log(this.APIDATA());
-        },
-        error: (error: any) => {
-          console.log(error);
-        },
-      });
-      this.router.navigate(['scorecardnew']);
-      // Show in console (or call API here)
-      console.log('SaveOnlyScoreCard - payload ready:', payload);
-      // Example: Save locally (you already have helper)
-      localStorage.setItem('scorecardPayload', JSON.stringify(payload));
-      // Optionally show success message (console)
-      console.log('Scorecard saved successfully.');
-      // Clear error flag if any
-      this.saveErrorMessage.set(null);
-    } catch (err) {
-      console.error('Save error:', err);
-      this.saveErrorMessage.set('Error while saving, check console for details.');
-    } finally {
-    }
-  }
   // new code starts
   public sectionTotals: Record<number, number> = {};
   public sectionPercentages: Record<number, number> = {};
@@ -1153,7 +1064,7 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (!section) return;
     const totalItems = section.criteria.length;
     if (totalItems === 0) return;
-    const percentage = +(100 / totalItems).toFixed(2);
+    const percentage = +(0 / totalItems).toFixed(2);
     // assign this percentage to every criteria in that section
     section.criteria.forEach((c: any) => (c.percentage = percentage));
     // store for easy access
@@ -1238,5 +1149,199 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.isEditModalOpen.set(false);
     this.router.navigate(['scorecardnew']);
     // scorecardnew
+  }
+  public SaveOnlyScoreCard(): void {
+    console.log('save only scorecard..');
+    this.saveErrorMessage.set(null);
+    const sections = this.scoringArray();
+    if (!sections || sections.length === 0) {
+      const msg = 'Error: Please add at least one scoring section before saving.';
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+    const sectionsWithoutCriteria = sections.filter(
+      (sec: any) => !sec.criteria || sec.criteria.length === 0
+    );
+    if (sectionsWithoutCriteria.length > 0) {
+      // Build a helpful message listing offending sections (by id or value)
+      const ids = sectionsWithoutCriteria.map((s: any) => s.id ?? s.value ?? 'unknown').join(', ');
+      const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+    try {
+      // Recalculate totals/percentages before final submit (optional, but recommended)
+      for (const sec of sections) {
+        // ensure totals and percentages up-to-date
+        this.calculatePercentages(sec.id);
+        this.calculateTotal(sec.id);
+      }
+
+      const payload = {
+        id: this.AddScoreCardID,
+        _id: this.AddScoreCardID,
+        title: this.APIDATA().title,
+        description: this.APIDATA().description,
+        isPublished: false,
+        isActive: false,
+        metaData: this.submittedMetaData.map((meta) => ({
+          id: meta.id,
+          fieldType: meta.fieldType,
+          title: meta.title,
+          isRequired: Boolean(meta.isRequired),
+          isSecondLevel: Boolean(meta.isSecondLevel),
+          options: meta.options || [],
+        })),
+        criterias: this.transformScoringToAPIFormat(sections),
+      };
+      // Diagnostic logs to inspect payload before sending
+      try {
+        console.log('DEBUG: final payload.metaData items:', payload.metaData);
+        console.log(
+          'DEBUG: metaData keys per item:',
+          payload.metaData.map((m: any) => Object.keys(m))
+        );
+        console.log('DEBUG: final payload JSON:', JSON.stringify(payload));
+      } catch (e) {
+        console.log('DEBUG: payload serialization error', e);
+      }
+
+      const formdata = new FormData();
+      this.appendToFormData(formdata, payload);
+
+      formdata.forEach((v, k) => console.log(k, v, 'usman ghani....'));
+      this.editscorecard.UpdateScoreCard(formdata, this.authkey).subscribe({
+        next: (response: any): void => {
+          console.log('hey how are you this is my response ....', response);
+          console.log(this.AddScoreCardID);
+          // this.APIDATA.set(response.data);
+          // console.log(this.APIDATA());
+        },
+        error: (error: any) => {
+          console.log(error);
+        },
+      });
+      this.router.navigate(['scorecardnew']);
+      // Show in console (or call API here)
+      console.log('SaveOnlyScoreCard - payload ready:', payload);
+      // Example: Save locally (you already have helper)
+      // localStorage.setItem('scorecardPayload', JSON.stringify(payload));
+      // Optionally show success message (console)
+      console.log('Scorecard saved successfully.');
+      // Clear error flag if any
+      this.saveErrorMessage.set(null);
+    } catch (err) {
+      console.error('Save error:', err);
+      this.saveErrorMessage.set('Error while saving, check console for details.');
+    } finally {
+    }
+  }
+  saveandPublish(): void {
+    console.log('save and Publish Called!');
+    this.saveErrorMessage.set(null);
+    const sections = this.scoringArray();
+    // console.log(sections);
+    // console.log(sections[0].criteria[0].value);
+    // const dsection = sections[0];
+    // const a = dsection.criteria.forEach((element: any): void => {
+    //   console.log('element value is ', element.value);
+    //   return element.value;
+    //   // return element.filter((e: any) => e.value === 0);
+    // });
+
+    if (!sections || sections.length === 0) {
+      const msg = 'Error: Please add at least one scoring section before saving.';
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+
+    const sectionsWithoutCriteria = sections.filter(
+      (sec: any) => !sec.criteria || sec.criteria.length === 0
+    );
+    if (sectionsWithoutCriteria.length > 0) {
+      // Build a helpful message listing offending sections (by id or value)
+      const ids = sectionsWithoutCriteria.map((s: any) => s.id ?? s.value ?? 'unknown').join(', ');
+      const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+
+    if (sections[0].criteria[0].value === 0) {
+      const msg = 'Error: Total score cannot be zero. Please assign scores before publishing.';
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+    try {
+      // Recalculate totals/percentages before final submit (optional, but recommended)
+      for (const sec of sections) {
+        // ensure totals and percentages up-to-date
+        this.calculatePercentages(sec.id);
+        this.calculateTotal(sec.id);
+      }
+
+      const payload = {
+        id: this.AddScoreCardID,
+        // _id: this.AddScoreCardID,
+        title: this.APIDATA().title,
+        description: this.APIDATA().description,
+        isPublished: false,
+        isActive: false,
+        metaData: this.submittedMetaData.map((meta) => ({
+          id: meta.id,
+          fieldType: meta.fieldType,
+          title: meta.title,
+          isRequired: Boolean(meta.isRequired),
+          isSecondLevel: Boolean(meta.isSecondLevel),
+          options: meta.options || [],
+        })),
+        criterias: this.transformScoringToAPIFormat(sections),
+      };
+
+      // Diagnostic logs to inspect payload before sending.......
+      try {
+        console.log('DEBUG: final payload.metaData items:', payload.metaData);
+        console.log(
+          'DEBUG: metaData keys per item:',
+          payload.metaData.map((m: any) => Object.keys(m))
+        );
+        console.log('DEBUG: final payload JSON:', payload);
+      } catch (e) {
+        console.log('DEBUG: payload serialization error', e);
+      }
+
+      const formdata = new FormData();
+      this.appendToFormData(formdata, payload);
+
+      // formdata.forEach((v, k) => console.log(k, v, 'usman ghani....'));
+      this.editscorecard.UpdateScoreCard(formdata, this.authkey).subscribe({
+        next: (response: any): void => {
+          console.log('hey how are you this is my response ....', response);
+          console.log(this.AddScoreCardID);
+          // this.APIDATA.set(response.data);
+          // console.log(this.APIDATA());
+        },
+        error: (error: any) => {
+          console.log(error);
+        },
+      });
+      this.router.navigate(['scorecardnew']);
+      // Show in console (or call API here)
+      console.log('SaveOnlyScoreCard - payload ready:', payload);
+      // Example: Save locally (you already have helper)
+      // localStorage.setItem('scorecardPayload', JSON.stringify(payload));
+      // Optionally show success message (console)
+      console.log('Scorecard saved successfully.');
+      // Clear error flag if any
+      this.saveErrorMessage.set(null);
+    } catch (err) {
+      console.error('Save error:', err);
+      this.saveErrorMessage.set('Error while saving, check console for details.');
+    } finally {
+    }
   }
 }

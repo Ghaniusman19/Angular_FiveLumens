@@ -46,10 +46,12 @@
                 class="form-control mxw-270"
                 formControlName="title"
                 placeholder="Enter scorecard name here..."
-                required
               />
             </div>
-
+            @if (scorecardForm.get('title')?.errors?.['required'] &&
+            !scorecardForm.get('title')?.touched ) {
+            <small>This field is required</small>
+            }
             <div class="mb-3">
               <label for="" class="form-label">Description</label
               ><textarea
@@ -63,6 +65,10 @@
                 placeholder="Enter scorecard description here..."
                 style="height: 50px"
               ></textarea>
+              @if (scorecardForm.get('description')?.errors?.['required'] &&
+              !scorecardForm.get('description')?.touched ) {
+              <small>This field is required</small>
+              }
             </div>
             <div class="row" style="margin-top: 15px">
               <div class="col-md-9">
@@ -94,6 +100,10 @@
                   {{ item.title }} </label
                 >}
               </div>
+              @if (scorecardForm.get('groups')?.errors?.['required'] &&
+              !scorecardForm.get('groups')?.touched ) {
+              <small>This field is required</small>
+              }
             </div>
 
             <div class="mb-3">
@@ -113,6 +123,10 @@
                 <option value="selective">Selective</option>
                 <option value="audit">Audit</option>
               </select>
+              @if (scorecardForm.get('scoringModel')?.errors?.['required'] &&
+              !scorecardForm.get('scoringModel')?.touched ) {
+              <small>This field is required</small>
+              }
             </div>
             @if (scorecardForm.value.scoringModel !== 'audit') {
             <div class="">
@@ -262,6 +276,11 @@
                 <option value="68b1a75180fc128cdd259425">V2M Active</option>
                 <option value="68c17e2a8fb36c59a68a10a3">Coaching Form with commitment</option>
               </select>
+
+              @if (scorecardForm.get('coachingForm')?.errors?.['required'] &&
+              !scorecardForm.get('coachingForm')?.touched ) {
+              <small>This field is required</small>
+              }
             </div>
             <div class="my-2 ad_s">
               <label for="" class="form-label">Additional Settings</label>
@@ -298,7 +317,7 @@
           </div>
           <div class="form-footer">
             <button class="filter-close-btn close-btn" (click)="OpenModal()">Cancel</button>
-            <button type="submit" class="btn-logout">Add</button>
+            <button type="submit" [disabled]="scorecardForm.invalid" class="btn-logout">Add</button>
           </div>
         </form>
       </div>

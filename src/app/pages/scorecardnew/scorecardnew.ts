@@ -116,8 +116,6 @@ export class Scorecardnew implements OnInit {
         console.log(this.totalItems(), ' these are our total items');
         // total count from API
         console.log('Paginated Data:', this.scData());
-        // this.ngZone.run(() => {
-        // });
       },
       error: (error: any) => {
         console.error('API Error in fetchData:', error);
@@ -289,7 +287,6 @@ export class Scorecardnew implements OnInit {
       next: (data: any): void => {
         // this.groupsdata = data.data;
         console.log('API response of the group data ', data);
-        // this.groupsdata
       },
       error: (err: any) => {
         console.log(err);
@@ -347,14 +344,14 @@ export class Scorecardnew implements OnInit {
   });
   public scorecardForm: FormGroup = new FormGroup({
     title: new FormControl('', Validators.required),
-    description: new FormControl(''),
+    description: new FormControl('', Validators.required),
     evaluationType: new FormControl(''),
-    scoringModel: new FormControl(''),
-    coachingForm: new FormControl(''),
+    scoringModel: new FormControl('', Validators.required),
+    coachingForm: new FormControl('', Validators.required),
     visibleToManagers: new FormControl(false),
     coachingPurposeOnly: new FormControl(false),
-    groups: new FormArray([]),
-    isActive: new FormControl(true),
+    groups: new FormArray([], Validators.required),
+    // isActive: new FormControl(true),
     isAllGroups: new FormControl(false),
   });
   public scorecardFormclone: FormGroup = new FormGroup({
@@ -383,7 +380,6 @@ export class Scorecardnew implements OnInit {
   });
   public filterScorecardSubmit(): void {
     console.log('Filter Scorecard Submit');
-
     // const formValues = this.filterForm.value;
     const formValues = new FormData();
     formValues.append('isActive', this.filterForm.value.isActive);
@@ -430,10 +426,6 @@ export class Scorecardnew implements OnInit {
       });
       this.scorecardFormclone.reset();
       this.isCloneModalOpen.set(null);
-      // const scorecardPayload = { FormData: this.scorecardForm.value };
-      // const formValues = this.scorecardFormclone.value;
-      // console.log(formValues);
-      //This is the code to convert json form key value data into formdata format
     }
   }
   //This is to be the search function functionality...
@@ -447,7 +439,6 @@ export class Scorecardnew implements OnInit {
     this.ScorecardData.scoreCardData(searchPayload, this.authkey).subscribe({
       next: (response: any): void => {
         this.isLoading.set(false);
-
         const activeData = (response?.data?.collection || []).filter(
           (item: any) => item.isActive === true
         );
@@ -726,7 +717,7 @@ export class Scorecardnew implements OnInit {
   //This is the event / function to submit the form of add scorecard...
   public scorecardSubmit(): void {
     console.log('button submit .....');
-    if (this.scorecardForm) {
+    if (this.scorecardForm.valid) {
       console.log(this.scorecardForm.value.groups, ' hey me');
       console.log('again clicked...');
       // const scorecardPayload = { FormData: this.scorecardForm.value };

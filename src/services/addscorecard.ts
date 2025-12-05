@@ -12,6 +12,9 @@ export class Addscorecard {
   private UPDATESCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/update';
   private CLONESCORECARDAPIURL = 'https://fldemo.fivelumenstest.com/api/auth/scorecards/clone';
   private USERSEDITURL = 'https://fldemo.fivelumenstest.com/api/auth/users/edit';
+
+  // "https://fldemo.fivelumenstest.com/api/auth/scorecards/update"
+
   constructor(private http: HttpClient) {}
   AddScoreCard(data: any, authToken: string): Observable<any> {
     const headers = new HttpHeaders({

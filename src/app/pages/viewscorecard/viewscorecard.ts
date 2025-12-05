@@ -4,7 +4,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { editscorecard } from '../../../services/editscorecard';
 @Component({
   selector: 'app-viewscorecard',
