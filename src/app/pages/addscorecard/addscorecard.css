@@ -726,12 +726,12 @@ button[type='submit']:hover {
   content: unset;
   height: 0px;
 }
-.error-msg {
+/* .error-msg {
   color: red;
   font-weight: 600;
   margin-bottom: 10px;
-}
-.error-container {
+} */
+/* .error-container {
   position: fixed;
   min-height: 400px;
   display: flex;
@@ -749,8 +749,8 @@ button[type='submit']:hover {
   font-size: 14px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   animation: fadeInOut 3s forwards;
-}
-.cross-btn {
+} */
+/* .cross-btn {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -758,4 +758,59 @@ button[type='submit']:hover {
   font-size: 20px;
   cursor: pointer;
   color: #333;
+} */
+
+/* Modal container */
+.error-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ffe4e6; /* soft red-pink background */
+  border-left: 6px solid #e11d48; /* strong red accent */
+  padding: 16px 20px;
+  border-radius: 12px;
+  width: 320px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.35s ease-out;
+  z-index: 9999;
+}
+
+/* Slide animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Close button */
+.cross-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #b91c1c;
+  transition: 0.2s ease;
+  line-height: 1;
+}
+
+.cross-btn:hover {
+  color: #7f1d1d;
+  transform: scale(1.1);
+}
+
+/* Error text */
+.error-msg {
+  color: #7f1d1d;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
 }

@@ -127,12 +127,12 @@ export class Manualeditscorecard implements OnInit, OnDestroy {
     visibleToManagers: new FormControl(false),
     coachingPurposeOnly: new FormControl(false),
     groups: new FormArray([]),
-    isActive: new FormControl(true),
+    // isActive: new FormControl(true),
     isAllGroups: new FormControl(false),
   });
   convertToFormData(obj: any): FormData {
     const formData = new FormData();
-
+    formData.append('isActive', 'true');
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
 

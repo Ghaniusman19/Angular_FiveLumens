@@ -48,10 +48,11 @@
                 placeholder="Enter scorecard name here..."
               />
             </div>
-            @if (scorecardForm.get('title')?.errors?.['required'] &&
-            !scorecardForm.get('title')?.touched ) {
+            @if ( scorecardForm.get('title')?.invalid && (scorecardForm.get('title')?.touched ||
+            submitted) ) {
             <small>This field is required</small>
             }
+
             <div class="mb-3">
               <label for="" class="form-label">Description</label
               ><textarea
@@ -65,8 +66,8 @@
                 placeholder="Enter scorecard description here..."
                 style="height: 50px"
               ></textarea>
-              @if (scorecardForm.get('description')?.errors?.['required'] &&
-              !scorecardForm.get('description')?.touched ) {
+              @if ( scorecardForm.get('description')?.invalid &&
+              (scorecardForm.get('description')?.touched || submitted) ) {
               <small>This field is required</small>
               }
             </div>
@@ -100,8 +101,8 @@
                   {{ item.title }} </label
                 >}
               </div>
-              @if (scorecardForm.get('groups')?.errors?.['required'] &&
-              !scorecardForm.get('groups')?.touched ) {
+              @if ( scorecardForm.get('groups')?.invalid && (scorecardForm.get('groups')?.touched ||
+              submitted) ) {
               <small>This field is required</small>
               }
             </div>
@@ -123,8 +124,8 @@
                 <option value="selective">Selective</option>
                 <option value="audit">Audit</option>
               </select>
-              @if (scorecardForm.get('scoringModel')?.errors?.['required'] &&
-              !scorecardForm.get('scoringModel')?.touched ) {
+              @if ( scorecardForm.get('scoringModel')?.invalid &&
+              (scorecardForm.get('scoringModel')?.touched || submitted) ) {
               <small>This field is required</small>
               }
             </div>
@@ -277,8 +278,9 @@
                 <option value="68c17e2a8fb36c59a68a10a3">Coaching Form with commitment</option>
               </select>
 
-              @if (scorecardForm.get('coachingForm')?.errors?.['required'] &&
-              !scorecardForm.get('coachingForm')?.touched ) {
+              @if ( scorecardForm.get('coachingForm')?.invalid &&
+              (scorecardForm.get('coachingForm')?.touched &&
+              scorecardForm.get('coachingForm')?.dirty) ) {
               <small>This field is required</small>
               }
             </div>
@@ -486,6 +488,7 @@
           </div>
           }
         </div>
+
         } @if (isEvaluateModalOpen() === item._id) {
         <div class="modal-backdrop" (click)="closeEvaluate(item)"></div>
         <div class="scorecard-modal1">

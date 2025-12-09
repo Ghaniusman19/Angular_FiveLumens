@@ -3,7 +3,6 @@
   <div class="main-container container">
     @if (saveErrorMessage()) {
     <div class="modal-backdrop"></div>
-
     <div class="error-container">
       <button class="btn save-only-btn cross-btn" (click)="closeMessage()">&times;</button>
       <div class="error-msg">{{ saveErrorMessage() }}</div>
@@ -32,7 +31,12 @@
           >
             Save Only
           </button>
-          <button class="btn btn-primary save-review-btn" (click)="saveandPublish()" id="submitButton" type="submit">
+          <button
+            class="btn btn-primary save-review-btn"
+            (click)="saveandPublish()"
+            id="submitButton"
+            type="submit"
+          >
             Save &amp; Publish
           </button>
           @if (isEditModalOpen()) {
@@ -419,7 +423,7 @@
           <div class="modal-backdrop" (click)="toggleMenu(item.id)"></div>
           <div class="dropdown-menu">
             <button (click)="editItem(item.id)" class="dropdown-btn">Edit</button>
-            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Deleteeeeeee</button>
+            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Deleteeee</button>
           </div>
           }
           <!-- 3 dot button -->
@@ -467,7 +471,7 @@
             <button (click)="$event.stopPropagation(); editItem(item.id)" class="dropdown-btn">
               Edit
             </button>
-            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">Delete</button>
+            <button (click)="deleteItem(item.id)" class="dropdown-btn delete">1 Delete</button>
           </div>
           }
         </li>
@@ -645,12 +649,17 @@
         <div>
           <label>Description</label>
           <textarea formControlName="title"></textarea>
+          @if (fSingle['title'].touched && fSingle['title'].invalid) {
+          <small class="text-danger">Description is required</small>
+          }
         </div>
 
         <!-- First Level Chips -->
         <div>
           <label>Single Select Options</label>
-
+          @if (fSingle['options'].touched && fSingle['options'].invalid) {
+          <small class="text-danger">Add at least one option</small>
+          }
           <mat-form-field>
             <mat-chip-grid #chipGrid1>
               @for (ctrl of optionsArray.controls; track ctrl; let i = $index) {
@@ -749,7 +758,9 @@
         <!-- Submit -->
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeSingleSelectModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+          ><button class="btn btn-logout" [disabled]="SingleSelectModal.invalid" type="submit">
+            Add
+          </button>
         </div>
       </form>
     </div>
@@ -779,13 +790,19 @@
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+            @if (fMulti['title'].touched && fMulti['title'].invalid) {
+            <small class="text-danger">Description is required</small>
+            }
           </div>
           <div class="meta-data-chechbox">
-            <input id="date-field" type="checkbox" formControlName="isFormChecked" />
+            <input id="date-field" type="checkbox" name="isRequired" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
           </div>
           <div class="mb-3">
             <label class="form-label">Multi Select Option</label>
+            @if (fMulti['multiselect'].touched && fMulti['multiselect'].invalid) {
+            <small class="text-danger">Add at least one option</small>
+            }
             <mat-form-field class="w-100">
               <mat-chip-grid #chipGrid aria-label="Multi select chips">
                 <!-- ✅ Angular 20 block syntax -->
@@ -807,14 +824,16 @@
               />
             </mat-form-field>
           </div>
-          <div class="meta-data-chechbox">
+          <!-- <div class="meta-data-chechbox">
             <input id="date-field" type="checkbox" formControlName="isRequired" />
             <label for="date-field">This meta data entry field is required</label>
-          </div>
+          </div> -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeMultiSelectModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+          ><button class="btn btn-logout" [disabled]="MultiSelectModal.invalid" type="submit">
+            Add
+          </button>
         </div>
       </form>
     </div>
@@ -852,7 +871,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeSmallTextModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+          ><button class="btn btn-logout" [disabled]="SmallTextModal.invalid" type="submit">
+            Add
+          </button>
         </div>
       </form>
     </div>
@@ -882,6 +903,9 @@
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+            @if (fLarge['title'].touched && fLarge['title'].invalid) {
+            <small class="text-danger">Large text must be 5–500 characters</small>
+            }
           </div>
           <div class="meta-data-chechbox">
             <input id="date-field" type="checkbox" formControlName="isRequired" />
@@ -890,7 +914,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeLargeTextModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+          ><button class="btn btn-logout" [disabled]="LargeScoreCard.invalid" type="submit">
+            Add
+          </button>
         </div>
       </form>
     </div>
@@ -920,6 +946,9 @@
               placeholder="Enter Date Entry Description Here..."
               style="border-radius: 8px"
             ></textarea>
+            @if (fDate['title'].touched && fDate['title'].invalid) {
+            <small class="text-danger">Description is required (3–200 characters)</small>
+            }
           </div>
           <div class="meta-data-chechbox">
             <input id="date-field" type="checkbox" formControlName="isRequired" />
@@ -928,7 +957,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeDateModal()">Cancel</button
-          ><button class="btn btn-logout" type="submit">Add</button>
+          ><button class="btn btn-logout" [disabled]="DateScoreCard.invalid" type="submit">
+            Add
+          </button>
         </div>
       </form>
     </div>
@@ -953,10 +984,14 @@
             class="form-control"
             placeholder="Enter section description..."
           ></textarea>
+          @if (scorinFormControls['description'].touched &&
+          scorinFormControls['description'].invalid) {
+          <small class="text-danger">Description is required (3–200 characters)</small>
+          }
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeScoringModal()">Cancel</button>
-          <button class="btn btn-logout" type="submit">Add</button>
+          <button class="btn btn-logout" [disabled]="scoringForm.invalid" type="submit">Add</button>
         </div>
       </form>
     </div>

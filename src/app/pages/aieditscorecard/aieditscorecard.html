@@ -221,16 +221,70 @@
   </form>
   }
 </div> -->
+@if (saveErrorMessage()) {
+<div class="modal-backdrop"></div>
+<div class="error-container">
+  <button class="btn save-only-btn cross-btn" (click)="closeMessage()">&times;</button>
+  <div class="error-msg">{{ saveErrorMessage() }}</div>
+</div>
+} @if (successModalOpened()) {
+<div class="modal-backdrop"></div>
+<div class="successModal show">
+  <div class="modal-content">
+    <div class="modal-header hc0">
+      <h3 class="modal-title text-left">Success</h3>
+    </div>
+    <div class="modal-body">
+      <p>Scorecard updated successfully!</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-logout">Close</button>
+    </div>
+  </div>
+</div>
+} @if (isMetaDataModalOpened()) {
+<div class="modal-backdrop" (click)="closeMetaDataModal()"></div>
+<div class="metaDataModal">
+  <div class="modal-content">
+    <div class="modal-header hc0">
+      <h3 class="modal-title text-left">Add Meta data</h3>
+      <button (click)="closeMetaDataModal()" type="button" class="close close-btn">
+        <span>×</span>
+      </button>
+    </div>
+    <form [formGroup]="metaDataScoreCard" (ngSubmit)="SubmitmetaData()">
+      <div class="modal-body">
+        <div class="mb-1">
+          <label for="exampleInputEmail1" class="form-label large-font mb-1">Description</label
+          ><textarea
+            name="description"
+            type="textarea"
+            rows="4"
+            formControlName="description"
+            class="form-control"
+            placeholder="Enter meta data description here..."
+            style="border-radius: 8px"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" (click)="closeMetaDataModal()">Cancel</button
+        ><button class="btn btn-logout" type="submit">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+}
 <div class="scorecard-container">
   <div class="header-section">
     <div class="title-bar">
       <h1 class="page-title">{{ scorecardForm.value.title }}</h1>
       <div class="action-buttons">
-        <button class="btn-secondary">Save Only</button>
+        <button class="btn-secondary">Setting</button>
         <button class="btn-primary" (click)="sendUpdate()" [disabled]="scorecardForm.invalid">
           <!-- <i class="icon-check"></i> -->
 
-          SAVE AND PUBLISH
+          SAVE Only
         </button>
       </div>
     </div>
@@ -258,7 +312,7 @@
           <div class="p-absolute">
             <div class="modal-backdrop" (click)="closeMetaDropdown()"></div>
             <div class="dropdown-menu">
-              <button class="dropdown-btn">Add Meta Data</button>
+              <button class="dropdown-btn" (click)="OpenMetaDataModal()">Add Meta Data</button>
             </div>
           </div>
           }
@@ -275,6 +329,7 @@
                 <div class="question-number">{{ i + 1 }}</div>
                 <div>
                   <button class="btn-secondary" (click)="DeleteMetaData(i)">del &times;</button>
+                  <button class="btn-secondary" (click)="EditMetaData(i)">Edit</button>
                 </div>
               </div>
               <div class="form-group-inline">
@@ -296,10 +351,10 @@
                 />
               </div> -->
 
-              <!-- <div class="form-group">
+              <div class="form-group">
                 <label class="form-label">Prompt</label>
                 <textarea class="form-textarea" rows="12" formControlName="prompt"></textarea>
-              </div> -->
+              </div>
 
               <!-- <div class="checkbox-group">
                 <input
@@ -332,21 +387,56 @@
         <!-- <span class="item-count">{{ criteriasArray.length }}</span> -->
         <div>
           <button class="btn-secondary p-relative" (click)="openScoringDropdown()">&#8942;</button>
-          @if (isScoringDropdownOpen()) {
-          <div class="p-absolute">
-            <div class="modal-backdrop" (click)="closeScoringDropdown()"></div>
-            <div class="dropdown-menu">
-              <button class="dropdown-btn">Add Section</button>
-            </div>
-          </div>
-          }
         </div>
+        @if (isSectionModalOpen()) {
+        <div class="modal-backdrop" (click)="closeSectionModal()"></div>
+        <div class="metaDataModal">
+          <div class="modal-content">
+            <div class="modal-header hc0">
+              <h3 class="modal-title text-left">Add Scoring Secction</h3>
+              <button (click)="closeSectionModal()" type="button" class="close close-btn">
+                <span>×</span>
+              </button>
+            </div>
+            <form [formGroup]="AddSectionScorecard" (ngSubmit)="SubmitAddSectionData()">
+              <div class="modal-body">
+                <div class="mb-1">
+                  <label for="exampleInputEmail1" class="form-label large-font mb-1">Name</label
+                  ><textarea
+                    name="title"
+                    type="textarea"
+                    rows="4"
+                    formControlName="title"
+                    class="form-control"
+                    placeholder="Enter meta data description here..."
+                    style="border-radius: 8px"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn" (click)="closeSectionModal()">Cancel</button
+                ><button class="btn btn-logout" type="submit">
+                  {{ isEditScoringMode ? 'Edit Scoring ' : 'Add Scoring ' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        }
       </div>
 
       @if (expandedSections.scoring) {
       <div class="section-body">
         <div formArrayName="criterias">
-          @for (criteria of criteriasArray.controls; track criteria; let ci = $index) {
+          @for (criteria of criteriasArray.controls; track criteria; let ci = $index) { @if
+          (isScoringDropdownOpen()) {
+          <div class="p-absolute">
+            <div class="modal-backdrop" (click)="closeScoringDropdown()"></div>
+            <div class="dropdown-menu">
+              <button class="dropdown-btn" (click)="SectionModalOpen(ci)">Add Section</button>
+            </div>
+          </div>
+          }
           <div [formGroupName]="ci">
             <!-- Scoring Sections -->
             <div formArrayName="scoringSections">
@@ -361,14 +451,72 @@
                     ></i>
                     <span>{{ section.get('title')?.value }}</span>
                   </div>
-                  <span class="item-count-sm">
-                    <!-- {{ getDetails(ci, si).length }} -->
+                  <!-- <span class="item-count-sm">
+                    {{ getDetails(ci, si).length }}
 
-                    &#8942;</span
-                  >
+                    &#8942;44444</span
+                  > -->
+                  <div>
+                    <button class="btn-secondary" (click)="DeleteScoring(ci, si)">
+                      del Section &times;
+                    </button>
+                    <button class="btn-secondary" (click)="EditScoring(ci, si)">
+                      Edit Section
+                    </button>
+                    <button class="btn-secondary" (click)="AddScoringCritera(ci, si)">
+                      Add Scoring Criteria
+                    </button>
+                  </div>
                 </div>
-
-                @if (isSubSectionExpanded(ci, si)) {
+                @if (scoringCriteriaModalOpen()) {
+                <div class="modal-backdrop1" (click)="closeCriteriaModal()"></div>
+                <div class="metaDataModal">
+                  <div class="modal-content">
+                    <div class="modal-header hc0">
+                      <h3 class="modal-title text-left">Add Criteria</h3>
+                      <button (click)="closeCriteriaModal()" type="button" class="close close-btn">
+                        <span>×</span>
+                      </button>
+                    </div>
+                    <form [formGroup]="AddCriteriaScorecard" (ngSubmit)="SubmitAddCriteriaData()">
+                      <div class="modal-body">
+                        <div class="mb-1">
+                          <label for="exampleInputEmail1" class="form-label large-font mb-1"
+                            >Name</label
+                          ><textarea
+                            name="description"
+                            type="textarea"
+                            rows="4"
+                            formControlName="description"
+                            class="form-control"
+                            placeholder="Enter meta data description here..."
+                            style="border-radius: 8px"
+                          ></textarea>
+                        </div>
+                        <div class="mb-1 flex">
+                          <label for="isAutoFail" class="form-label large-font mb-1"
+                            >Auto Fill</label
+                          >
+                          <input
+                            type="checkbox"
+                            name="isAutoFail"
+                            formControlName="isAutoFail"
+                            id="isAutoFail"
+                          />
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn" (click)="closeCriteriaModal()">
+                          Cancel</button
+                        ><button class="btn btn-logout" type="submit">
+                          <!-- {{ isEditCriteriaMode ? 'Edit Criteria ' : 'Add Criteria ' }} -->
+                          Add Criteria
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                } @if (isSubSectionExpanded(ci, si)) {
                 <!-- Details -->
                 <div formArrayName="details">
                   @for (detail of getDetails(ci, si).controls; track detail; let di = $index) {
@@ -380,6 +528,14 @@
                           <span class="score-badge"
                             >{{ detail.get('scoringPercentage')?.value }}%</span
                           >
+                          <div>
+                            <button class="btn-secondary" (click)="DeleteCriteria(ci, si, di)">
+                              del Criteria &times;
+                            </button>
+                            <button class="btn-secondary" (click)="EditCriteria(ci, si, di)">
+                              Edit Criteria
+                            </button>
+                          </div>
                           @if (detail.get('isAutoFail')?.value) {
                           <span class="autofail-badge">AUTO FAIL</span>
                           }

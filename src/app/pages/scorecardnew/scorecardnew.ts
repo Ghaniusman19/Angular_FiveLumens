@@ -56,6 +56,7 @@ export class Scorecardnew implements OnInit {
   public scorecardFormArray: any[] = [];
   public titlename = signal<string>('');
   public isLoading = signal(false);
+  public submitted = false;
 
   //This method is to fetch API for the pagination
   ngOnInit(): void {
@@ -717,7 +718,11 @@ export class Scorecardnew implements OnInit {
   //This is the event / function to submit the form of add scorecard...
   public scorecardSubmit(): void {
     console.log('button submit .....');
-    if (this.scorecardForm.valid) {
+    this.submitted = false;
+    if (this.scorecardForm.invalid) {
+      this.scorecardForm.markAllAsTouched();
+      return;
+    } else {
       console.log(this.scorecardForm.value.groups, ' hey me');
       console.log('again clicked...');
       // const scorecardPayload = { FormData: this.scorecardForm.value };
@@ -737,7 +742,6 @@ export class Scorecardnew implements OnInit {
           }
         }
       }
-
       this.scorecardFormArray.push(this.scorecardForm.value);
       this.scorecardForm.reset();
       this.isActiveModal.update((currentVal) => !currentVal);

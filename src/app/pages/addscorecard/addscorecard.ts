@@ -52,6 +52,9 @@ export class Addscorecard implements OnInit, OnDestroy {
     isRequired: boolean;
     isSecondLevel: boolean;
     options?: string[];
+    isThirdLevel?: boolean;
+    subOptions?: string[];
+    isFormChecked?: boolean;
   }[] = [];
   public saveErrorMessage = signal<string | null>(null);
   public multiselectOptions: string[] = [];
@@ -92,9 +95,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   public route = inject(ActivatedRoute);
   public authorization = localStorage.getItem('authToken');
   public authkey: any = this.authorization;
-  public isEditModalOpen = signal(true);
+  public isEditModalOpen = signal(false);
   public isThirdLevelOpened = signal(false);
   public editingItemId: number | null = null;
+
   public editingFieldType: string | null = null;
   //constructor method calls very first when the page loads
 
@@ -115,29 +119,45 @@ export class Addscorecard implements OnInit, OnDestroy {
       description: new FormControl('', Validators.required),
     });
     this.DateScoreCard = new FormGroup({
-      title: new FormControl('', Validators.required),
+      title: new FormControl('', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200),
+      ]),
       isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('date'),
     });
 
     this.LargeScoreCard = new FormGroup({
-      title: new FormControl('', Validators.required),
+      title: new FormControl('', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200),
+      ]),
       isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('largeText'),
     });
 
     this.SmallTextModal = new FormGroup({
-      title: new FormControl('', Validators.required),
+      title: new FormControl('', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200),
+      ]),
       isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
       type: new FormControl('smallText'),
     });
 
     this.MultiSelectModal = new FormGroup({
-      title: new FormControl('', Validators.required),
-      multiselect: new FormControl([], Validators.required),
+      title: new FormControl('', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200),
+      ]),
+      multiselect: new FormControl([], [Validators.required, Validators.minLength(1)]),
       isFormChecked: new FormControl(false),
       isRequired: new FormControl(false),
       newType: new FormControl('dummy'),
@@ -145,7 +165,11 @@ export class Addscorecard implements OnInit, OnDestroy {
     });
 
     this.SingleSelectModal = new FormGroup({
-      title: new FormControl('', Validators.required),
+      title: new FormControl('', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200),
+      ]),
       options: new FormArray([], Validators.required), // First Level Chips
       isSecondLevel: new FormControl(false),
       isThirdLevel: new FormControl(false),
@@ -154,6 +178,27 @@ export class Addscorecard implements OnInit, OnDestroy {
       isRequired: new FormControl(false),
       type: new FormControl('singleSelect'),
     });
+  }
+
+  //Error Messages
+  get fDate() {
+    return this.DateScoreCard.controls;
+  }
+  get fLarge() {
+    return this.LargeScoreCard.controls;
+  }
+  get fSmall() {
+    return this.SmallTextModal.controls;
+  }
+  get fMulti() {
+    return this.MultiSelectModal.controls;
+  }
+  get fSingle() {
+    return this.SingleSelectModal.controls;
+  }
+
+  get scorinFormControls() {
+    return this.scoringForm.controls;
   }
 
   getOptionsArray(levelCtrl: AbstractControl): FormArray<any> {
@@ -363,10 +408,12 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
     event.chipInput!.clear();
   }
-  limitToMax(event: any) {
-    const value = event.target.value;
-    if (value >= 3) {
-      event.target.value = 3;
+  limitToMax(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = Number(input.value);
+
+    if (value > 3) {
+      input.value = '3';
     }
   }
 
@@ -645,16 +692,28 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Date Modal
   public SubmitDateData(): void {
     if (this.DateScoreCard.valid) {
-      const newItem = {
-        id: Date.now(),
-        fieldType: 'date',
-        title: this.DateScoreCard.value.title,
-        isRequired: Boolean(this.DateScoreCard.value.isRequired),
-        isSecondLevel: true,
-        options: [],
-      };
+      if (this.editingItemId) {
+        const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
+        if (index !== -1) {
+          this.submittedMetaData[index] = {
+            ...this.submittedMetaData[index],
+            title: this.DateScoreCard.value.title,
+            isRequired: Boolean(this.DateScoreCard.value.isRequired),
+          };
+        }
+        this.editingItemId = null;
+      } else {
+        const newItem = {
+          id: Date.now(),
+          fieldType: 'date',
+          title: this.DateScoreCard.value.title,
+          isRequired: Boolean(this.DateScoreCard.value.isRequired),
+          isSecondLevel: true,
+          options: [],
+        };
 
-      this.submittedMetaData.push(newItem);
+        this.submittedMetaData.push(newItem);
+      }
       // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.DateScoreCard.reset({ title: '', isRequired: false });
@@ -665,15 +724,27 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Large Text
   public SubmitLargeTextData(): void {
     if (this.LargeScoreCard.valid) {
-      const newItem = {
-        id: Date.now(),
-        fieldType: 'largeText',
-        title: this.LargeScoreCard.value.title,
-        isRequired: Boolean(this.LargeScoreCard.value.isRequired),
-        isSecondLevel: true,
-        options: [],
-      };
-      this.submittedMetaData.push(newItem);
+      if (this.editingItemId) {
+        const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
+        if (index !== -1) {
+          this.submittedMetaData[index] = {
+            ...this.submittedMetaData[index],
+            title: this.LargeScoreCard.value.title,
+            isRequired: Boolean(this.LargeScoreCard.value.isRequired),
+          };
+        }
+        this.editingItemId = null;
+      } else {
+        const newItem = {
+          id: Date.now(),
+          fieldType: 'largeText',
+          title: this.LargeScoreCard.value.title,
+          isRequired: Boolean(this.LargeScoreCard.value.isRequired),
+          isSecondLevel: true,
+          options: [],
+        };
+        this.submittedMetaData.push(newItem);
+      }
       // this.SaveDataToLocalStorage();
       console.log('All Meta Data:', this.submittedMetaData);
       this.LargeScoreCard.reset({ title: '', isRequired: false });
@@ -799,6 +870,9 @@ export class Addscorecard implements OnInit, OnDestroy {
             isRequired: Boolean(this.SingleSelectModal.value.isRequired),
             isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
             options: this.SingleSelectModal.value.options,
+            isThirdLevel: Boolean(this.SingleSelectModal.value.isThirdLevel),
+            subOptions: this.SingleSelectModal.value.subOptions,
+            isFormChecked: Boolean(this.SingleSelectModal.value.isFormChecked),
           };
         }
         this.editingItemId = null;
@@ -810,6 +884,9 @@ export class Addscorecard implements OnInit, OnDestroy {
           isRequired: Boolean(this.SingleSelectModal.value.isRequired),
           isSecondLevel: Boolean(this.SingleSelectModal.value.isSecondLevel),
           options: this.SingleSelectModal.value.options,
+          isThirdLevel: Boolean(this.SingleSelectModal.value.isThirdLevel),
+          subOptions: this.SingleSelectModal.value.subOptions,
+          isFormChecked: Boolean(this.SingleSelectModal.value.isFormChecked),
         };
         this.submittedMetaData.push(newItem);
       }
@@ -839,7 +916,6 @@ export class Addscorecard implements OnInit, OnDestroy {
     // localStorage.setItem('description val', JSON.stringify(this.submittedMetaData));
     this.openMenuId.set(null); // close menu after delete
   }
-
   public editItem(id: string | number): void {
     this.isOpenedMetaData.update((currentVal) => !currentVal);
     const item = this.submittedMetaData.find((m) => m.id === id);
@@ -873,52 +949,66 @@ export class Addscorecard implements OnInit, OnDestroy {
           this.MultiSelectModal.patchValue({
             title: item.title,
             multiselect: item.options,
+            isFormChecked: item.isFormChecked,
             isRequired: item.isRequired,
           });
           // this.multiselectOptions = [...(item.options || [])];
           this.OpenMultiSelectModal();
           break;
         case 'singleSelect':
-          // For single select, we need to handle the complex structure
+          // Step 1: Patch simple fields
           this.SingleSelectModal.patchValue({
             title: item.title,
-            isRequired: item.isRequired,
+            options: item.options || [],
             isSecondLevel: item.isSecondLevel,
-            options: item.options,
-            // subOptions: item.subOptions,
-            // isThirdLevel: item.isThirdLevel,
-            // thirdLevels: item.thirdLevels,
-            // isFormChecked: item.isFormChecked,
+            isThirdLevel: item.isThirdLevel,
+            subOptions: item.subOptions || [],
+            isFormChecked: item.isFormChecked,
+            isRequired: item.isRequired,
+            type: item.fieldType,
           });
-          //  this.SingleSelectModal = new FormGroup({
-          //       title: new FormControl('', Validators.required),
-          //       options: new FormArray([], Validators.required), // First Level Chips
-          //       isSecondLevel: new FormControl(false),
-          //       isThirdLevel: new FormControl(false),
-          //       subOptions: new FormArray([], Validators.required), // Second Level Array
-          //       isFormChecked: new FormControl(false),
-          //       isRequired: new FormControl(false),
-          //       type: new FormControl('singleSelect'),
-          //     });
-          // Clear existing arrays
-          this.optionsArray.clear();
-          this.subOptionsArray.clear();
-          // Populate options
-          if (item.options && Array.isArray(item.options)) {
-            item.options.forEach((opt: any) => {
-              this.optionsArray.push(new FormControl(opt));
-              this.subOptionsArray.push(
-                new FormGroup({
-                  title: new FormControl(opt),
-                  secondLevelOptions: new FormArray([]),
-                  isThirdLevel: new FormControl(false),
-                  thirdLevels: new FormArray([]),
-                })
-              );
-            });
-          }
+
+          // Step 2: Clear old FormArrays fully
+          // this.optionsArray.clear();
+          // this.subOptionsArray.clear();
+
+          // Step 3: Rebuild complete structure
+          // if (item.options && Array.isArray(item.options)) {
+          //   item.options.forEach((opt: any) => {
+          //     // First level option (chip)
+          //     this.optionsArray.push(new FormControl(opt.title));
+
+          //     // Rebuild second level options
+          //     const secondLevelFA = new FormArray<FormControl<any>>([]);
+          //     if (opt.secondLevelOptions) {
+          //       opt.secondLevelOptions.forEach((sl: any) => {
+          //         secondLevelFA.push(new FormControl(sl));
+          //       });
+          //     }
+
+          //     // Rebuild third level options
+          //     const thirdLevelFA = new FormArray<FormControl<any>>([]);
+          //     if (opt.thirdLevels) {
+          //       opt.thirdLevels.forEach((tl: any) => {
+          //         thirdLevelFA.push(new FormControl(tl));
+          //       });
+          //     }
+
+          //     // Push full option structure to subOptionsArray
+          //     this.subOptionsArray.push(
+          //       new FormGroup({
+          //         title: new FormControl(opt.title),
+          //         secondLevelOptions: secondLevelFA,
+          //         isThirdLevel: new FormControl(opt.isThirdLevel ?? false),
+          //         thirdLevels: thirdLevelFA,
+          //       })
+          //     );
+          //   });
+          // }
+
           this.OpenSingleSelectModal();
           break;
+
         default:
           // Fallback to prompt for unknown types
           const newValue = prompt('Edit description:', item.title);
@@ -939,19 +1029,50 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.isScoringModalOpened.set(false);
   }
   //used method to submit scoring sections
+  // public SubmitScoring(): void {
+  //   if (this.scoringForm.valid) {
+  //     const desc = this.scoringForm.get('description')?.value;
+  //     const id = Date.now();
+  //     if (desc || id) {
+  //       const newSection = { id, value: desc, criteria: [] };
+  //       this.scoringArray.set([...this.scoringArray(), newSection]);
+  //       // this.saveScoringToLocal();
+  //     }
+  //     this.scoringForm.reset();
+  //     this.closeScoringModal();
+  //   }
+  // }
   public SubmitScoring(): void {
-    if (this.scoringForm.valid) {
-      const desc = this.scoringForm.get('description')?.value;
-      const id = Date.now();
-      if (desc || id) {
-        const newSection = { id, value: desc, criteria: [] };
-        this.scoringArray.set([...this.scoringArray(), newSection]);
-        // this.saveScoringToLocal();
-      }
-      this.scoringForm.reset();
-      this.closeScoringModal();
+    if (!this.scoringForm.valid) return;
+
+    const desc = this.scoringForm.get('description')?.value;
+
+    //  If we are editing an existing item
+    if (this.activeSectionId) {
+      this.scoringArray.update((prev) =>
+        prev.map((item) =>
+          item.id === this.activeSectionId
+            ? { ...item, value: desc } // update only the edited one
+            : item
+        )
+      );
+
+      this.activeSectionId = null; // reset to Add mode
+    } else {
+      //  Add Mode (new entry)
+      const newSection = {
+        id: Date.now(),
+        value: desc,
+        criteria: [],
+      };
+
+      this.scoringArray.set([...this.scoringArray(), newSection]);
     }
+
+    this.scoringForm.reset();
+    this.closeScoringModal();
   }
+
   // private saveScoringToLocal(): void {
   //   // localStorage.setItem('scoringData', JSON.stringify(this.scoringArray));
   // }
@@ -959,14 +1080,19 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.openScoringMenuId.set(this.openScoringMenuId() === id ? null : id);
   }
   public editScoring(id: number): void {
+    // this.isScoringModalOpened.update((cVal) => !cVal);
+    // const section = this.scoringArray().find((s: any) => s.id === sectionId);
+
     const item = this.scoringArray().find((x: any) => x.id === id);
     if (item) {
-      const newVal = prompt('Edit Scoring ', item.value);
-      if (newVal !== null && newVal.trim() !== '') {
-        item.value = newVal.trim();
-        // localStorage.setItem('scoringData', JSON.stringify(this.SubmitScoring));
-      }
+      // const newVal = prompt('Edit Scoring ', item.value);
+      // if (newVal !== null && newVal.trim() !== '') {
+      //   item.value = newVal.trim();
+      //   // localStorage.setItem('scoringData', JSON.stringify(this.SubmitScoring));
+      // }
       this.scoringForm.patchValue({ description: item.value, id: item.id });
+      this.activeSectionId = id;
+      this.isScoringModalOpened.set(true);
       // this.OpenScoringModal();
       this.openMenuId.set(null);
     }
@@ -1264,18 +1390,30 @@ export class Addscorecard implements OnInit, OnDestroy {
     if (sectionsWithoutCriteria.length > 0) {
       // Build a helpful message listing offending sections (by id or value)
       const ids = sectionsWithoutCriteria.map((s: any) => s.id ?? s.value ?? 'unknown').join(', ');
-      const msg = `Error: Please add criteria for the following section(s) before saving: ${ids}`;
-      console.error(msg);
-      this.saveErrorMessage.set(msg);
-      return;
-    }
+      const title = sectionsWithoutCriteria
+        .map((s: any) => s.description ?? s.value ?? 'unknown')
+        .join(', ');
 
-    if (sections[0].criteria[0].value === 0) {
-      const msg = 'Error: Total score cannot be zero. Please assign scores before publishing.';
+      const msg = `Error: Please add criteria for the section(s) ${title} before saving:  ${ids}`;
       console.error(msg);
       this.saveErrorMessage.set(msg);
       return;
     }
+    const hasZeroCriteria = sections.some((section: any) =>
+      section.criteria?.some((c: any) => Number(c.value) <= 0)
+    );
+    if (hasZeroCriteria) {
+      const msg = 'Error: All criteria values must be greater than 0 before publishing.';
+      console.error(msg);
+      this.saveErrorMessage.set(msg);
+      return;
+    }
+    // if (sections[0].criteria[0].value === 0) {
+    //   const msg = 'Error: Total score cannot be zero. Please assign scores before publishing.';
+    //   console.error(msg);
+    //   this.saveErrorMessage.set(msg);
+    //   return;
+    // }
     try {
       // Recalculate totals/percentages before final submit (optional, but recommended)
       for (const sec of sections) {
