@@ -268,12 +268,18 @@ export class Scorecardnew implements OnInit {
     // this.router.navigate(['edit'], { queryParams: { id: this.selectedRowId() } });
     console.log(type);
     if (type === 'ai') {
-      this.router.navigate(['aieditscorecard'], { queryParams: { id: this.selectedRowId() } });
+      this.router.navigate(['aieditscorecard'], {
+        queryParams: { id: this.selectedRowId(), changeForm: isActive, type: type },
+      });
     } else {
-      this.router.navigate(['manualeditscorecard'], { queryParams: { id: this.selectedRowId() } });
+      this.router.navigate(['manualeditscorecard'], {
+        queryParams: { id: this.selectedRowId(), changeForm: isActive, type: type },
+      });
     }
     if (isActive === false) {
-      this.router.navigate(['aieditscorecard'], { queryParams: { id: this.selectedRowId() } });
+      this.router.navigate(['aieditscorecard'], {
+        queryParams: { id: this.selectedRowId(), changeForm: isActive, type: type },
+      });
     }
     // this.router.navigate(['addscorecard'], { queryParams: { id: this.selectedRowId() } });
   }
