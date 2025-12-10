@@ -108,7 +108,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   public DeleteMetaData(i: number): void {
     console.log(i, 'meta data section number');
     this.metaDataArray.removeAt(i);
-    console.log(this.metaDataArray, 'Updated meta data array');
+    console.log(this.metaDataArray.value, 'Updated meta data array');
   }
   public EditMetaData(i: number): void {
     console.log(i, 'meta data section number to edit');
@@ -276,40 +276,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     this.isMetaDataModalOpened.update((cVal) => !cVal);
     // this.editMetaDataId = null;
   }
-  // SubmitmetaData(): void {
-  //   if (this.metaDataScoreCard.invalid) {
-  //     console.error('Meta Data Form is invalid');
-  //     return;
-  //   }
 
-  //   const descriptionValue = this.metaDataScoreCard.get('description')?.value;
-
-  //   const newMetaData = {
-  //     id: Date.now(),
-  //     fieldType: 'largeText',
-  //     title: descriptionValue,
-  //     isRequired: false,
-  //     isSecondlevel: false,
-  //     prompt: '',
-  //   };
-
-  //   // Add new metadata
-  //   this.metaDataArray.push(
-  //     new FormGroup({
-  //       id: new FormControl(newMetaData.id),
-  //       fieldType: new FormControl(newMetaData.fieldType),
-  //       title: new FormControl(newMetaData.title),
-  //       isRequired: new FormControl(newMetaData.isRequired),
-  //       isSecondLevel: new FormControl(newMetaData.isSecondlevel),
-  //       prompt: new FormControl(newMetaData.prompt),
-  //     })
-  //   );
-  //   console.log('Updated MetaDataArray:', this.metaDataArray.value);
-
-  //   // Reset form and close modal (DO THIS ONLY ONCE)
-  //   this.metaDataScoreCard.reset();
-  //   this.closeMetaDataModal();
-  // }
   public SubmitmetaData(): void {
     if (this.metaDataScoreCard.invalid) return;
     const descriptionValue = this.metaDataScoreCard.get('description')?.value;
@@ -342,24 +309,6 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     this.closeMetaDataModal();
     console.log(this.metaDataArray.value);
   }
-  // public SubmitAddSectionData(): void {
-  //   if (this.selectedCriteriaIndex === null) return;
-
-  //   const scoringArray = this.getScoringSection(this.selectedCriteriaIndex);
-  //   console.log(this.AddSectionScorecard.value);
-  //   this.isSectionModalOpen.set(false);
-  //   // this.AddSectionScorecard.reset();
-  //   const titleVal = this.AddSectionScorecard.get('title')?.value;
-  //   const newSection = new FormGroup({
-  //     id: new FormControl(Date.now()),
-  //     title: new FormControl(titleVal),
-  //     details: new FormArray([]),
-  //   });
-  //   scoringArray.push(newSection);
-  //   console.log(scoringArray.value, 'this is our criteria array');
-  //   this.isSectionModalOpen.set(false);
-  //   this.AddSectionScorecard.reset();
-  // }
 
   public SubmitAddSectionData(): void {
     if (this.selectedCriteriaIndex === null) return;
@@ -427,19 +376,6 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     this.currentcriteriatobeEdit = null;
   }
 
-  // public SubmitAddCriteriaData(): void {
-  //   if (this.selectedCriteriaIndex === null) return;
-  //   const scoringArray = this.getScoringSection(this.selectedCriteriaIndex);
-  //   const descVal = this.AddCriteriaScorecard.get('description')?.value;
-
-  //   if (
-  //     this.isEditCriteriaMode &&
-  //     this.currentScoringIndex &&
-  //     this.currentcriteriatobeEdit !== null
-  //   ) {
-  //   }
-  //   console.log(this.AddCriteriaScorecard.value);
-  // }
   EditCriteria(ci: number, si: number, di: number): void {
     console.log('ID OF EDIT CRITERIA IS  ', ci, si, di);
     this.selectedCriteriaIndex = ci;
@@ -458,7 +394,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     return this.criteriasArray.at(criteriaIndex).get('scoringSections') as FormArray;
   }
 
-  getDetails(criteriaIndex: number, sectionIndex: number): FormArray {
+  getDetails(criteriaIndex: any, sectionIndex: any): FormArray {
     return this.getScoringSection(criteriaIndex).at(sectionIndex).get('details') as FormArray;
   }
 
@@ -532,12 +468,12 @@ export class AIeditscorecard implements OnInit, OnDestroy {
 
     return fd;
   }
-  sendUpdate(): void {
+  public sendUpdate(): void {
     if (this.scorecardForm.invalid) {
       console.error('Form is invalid');
       return;
     }
-    console.log('send update clicked..!', this.scorecardForm.value);
+    // console.log('send update clicked..!', this.scorecardForm.value);
     const data = this.scorecardForm.value;
     // this.isLoading = true;
     const formdata = this.buildFormDataManually(data);
@@ -548,16 +484,58 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     });
     const metaArr = this.metaDataArray.value;
     const metaArrVal = metaArr.some((val: any) => val.prompt == '');
+
     if (metaArrVal) {
       this.saveErrorMessage.set('Please fill all prompt fields in Meta Data sections.');
-      // alert('Please fill all prompt fields in Meta Data sections.');
       return;
     }
-    console.log(metaArrVal, 'meta data array value');
+    // Validate all criteria → scoring sections → details
+    for (let cIndex = 0; cIndex < this.criteriasArray.length; cIndex++) {
+      const criteria = this.criteriasArray.at(cIndex) as FormGroup;
+      const scoringSections = criteria.get('scoringSections') as FormArray;
 
+      if (!scoringSections || scoringSections.length === 0) {
+        this.saveErrorMessage.set(`Criteria ${cIndex + 1} has no scoring section.`);
+        return;
+      }
+
+      for (let sIndex = 0; sIndex < scoringSections.length; sIndex++) {
+        const section = scoringSections.at(sIndex) as FormGroup;
+        const details = section.get('details') as FormArray;
+
+        if (!details || details.length === 0) {
+          this.saveErrorMessage.set(
+            `Criteria ${cIndex + 1}, Section ${sIndex + 1} has no details.`
+          );
+          return;
+        }
+
+        // NOW check each detail
+        for (let dIndex = 0; dIndex < details.length; dIndex++) {
+          const detail = details.at(dIndex).value;
+
+          if (
+            !detail.description?.trim() ||
+            detail.score === null ||
+            // !detail.scoringPercentage?.trim() ||
+            !detail.prompt?.trim()
+          ) {
+            this.saveErrorMessage.set(
+              `Please fill all fields in Criteria ${cIndex + 1}, Section ${sIndex + 1}, Detail ${
+                dIndex + 1
+              }.`
+            );
+            return;
+          }
+        }
+      }
+    }
+
+    console.log(this.criteriasArray.value);
+    console.log(metaArrVal, 'meta data array value');
     this.editsc.UpdateScoreCard(formdata, this.authkey).subscribe({
       next: (response: any): void => {
-        console.log('Update successful:', response);
+        // console.log('Update successful:', response);
         this.successModalOpened.set(true);
         setTimeout(() => {
           // this.successModalOpened.set(false);
@@ -581,20 +559,20 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     metadata: true,
     scoring: true,
   };
+
   expandedSubSections: Record<string, boolean> = {};
-  toggleSection(section: 'metadata' | 'scoring'): void {
+  public toggleSection(section: 'metadata' | 'scoring'): void {
     this.expandedSections[section] = !this.expandedSections[section];
   }
-  toggleSubSection(criteriaIndex: number, sectionIndex: number): void {
+  public toggleSubSection(criteriaIndex: number, sectionIndex: number): void {
     const key = `${criteriaIndex}-${sectionIndex}`;
     this.expandedSubSections[key] = !this.expandedSubSections[key];
   }
-
-  isSubSectionExpanded(criteriaIndex: number, sectionIndex: number): boolean {
+  public isSubSectionExpanded(criteriaIndex: number, sectionIndex: number): boolean {
     const key = `${criteriaIndex}-${sectionIndex}`;
     return this.expandedSubSections[key] !== false; // Default to true
   }
-  DeleteScoring(ci: any, si: any): void {
+  public DeleteScoring(ci: any, si: any): void {
     console.log('ID OF DEL SCORING IS  ', ci);
     const scoringArray = this.getScoringSection(ci);
     if (!scoringArray) {
@@ -603,7 +581,6 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     scoringArray.removeAt(si);
     console.log(scoringArray.value);
   }
-
   public EditScoring(ci: number, si: number): void {
     this.selectedCriteriaIndex = ci; // which criteria
     this.currentScoringIndex = si; // which section inside criteria
@@ -617,18 +594,12 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     // Open modal
     this.isSectionModalOpen.set(true);
   }
-  // AddScoringCritera(ci: number, si: number): void {
-  //   console.log('ID OF ADD SCORING CRITERIA IS  ', ci, si);
-  //   this.scoringCriteriaModalOpen.update((mval) => !mval);
-  //   // const DetailArr = this.getDetails()
-  // }
+
   AddScoringCritera(ci: number, si: number): void {
     console.log('ID OF ADD SCORING CRITERIA IS ', ci, si);
-
     // Set indexes for adding
     this.selectedCriteriaIndex = ci;
     this.currentScoringIndex = si;
-
     // Make sure we are in "Add Mode"
     this.isEditCriteriaMode = false;
     this.currentcriteriatobeEdit = null;
@@ -652,5 +623,4 @@ export class AIeditscorecard implements OnInit, OnDestroy {
     scoredetails.removeAt(di);
     console.log(scoredetails.value, ' This is our Updated criterias');
   }
- 
 }

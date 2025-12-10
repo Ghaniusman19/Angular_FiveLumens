@@ -263,7 +263,7 @@ export class Scorecardnew implements OnInit {
     });
   }
   //This is the funcpublic tion to Edit scorecard
-  public EditScorecard(id: string, type: string): void {
+  public EditScorecard(id: string, type: string, isActive: boolean): void {
     console.log('this is the Edit id key  ', id);
     // this.router.navigate(['edit'], { queryParams: { id: this.selectedRowId() } });
     console.log(type);
@@ -271,6 +271,9 @@ export class Scorecardnew implements OnInit {
       this.router.navigate(['aieditscorecard'], { queryParams: { id: this.selectedRowId() } });
     } else {
       this.router.navigate(['manualeditscorecard'], { queryParams: { id: this.selectedRowId() } });
+    }
+    if (isActive === false) {
+      this.router.navigate(['aieditscorecard'], { queryParams: { id: this.selectedRowId() } });
     }
     // this.router.navigate(['addscorecard'], { queryParams: { id: this.selectedRowId() } });
   }
