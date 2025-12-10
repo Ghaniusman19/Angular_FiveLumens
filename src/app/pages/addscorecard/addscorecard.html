@@ -620,9 +620,17 @@
               rows="4"
               formControlName="description"
               class="form-control"
+              [class.is-invalid]="
+                metaDataScoreCard.get('title')?.touched && metaDataScoreCard.get('title')?.invalid
+              "
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+
+            @if ( metaDataScoreCard.get('title')?.invalid &&
+            (metaDataScoreCard.get('title')?.touched ) ) {
+            <small>This field is required</small>
+            }
           </div>
         </div>
         <div class="modal-footer">
@@ -648,17 +656,24 @@
         <!-- Title -->
         <div>
           <label>Description</label>
-          <textarea formControlName="title"></textarea>
-          @if (fSingle['title'].touched && fSingle['title'].invalid) {
-          <small class="text-danger">Description is required</small>
+          <textarea
+            formControlName="title"
+            [class.is-invalid]="
+              SingleSelectModal.get('title')?.touched && SingleSelectModal.get('title')?.invalid
+            "
+          ></textarea>
+          @if ( SingleSelectModal.get('title')?.invalid && (SingleSelectModal.get('title')?.touched
+          ) ) {
+          <small>This field is required</small>
           }
         </div>
 
         <!-- First Level Chips -->
         <div>
           <label>Single Select Options</label>
-          @if (fSingle['options'].touched && fSingle['options'].invalid) {
-          <small class="text-danger">Add at least one option</small>
+          @if ( SingleSelectModal.get('options')?.invalid &&
+          (SingleSelectModal.get('options')?.touched ) ) {
+          <small>This field is required</small>
           }
           <mat-form-field>
             <mat-chip-grid #chipGrid1>
@@ -758,9 +773,7 @@
         <!-- Submit -->
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeSingleSelectModal()">Cancel</button
-          ><button class="btn btn-logout" [disabled]="SingleSelectModal.invalid" type="submit">
-            Add
-          </button>
+          ><button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -786,12 +799,16 @@
               type="textarea"
               rows="4"
               formControlName="title"
+              [class.is-invalid]="
+                MultiSelectModal.get('title')?.touched && MultiSelectModal.get('title')?.invalid
+              "
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
-            @if (fMulti['title'].touched && fMulti['title'].invalid) {
-            <small class="text-danger">Description is required</small>
+            @if ( MultiSelectModal.get('title')?.invalid && (MultiSelectModal.get('title')?.touched
+            ) ) {
+            <small>This field is required</small>
             }
           </div>
           <div class="meta-data-chechbox">
@@ -800,8 +817,9 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Multi Select Option</label>
-            @if (fMulti['multiselect'].touched && fMulti['multiselect'].invalid) {
-            <small class="text-danger">Add at least one option</small>
+            @if ( MultiSelectModal.get('multiselect')?.invalid &&
+            (MultiSelectModal.get('multiselect')?.touched ) ) {
+            <small>This field is required</small>
             }
             <mat-form-field class="w-100">
               <mat-chip-grid #chipGrid aria-label="Multi select chips">
@@ -831,9 +849,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeMultiSelectModal()">Cancel</button
-          ><button class="btn btn-logout" [disabled]="MultiSelectModal.invalid" type="submit">
-            Add
-          </button>
+          ><button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -858,11 +874,18 @@
               name="title"
               type="textarea"
               rows="4"
+              [class.is-invalid]="
+                SmallTextModal.get('title')?.touched && SmallTextModal.get('title')?.invalid
+              "
               formControlName="title"
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
+            @if ( SmallTextModal.get('title')?.invalid && (SmallTextModal.get('title')?.touched ) )
+            {
+            <small>This field is required</small>
+            }
           </div>
           <div class="meta-data-chechbox">
             <input id="date-field" type="checkbox" formControlName="isRequired" />
@@ -871,9 +894,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeSmallTextModal()">Cancel</button
-          ><button class="btn btn-logout" [disabled]="SmallTextModal.invalid" type="submit">
-            Add
-          </button>
+          ><button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -898,13 +919,17 @@
               name="title"
               type="textarea"
               rows="4"
+              [class.is-invalid]="
+                LargeScoreCard.get('title')?.touched && LargeScoreCard.get('title')?.invalid
+              "
               formControlName="title"
               class="form-control"
               placeholder="Enter meta data description here..."
               style="border-radius: 8px"
             ></textarea>
-            @if (fLarge['title'].touched && fLarge['title'].invalid) {
-            <small class="text-danger">Large text must be 5–500 characters</small>
+            @if ( LargeScoreCard.get('title')?.invalid && (LargeScoreCard.get('title')?.touched ) )
+            {
+            <small>This field is required</small>
             }
           </div>
           <div class="meta-data-chechbox">
@@ -914,9 +939,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeLargeTextModal()">Cancel</button
-          ><button class="btn btn-logout" [disabled]="LargeScoreCard.invalid" type="submit">
-            Add
-          </button>
+          ><button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -941,13 +964,16 @@
               name="title"
               type="textarea"
               rows="4"
+              [class.is-invalid]="
+                DateScoreCard.get('title')?.touched && DateScoreCard.get('title')?.invalid
+              "
               formControlName="title"
               class="form-control"
               placeholder="Enter Date Entry Description Here..."
               style="border-radius: 8px"
             ></textarea>
-            @if (fDate['title'].touched && fDate['title'].invalid) {
-            <small class="text-danger">Description is required (3–200 characters)</small>
+            @if ( DateScoreCard.get('title')?.invalid && (DateScoreCard.get('title')?.touched ) ) {
+            <small>This field is required</small>
             }
           </div>
           <div class="meta-data-chechbox">
@@ -957,9 +983,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeDateModal()">Cancel</button
-          ><button class="btn btn-logout" [disabled]="DateScoreCard.invalid" type="submit">
-            Add
-          </button>
+          ><button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -981,17 +1005,20 @@
           <textarea
             formControlName="description"
             rows="4"
+            [class.is-invalid]="
+              scoringForm.get('description')?.touched && scoringForm.get('description')?.invalid
+            "
             class="form-control"
             placeholder="Enter section description..."
           ></textarea>
-          @if (scorinFormControls['description'].touched &&
-          scorinFormControls['description'].invalid) {
-          <small class="text-danger">Description is required (3–200 characters)</small>
+          @if ( scoringForm.get('description')?.invalid && (scoringForm.get('description')?.touched
+          ) ) {
+          <small>This field is required</small>
           }
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" (click)="closeScoringModal()">Cancel</button>
-          <button class="btn btn-logout" [disabled]="scoringForm.invalid" type="submit">Add</button>
+          <button class="btn btn-logout" type="submit">Add</button>
         </div>
       </form>
     </div>
@@ -1016,9 +1043,16 @@
           <textarea
             formControlName="description"
             rows="3"
+            [class.is-invalid]="
+              criteriaForm.get('description')?.touched && criteriaForm.get('description')?.invalid
+            "
             class="form-control"
             placeholder="Enter criteria description..."
           ></textarea>
+          @if ( criteriaForm.get('description')?.invalid &&
+          (criteriaForm.get('description')?.touched ) ) {
+          <small>This field is required</small>
+          }
         </div>
         <div class="mb-1">
           <label>

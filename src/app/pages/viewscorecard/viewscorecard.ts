@@ -91,13 +91,12 @@ export class Viewscorecard implements OnInit, OnDestroy {
       groupsFA.clear();
       data.groups.forEach((g: any) => groupsFA.push(new FormControl(g)));
     }
-
     // disable the form to make view readonly
     try {
-      // this.scorecardForm.disable({ emitEvent: false });
-      // this.scorecardForm.get('id')?.setValue(data._id);
-      // this.scorecardForm.get('id')?.disable();
-      // this.scorecardForm.get('evaluationType')?.setValue(data.evaluationType);
+      this.scorecardForm.disable({ emitEvent: false });
+      this.scorecardForm.get('id')?.setValue(data._id);
+      this.scorecardForm.get('id')?.disable();
+      this.scorecardForm.get('evaluationType')?.setValue(data.evaluationType);
       this.scorecardForm.get('evaluationType')?.disable();
     } catch (e) {
       console.warn('Could not disable form', e);
@@ -146,7 +145,6 @@ export class Viewscorecard implements OnInit, OnDestroy {
         formData.append(key, value);
       }
     });
-
     return formData;
   }
 

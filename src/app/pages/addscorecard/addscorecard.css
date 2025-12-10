@@ -814,3 +814,8 @@ button[type='submit']:hover {
   font-weight: 500;
   line-height: 1.4;
 }
+
+small {
+  color: #7f1d1d;
+  font-weight: 600;
+}

@@ -181,21 +181,21 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
 
   //Error Messages
-  get fDate() {
-    return this.DateScoreCard.controls;
-  }
-  get fLarge() {
-    return this.LargeScoreCard.controls;
-  }
-  get fSmall() {
-    return this.SmallTextModal.controls;
-  }
-  get fMulti() {
-    return this.MultiSelectModal.controls;
-  }
-  get fSingle() {
-    return this.SingleSelectModal.controls;
-  }
+  // get fDate() {
+  //   return this.DateScoreCard.controls;
+  // }
+  // get fLarge() {
+  //   return this.LargeScoreCard.controls;
+  // }
+  // get fSmall() {
+  //   return this.SmallTextModal.controls;
+  // }
+  // get fMulti() {
+  //   return this.MultiSelectModal.controls;
+  // }
+  // get fSingle() {
+  //   return this.SingleSelectModal.controls;
+  // }
 
   get scorinFormControls() {
     return this.scoringForm.controls;
@@ -668,6 +668,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   //Method to submit meta data form
   public SubmitmetaData(): void {
+    if (this.metaDataScoreCard.invalid) {
+      this.metaDataScoreCard.markAllAsTouched();
+      return;
+    }
     console.log(this.metaDataScoreCard.value);
     this.closeMetaDataModal();
     if (this.metaDataScoreCard.valid) {
@@ -691,6 +695,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   //This is to submit the Date modal
   // Date Modal
   public SubmitDateData(): void {
+    if (this.DateScoreCard.invalid) {
+      this.DateScoreCard.markAllAsTouched();
+      return;
+    }
     if (this.DateScoreCard.valid) {
       if (this.editingItemId) {
         const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
@@ -723,6 +731,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   //This is to submit the Date modal
   // Large Text
   public SubmitLargeTextData(): void {
+    if (this.DateScoreCard.invalid) {
+      this.DateScoreCard.markAllAsTouched();
+      return;
+    }
     if (this.LargeScoreCard.valid) {
       if (this.editingItemId) {
         const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
@@ -752,6 +764,10 @@ export class Addscorecard implements OnInit, OnDestroy {
     }
   }
   public saveCriteria() {
+    if (this.criteriaForm.invalid) {
+      this.criteriaForm.markAllAsTouched();
+      return;
+    }
     const formValue = this.criteriaForm.value;
     const section = this.scoringArray().find((s: any) => s.id === this.activeSectionId);
     if (!section) return;
@@ -794,6 +810,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   //This is to submit the Small Text modal
   // Small Text
   public SubmitSmallTextData(): void {
+    if (this.SmallTextModal.invalid) {
+      this.SmallTextModal.markAllAsTouched();
+      return;
+    }
     if (this.SmallTextModal.valid) {
       if (this.editingItemId) {
         const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
@@ -828,6 +848,11 @@ export class Addscorecard implements OnInit, OnDestroy {
   //This is to submit the Multi select  modal
   // Multi Select
   public SubmitMultiSelectData(): void {
+    console.log(this.MultiSelectModal.value);
+    if (this.MultiSelectModal.invalid) {
+      this.MultiSelectModal.markAllAsTouched();
+      return;
+    }
     if (this.MultiSelectModal.valid) {
       if (this.editingItemId) {
         const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
@@ -860,6 +885,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   // Single Select
   public SubmitSingleSelectData(): void {
     console.log(this.SingleSelectModal.value);
+    if (this.SingleSelectModal.invalid) {
+      this.SingleSelectModal.markAllAsTouched();
+      return;
+    }
     if (this.SingleSelectModal.valid) {
       if (this.editingItemId) {
         const index = this.submittedMetaData.findIndex((item) => item.id === this.editingItemId);
@@ -1043,8 +1072,10 @@ export class Addscorecard implements OnInit, OnDestroy {
   //   }
   // }
   public SubmitScoring(): void {
-    if (!this.scoringForm.valid) return;
-
+    if (this.scoringForm.invalid) {
+      this.scoringForm.markAllAsTouched();
+      return;
+    }
     const desc = this.scoringForm.get('description')?.value;
 
     //  If we are editing an existing item

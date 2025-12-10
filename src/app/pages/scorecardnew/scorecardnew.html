@@ -44,12 +44,14 @@
                 name="title"
                 type="text"
                 class="form-control mxw-270"
+                [class.is-invalid]="
+                  scorecardForm.get('title')?.touched && scorecardForm.get('title')?.invalid
+                "
                 formControlName="title"
                 placeholder="Enter scorecard name here..."
               />
             </div>
-            @if ( scorecardForm.get('title')?.invalid && (scorecardForm.get('title')?.touched ||
-            submitted) ) {
+            @if ( scorecardForm.get('title')?.invalid && (scorecardForm.get('title')?.touched ) ) {
             <small>This field is required</small>
             }
 
@@ -61,13 +63,17 @@
                 type="text"
                 class="form-control"
                 rows="4"
+                [class.is-invalid]="
+                  scorecardForm.get('description')?.touched &&
+                  scorecardForm.get('description')?.invalid
+                "
                 cols="50"
                 formControlName="description"
                 placeholder="Enter scorecard description here..."
                 style="height: 50px"
               ></textarea>
               @if ( scorecardForm.get('description')?.invalid &&
-              (scorecardForm.get('description')?.touched || submitted) ) {
+              (scorecardForm.get('description')?.touched) ) {
               <small>This field is required</small>
               }
             </div>
@@ -101,23 +107,43 @@
                   {{ item.title }} </label
                 >}
               </div>
-              @if ( scorecardForm.get('groups')?.invalid && (scorecardForm.get('groups')?.touched ||
-              submitted) ) {
-              <small>This field is required</small>
+              @if ( scorecardForm.get('groups')?.invalid && (scorecardForm.get('groups')?.touched )
+              ) {
+              <small>Please Select Group</small>
               }
             </div>
 
             <div class="mb-3">
               <label for="" class="form-label">Evaluation Type</label
-              ><select name="evaluationType" class="form-control" formControlName="evaluationType">
+              ><select
+                name="evaluationType"
+                class="form-control"
+                formControlName="evaluationType"
+                [class.is-invalid]="
+                  scorecardForm.get('evaluationType')?.touched &&
+                  scorecardForm.get('evaluationType')?.invalid
+                "
+              >
                 <option value="" disabled="">Select Evaluation Type</option>
                 <option value="manual">Manual</option>
                 <option value="ai">AI</option>
               </select>
+              @if ( scorecardForm.get('evaluationType')?.invalid &&
+              (scorecardForm.get('evaluationType')?.touched ) ) {
+              <small>Please Select Evaluation Type</small>
+              }
             </div>
             <div class="mb-3">
               <label for="" class="form-label">Scoring Model</label
-              ><select name="scoringModel" class="form-control" formControlName="scoringModel">
+              ><select
+                name="scoringModel"
+                class="form-control"
+                formControlName="scoringModel"
+                [class.is-invalid]="
+                  scorecardForm.get('scoringModel')?.touched &&
+                  scorecardForm.get('scoringModel')?.invalid
+                "
+              >
                 <option value="" disabled="">Select Scoring Model</option>
                 <option value="weighted">Weighted</option>
                 <option value="equal">Equal</option>
@@ -125,8 +151,8 @@
                 <option value="audit">Audit</option>
               </select>
               @if ( scorecardForm.get('scoringModel')?.invalid &&
-              (scorecardForm.get('scoringModel')?.touched || submitted) ) {
-              <small>This field is required</small>
+              (scorecardForm.get('scoringModel')?.touched) ) {
+              <small>Please Select Scoring Model</small>
               }
             </div>
             @if (scorecardForm.value.scoringModel !== 'audit') {
@@ -137,6 +163,10 @@
                 type="text"
                 class="form-control"
                 formControlName="coachingForm"
+                [class.is-invalid]="
+                  scorecardForm.get('coachingForm')?.touched &&
+                  scorecardForm.get('coachingForm')?.invalid
+                "
               >
                 <option value="">Select Coaching Form</option>
                 <option value="62c468c908f6fd2a42e044ad">Weekly Performance Review</option>
@@ -279,9 +309,8 @@
               </select>
 
               @if ( scorecardForm.get('coachingForm')?.invalid &&
-              (scorecardForm.get('coachingForm')?.touched &&
-              scorecardForm.get('coachingForm')?.dirty) ) {
-              <small>This field is required</small>
+              (scorecardForm.get('coachingForm')?.touched ) ) {
+              <small>Please Select Coching Form</small>
               }
             </div>
             <div class="my-2 ad_s">
@@ -319,7 +348,7 @@
           </div>
           <div class="form-footer">
             <button class="filter-close-btn close-btn" (click)="OpenModal()">Cancel</button>
-            <button type="submit" [disabled]="scorecardForm.invalid" class="btn-logout">Add</button>
+            <button type="submit" class="btn-logout">Add</button>
           </div>
         </form>
       </div>
@@ -457,12 +486,19 @@
         <div class="modal-backdrop" (click)="close3DotDropDown()"></div>
         <div class="dropdown">
           <div class="dropdown-btn">
-            <button class="btn-logout1" (click)="View(item._id); close3DotDropDown()">View</button>
+            <button
+              class="btn-logout1"
+              (click)="View(item._id, item.evaluationType, item.isActive); close3DotDropDown()"
+            >
+              View
+            </button>
           </div>
           <div class="dropdown-btn">
             <button
               class="btn-logout1"
-              (click)="EditScorecard(item._id, item.evaluationType , item.isActive); close3DotDropDown()"
+              (click)="
+                EditScorecard(item._id, item.evaluationType, item.isActive); close3DotDropDown()
+              "
             >
               Edit
             </button>

@@ -20,7 +20,7 @@ export class Login {
     const formValue = this.loginForm.value;
     this.http.post('https://fldemo.fivelumenstest.com/api/login', formValue).subscribe({
       next: (response: any) => {
-        if (response.success) {
+        if (response.success) { 
           localStorage.setItem('authToken', response.data.authorization);
           this.router.navigateByUrl('/dashboard');
           console.log('Login successful', response.data.authorization);

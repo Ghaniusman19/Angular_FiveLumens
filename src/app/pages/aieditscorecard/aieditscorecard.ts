@@ -278,7 +278,10 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
 
   public SubmitmetaData(): void {
-    if (this.metaDataScoreCard.invalid) return;
+    if (this.metaDataScoreCard.invalid) {
+      this.metaDataScoreCard.markAllAsTouched();
+      return;
+    }
     const descriptionValue = this.metaDataScoreCard.get('description')?.value;
     const isRequiredValue = this.metaDataScoreCard.get('isRequired')?.value || false;
     // const item = this.submittedMetaData.find((m) => m.id === id);
@@ -311,6 +314,10 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
 
   public SubmitAddSectionData(): void {
+    if (this.AddSectionScorecard.invalid) {
+      this.AddCriteriaScorecard.markAllAsTouched();
+      return;
+    }
     if (this.selectedCriteriaIndex === null) return;
 
     const scoringArray = this.getScoringSection(this.selectedCriteriaIndex);
@@ -338,6 +345,10 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
 
   public SubmitAddCriteriaData(): void {
+    if (this.AddCriteriaScorecard.invalid) {
+      this.AddCriteriaScorecard.markAllAsTouched();
+      return;
+    }
     if (this.selectedCriteriaIndex === null || this.currentScoringIndex === null) {
       console.warn('Indexes missing ===> Cannot add criteria.');
       return;
@@ -606,11 +617,9 @@ export class AIeditscorecard implements OnInit, OnDestroy {
 
     // Reset form (important)
     this.AddCriteriaScorecard.reset();
-
     // Open modal
     this.scoringCriteriaModalOpen.set(true);
   }
-
   public closeCriteriaModal(): void {
     this.scoringCriteriaModalOpen.set(false);
   }

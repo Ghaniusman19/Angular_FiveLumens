@@ -39,9 +39,17 @@
             rows="4"
             formControlName="description"
             class="form-control"
+            [class.is-invalid]="
+              metaDataScoreCard.get('description')?.touched &&
+              metaDataScoreCard.get('description')?.invalid
+            "
             placeholder="Enter meta data description here..."
             style="border-radius: 8px"
           ></textarea>
+          @if (metaDataScoreCard.get('description')?.touched &&
+          metaDataScoreCard.get('description')?.invalid) {
+          <div class="text-danger mt-1" style="font-size: 14px">Description is required.</div>
+          }
         </div>
       </div>
       <div class="modal-footer">
@@ -185,9 +193,19 @@
                     rows="4"
                     formControlName="title"
                     class="form-control"
+                    [class.is-invalid]="
+                      AddSectionScorecard.get('title')?.touched &&
+                      AddSectionScorecard.get('title')?.invalid
+                    "
                     placeholder="Enter meta data description here..."
                     style="border-radius: 8px"
                   ></textarea>
+                  @if ( AddSectionScorecard.get('title')?.touched &&
+                  AddSectionScorecard.get('title')?.invalid ) {
+                  <div class="text-danger mt-1" style="font-size: 14px">
+                    Section name is required.
+                  </div>
+                  }
                 </div>
               </div>
               <div class="modal-footer">
@@ -266,9 +284,19 @@
                             rows="4"
                             formControlName="description"
                             class="form-control"
+                            [class.is-invalid]="
+                              AddCriteriaScorecard.get('description')?.touched &&
+                              AddCriteriaScorecard.get('description')?.invalid
+                            "
                             placeholder="Enter meta data description here..."
                             style="border-radius: 8px"
                           ></textarea>
+                          @if ( AddCriteriaScorecard.get('description')?.touched &&
+                          AddCriteriaScorecard.get('description')?.invalid ) {
+                          <div class="text-danger mt-1" style="font-size: 14px">
+                            Criteria name is required.
+                          </div>
+                          }
                         </div>
                         <div class="mb-1 flex">
                           <label for="isAutoFail" class="form-label large-font mb-1"

@@ -223,6 +223,7 @@ export class Scorecardnew implements OnInit {
   //code for the opening and closing of the modal add scorecard....
   public OpenModal(): void {
     this.isActiveModal.update((currentVal) => !currentVal);
+    this.scorecardForm.reset();
   }
   public closeModal(): void {
     this.isActiveModal.update((currentVal) => !currentVal);
@@ -240,10 +241,12 @@ export class Scorecardnew implements OnInit {
     console.log('this is my id', id);
   }
   //This is the function to view scorecard
-  public View(id: string): void {
+  public View(id: string, type: string, isActive: boolean): void {
     console.log(id);
     console.log('page gone to dashboard', this.selectedRowId());
-    this.router.navigate(['view'], { queryParams: { id: this.selectedRowId() } });
+    this.router.navigate(['view'], {
+      queryParams: { id: this.selectedRowId(), changeForm: isActive, type: type },
+    });
   }
   //This is the function to delete scorecard
   public DeleteScorecard(id: string): void {
@@ -361,7 +364,7 @@ export class Scorecardnew implements OnInit {
     visibleToManagers: new FormControl(false),
     coachingPurposeOnly: new FormControl(false),
     groups: new FormArray([], Validators.required),
-    // isActive: new FormControl(true),
+    isActive: new FormControl(true),
     isAllGroups: new FormControl(false),
   });
   public scorecardFormclone: FormGroup = new FormGroup({
@@ -726,6 +729,10 @@ export class Scorecardnew implements OnInit {
   }
   //This is the event / function to submit the form of add scorecard...
   public scorecardSubmit(): void {
+    if (this.scorecardForm.invalid) {
+      this.scorecardForm.markAllAsTouched();
+      return;
+    }
     console.log('button submit .....');
     this.submitted = false;
     if (this.scorecardForm.invalid) {
@@ -739,7 +746,7 @@ export class Scorecardnew implements OnInit {
       console.log(formValues);
       //This is the code to convert json form key value data into formdata format
       const formData = new FormData();
-      formData.append('isActive', 'true');
+      // formData.append('isActive', 'true');
       for (const key in formValues) {
         if (formValues.hasOwnProperty(key)) {
           if (Array.isArray(formValues[key])) {
