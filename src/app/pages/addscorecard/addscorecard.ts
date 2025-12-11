@@ -571,19 +571,6 @@ export class Addscorecard implements OnInit, OnDestroy {
       // compute totals for each section
       localSections.forEach((s) => this.calculateTotal(s.id));
     }
-
-    // Disable editing - make forms read-only
-    // try {
-    //   this.DateScoreCard.disable();
-    //   this.LargeScoreCard.disable();
-    //   this.SmallTextModal.disable();
-    //   this.MultiSelectModal.disable();
-    //   this.SingleSelectModal.disable();
-    //   this.criteriaForm.disable();
-    //   this.scoringForm.disable();
-    // } catch (e) {
-    //   // ignore if forms not initialized
-    // }
   }
   //methods to open and close single select modal
   public OpenSingleSelectModal(): void {
@@ -591,7 +578,17 @@ export class Addscorecard implements OnInit, OnDestroy {
     this.isOpenedMetaData.update((CVAL) => !CVAL);
   }
   public closeSingleSelectModal(): void {
-    this.isSingleSelectModalOpened.update((val) => !val);
+    this.isSingleSelectModalOpened.update((Val) => !Val);
+    this.SingleSelectModal.reset({
+      title: '',
+      options: [],
+      isSecondLevel: false,
+      isThirdLevel: false,
+      subOptions: [],
+      isFormChecked: false,
+      isRequired: false,
+      type: 'singleSelect',
+    });
   }
   //methods to open and close Multi select modal
   public OpenMultiSelectModal(): void {
@@ -600,6 +597,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public closeMultiSelectModal(): void {
     this.isMultiSelectModalOpened.update((VAL) => !VAL);
+    this.MultiSelectModal.reset();
   }
   //methods to open and close small Text  modal
   public OpenSmallTextModal(): void {
@@ -608,6 +606,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public closeSmallTextModal(): void {
     this.isSmallTextModalOpened.update((val) => !val);
+    this.SmallTextModal.reset();
   }
   //methods to open and close large Text  modal
   public OpenLargeTextModal(): void {
@@ -616,6 +615,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public closeLargeTextModal(): void {
     this.isLargeTextModalOpened.update((val) => !val);
+    this.LargeScoreCard.reset();
   }
   //methods to open and close Add Date modal
   public OpenDateModal(): void {
@@ -624,6 +624,7 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public closeDateModal(): void {
     this.isDateModalOpened.update((val) => !val);
+    this.DateScoreCard.reset();
   }
   public toggleMetaData() {
     this.isOpenedMetaData.update((currentVal) => !currentVal);
@@ -640,10 +641,12 @@ export class Addscorecard implements OnInit, OnDestroy {
   }
   public closeMetaDataModal(): void {
     this.isMetaDataModalOpened.update((cVal) => !cVal);
+    this.metaDataScoreCard.reset();
     this.editMetaDataId = null;
   }
   public closeCriteriaModal() {
     this.criteriaModalOpen.set(false);
+    this.criteriaForm.reset();
     this.editingCriteriaId = null;
     this.criteriaForm.reset();
     this.activeSectionId = null;

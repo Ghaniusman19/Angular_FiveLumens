@@ -48,7 +48,7 @@
           ></textarea>
           @if (metaDataScoreCard.get('description')?.touched &&
           metaDataScoreCard.get('description')?.invalid) {
-          <div class="text-danger mt-1" style="font-size: 14px">Description is required.</div>
+          <small>Description is required.</small>
           }
         </div>
       </div>
@@ -178,7 +178,7 @@
         <div class="metaDataModal">
           <div class="modal-content">
             <div class="modal-header hc0">
-              <h3 class="modal-title text-left">Add Scoring Secction</h3>
+              <h3 class="modal-title text-left">Add Scoring Section</h3>
               <button (click)="closeSectionModal()" type="button" class="close close-btn">
                 <span>×</span>
               </button>
@@ -202,9 +202,7 @@
                   ></textarea>
                   @if ( AddSectionScorecard.get('title')?.touched &&
                   AddSectionScorecard.get('title')?.invalid ) {
-                  <div class="text-danger mt-1" style="font-size: 14px">
-                    Section name is required.
-                  </div>
+                  <small> Section name is required. </small>
                   }
                 </div>
               </div>
@@ -293,9 +291,7 @@
                           ></textarea>
                           @if ( AddCriteriaScorecard.get('description')?.touched &&
                           AddCriteriaScorecard.get('description')?.invalid ) {
-                          <div class="text-danger mt-1" style="font-size: 14px">
-                            Criteria name is required.
-                          </div>
+                          <small> Criteria name is required. </small>
                           }
                         </div>
                         <div class="mb-1 flex">

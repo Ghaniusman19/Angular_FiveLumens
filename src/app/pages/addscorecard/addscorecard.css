@@ -726,39 +726,6 @@ button[type='submit']:hover {
   content: unset;
   height: 0px;
 }
-/* .error-msg {
-  color: red;
-  font-weight: 600;
-  margin-bottom: 10px;
-} */
-/* .error-container {
-  position: fixed;
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 10003;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  animation: fadeInOut 3s forwards;
-} */
-/* .cross-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-
-  font-size: 20px;
-  cursor: pointer;
-  color: #333;
-} */
 
 /* Modal container */
 .error-container {
@@ -818,4 +785,7 @@ button[type='submit']:hover {
 small {
   color: #7f1d1d;
   font-weight: 600;
+}
+.is-invalid {
+  border: 1px solid #7f1d1d !important;
 }

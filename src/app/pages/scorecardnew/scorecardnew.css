@@ -426,5 +426,9 @@ input:checked + .slider:before {
   justify-content: center;
 }
 small {
-  color: red;
+  color: #7f1d1d;
+  font-weight: 600;
+}
+.is-invalid {
+  border: 1px solid #7f1d1d !important;
 }

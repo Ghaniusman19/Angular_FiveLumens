@@ -89,6 +89,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
   public closeSectionModal(): void {
     this.isSectionModalOpen.set(false);
+    this.AddSectionScorecard.reset();
   }
   public openMetaDropdown(): void {
     this.isMetaDropdownOpen.set(!this.isMetaDropdownOpen());
@@ -274,6 +275,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
   public closeMetaDataModal(): void {
     this.isMetaDataModalOpened.update((cVal) => !cVal);
+    this.metaDataScoreCard.reset();
     // this.editMetaDataId = null;
   }
 
@@ -314,6 +316,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
 
   public SubmitAddSectionData(): void {
+    console.log('data');
     if (this.AddSectionScorecard.invalid) {
       this.AddCriteriaScorecard.markAllAsTouched();
       return;
@@ -622,6 +625,7 @@ export class AIeditscorecard implements OnInit, OnDestroy {
   }
   public closeCriteriaModal(): void {
     this.scoringCriteriaModalOpen.set(false);
+    this.AddCriteriaScorecard.reset();
   }
   DeleteCriteria(ci: number, si: number, di: number): void {
     console.log('ID OF DEL CRITERIA IS ', ci, si, di);
